@@ -50,3 +50,14 @@ test('CommentRepo：新增留言後可依 clipId 列出', async () => {
   await repo.add(comment('m2', 'c2'));
   assert.deepEqual(await repo.listByClip('c1'), [comment('m1', 'c1')]);
 });
+
+test('CommentRepo：留言依建立順序排列（線性討論串）', async () => {
+  const repo = createMemoryCommentRepo();
+  await repo.add(comment('m1', 'c1'));
+  await repo.add(comment('m2', 'c1'));
+  await repo.add(comment('m3', 'c1'));
+  assert.deepEqual(
+    (await repo.listByClip('c1')).map((c) => c.id),
+    ['m1', 'm2', 'm3'],
+  );
+});
