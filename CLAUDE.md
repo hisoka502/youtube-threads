@@ -82,6 +82,10 @@ test/
 - [x] `https://youtu.be/ID` → ID
 - [x] 帶其他參數（如 `&t=30s`、`&list=`）仍取出正確 ID
 - [x] 無效網址 → null
+- [ ] （新增）其他 YouTube 主機：`youtube.com`（無 www）、`m.youtube.com`
+- [ ] （新增）其他路徑：`/shorts/ID`、`/embed/ID`、`/live/ID`
+- [ ] （新增）`watch` 網址缺少 `v` 參數、`youtu.be/` 無 ID → null
+- [ ] （新增）ID 格式檢查（11 字元 `[A-Za-z0-9_-]`）？寫測試時與使用者確認
 
 ### 5.2 時間格式（timecode）
 
