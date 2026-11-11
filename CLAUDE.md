@@ -67,6 +67,7 @@ src/
   data/memoryRepo.js
   video/fakeVideoInfo.js    VideoInfoProvider 假實作
   player/fakePlayer.js
+  player/playRange.js
   player/youtubePlayer.js   （最後才做）
 test/
   （與 src 對應的 *.test.js）
@@ -142,11 +143,14 @@ test/
 - [x] （新增）id 由 Service 產生（透過注入的 newId 函式；測試時可預測）
 - [x] （新增）找不到影片時（getDurationSec 回傳 null）不存入，回報 VIDEO_NOT_FOUND
 
-### 5.7 假播放器（fakePlayer）
+### 5.7 假播放器（fakePlayer）與 playRange
+
+`playRange` 是邏輯，依第 4 節放在轉接層之外，寫成獨立函式 `playRange(player, range)`，只使用 PlayerAdapter 的基本操作，假播放器與正式播放器共用。FakePlayer 另有測試專用的 `advance(sec)` 用來推進時間，不屬於 PlayerAdapter 介面。
 
 - [ ] seekTo 後 getCurrentTime 回傳該秒數
-- [ ] playRange 播到 endSec 自動暫停
+- [ ] （新增）play 後 advance 會推進時間；pause 時 advance 不推進
 - [ ] onTimeUpdate 可訂閱與取消訂閱
+- [ ] playRange 播到 endSec 自動暫停（從 startSec 開始播放）
 
 ### 5.8 之後才做
 
