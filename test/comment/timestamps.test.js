@@ -13,3 +13,8 @@ test('findTimestamps：依出現順序找出所有時間戳', () => {
     { text: '0:45', sec: 45 },
   ]);
 });
+
+test('findTimestamps：沒有時間戳時回傳空陣列', () => {
+  assert.deepEqual(findTimestamps('這段好好笑'), []);
+  assert.deepEqual(findTimestamps(''), []);
+});
