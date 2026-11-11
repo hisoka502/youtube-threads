@@ -112,8 +112,9 @@ test/
 - [x] endSec > startSec 才合法
 - [x] startSec >= 0
 - [x] endSec 不可超過影片長度
-- [ ] （新增）未提供 endSec 時，endSec = startSec + 預設秒數（預設秒數待使用者決定：3 或 5）
-- [ ] （新增）startSec + 預設秒數超過影片長度時的處理（待使用者決定）
+- [ ] （新增）未提供 endSec 時，endSec = startSec + 5（使用者決定：預設 5 秒）
+- [ ] （新增）有提供 endSec 時維持原值
+- [ ] （新增）startSec + 5 超過影片長度時，endSec 截到影片長度（使用者決定）
 
 ### 5.4 留言內時間戳（timestamps）
 
@@ -151,7 +152,7 @@ test/
 - 回覆只允許兩層（主文＋回覆），還是無限巢狀？
 - 驗證邏輯放在 Repository 內，還是另設 ClipService？
 - 使用情境：個人筆記、小團體討論，還是公開社群？（影響權限設計，UI 階段前要確定）
-- ~~片段型態：一定要起訖區間，還是也允許單一時間點？~~ **已決定：一定是起訖區間**（endSec 必須大於 startSec）。使用者未提供 endSec 時，以 startSec 加上預設秒數作為 endSec（秒數與超出影片長度的處理待確認）。
+- ~~片段型態：一定要起訖區間，還是也允許單一時間點？~~ **已決定：一定是起訖區間**（endSec 必須大於 startSec）。使用者未提供 endSec 時，endSec = startSec + 5 秒；超過影片長度則截到影片結尾。
 
 ## 7. 暫不處理（YAGNI）
 
