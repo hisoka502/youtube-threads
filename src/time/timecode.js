@@ -15,6 +15,10 @@ export function parseTimecode(text) {
   if (!parts.every((part) => /^\d+$/.test(part))) {
     return null;
   }
+  // 第一段之後（分、秒）必須剛好兩位數
+  if (!parts.slice(1).every((part) => part.length === 2)) {
+    return null;
+  }
   const numbers = parts.map(Number);
   // 第一段之後（分、秒）必須小於 60
   if (numbers.slice(1).some((n) => n >= 60)) {

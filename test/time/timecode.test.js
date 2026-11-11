@@ -56,3 +56,7 @@ test('formatTimecode：0 秒與整點小時', () => {
   assert.equal(formatTimecode(0), '0:00');
   assert.equal(formatTimecode(3600), '1:00:00');
 });
+
+test('parseTimecode：秒必須是兩位數', () => {
+  assert.equal(parseTimecode('2:5'), null);
+});
