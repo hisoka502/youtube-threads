@@ -45,3 +45,9 @@ test('parseTimecode：不接受小數秒（只接受 YouTube 顯示格式）', (
 test('parseTimecode：不接受單一數字（只接受 YouTube 顯示格式）', () => {
   assert.equal(parseTimecode('90'), null);
 });
+
+test('parseTimecode：科學記號、空白、負號、超過三段都回傳 null', () => {
+  for (const text of ['1e2', ' 5', '-5', '1:2:3:4', ' 2:15', '-2:15', '1e1:05']) {
+    assert.equal(parseTimecode(text), null, text);
+  }
+});
