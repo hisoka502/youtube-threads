@@ -75,4 +75,15 @@
  * @typedef {{ ok: true, clip: Clip } | { ok: false, error: string }} CreateClipResult
  */
 
+/**
+ * 播放器介面。正式實作（YouTubePlayer）只做很薄的包裝，可測的邏輯放在外面（例如 playRange）。
+ * @typedef {object} PlayerAdapter
+ * @property {(sec: number) => void} seekTo
+ * @property {() => number} getCurrentTime 秒（可含小數）
+ * @property {() => void} play
+ * @property {() => void} pause
+ * @property {() => boolean} isPlaying
+ * @property {(callback: (sec: number) => void) => () => void} onTimeUpdate 回傳取消訂閱的函式
+ */
+
 export {};

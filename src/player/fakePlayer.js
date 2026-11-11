@@ -2,6 +2,7 @@
 
 /**
  * 以可控時間模擬播放的假播放器。
+ * @returns {import('../types.js').PlayerAdapter & { advance: (sec: number) => void }}
  */
 export function createFakePlayer() {
   let currentTime = 0;
