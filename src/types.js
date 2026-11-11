@@ -86,4 +86,11 @@
  * @property {(callback: (sec: number) => void) => () => void} onTimeUpdate 回傳取消訂閱的函式
  */
 
+/**
+ * YT.Player（YouTube IFrame Player API）中轉接層用到的方法。
+ * @typedef {object} YTPlayerLike
+ * @property {(seconds: number, allowSeekAhead: boolean) => void} seekTo
+ * @property {() => number} getCurrentTime
+ */
+
 export {};
