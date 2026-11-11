@@ -9,10 +9,10 @@ export function createMemoryClipRepo() {
   let clips = [];
   return {
     async add(clip) {
-      clips.push(clip);
+      clips.push(structuredClone(clip));
     },
     async listByVideo(videoId) {
-      return clips.filter((c) => c.videoId === videoId);
+      return structuredClone(clips.filter((c) => c.videoId === videoId));
     },
     async remove(id) {
       clips = clips.filter((c) => c.id !== id);

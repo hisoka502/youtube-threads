@@ -73,3 +73,15 @@ test('CommentRepo：刪除留言後不再列出，其餘順序不變', async () 
     ['m1', 'm3'],
   );
 });
+
+test('ClipRepo：修改列出或傳入的物件，不影響 Repository 內的資料', async () => {
+  const repo = createMemoryClipRepo();
+  const original = clip('c1', 'v1');
+  await repo.add(original);
+
+  original.range.startSec = 99;
+  const [listed] = await repo.listByVideo('v1');
+  listed.range.endSec = 99;
+
+  assert.deepEqual(await repo.listByVideo('v1'), [clip('c1', 'v1')]);
+});
