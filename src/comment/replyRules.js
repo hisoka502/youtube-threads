@@ -7,5 +7,9 @@
  * @returns {boolean}
  */
 export function isValidReply(comment, existing) {
-  return true;
+  if (comment.parentId === null) {
+    return true;
+  }
+  const parent = existing.find((c) => c.id === comment.parentId);
+  return parent?.clipId === comment.clipId;
 }
