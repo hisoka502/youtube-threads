@@ -32,3 +32,8 @@ test('parseTimecode：分或秒超過 59 回傳 null', () => {
   assert.equal(parseTimecode('1:75'), null);
   assert.equal(parseTimecode('1:60:00'), null);
 });
+
+test('formatTimecode：小數秒無條件捨去（與 YouTube 播放器一致）', () => {
+  assert.equal(formatTimecode(125.7), '2:05');
+  assert.equal(formatTimecode(59.99), '0:59');
+});
