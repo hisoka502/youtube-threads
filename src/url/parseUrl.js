@@ -15,7 +15,7 @@ export function parseUrl(url) {
   if (u.hostname === 'youtu.be') {
     return u.pathname.slice(1);
   }
-  if (u.hostname === 'www.youtube.com') {
+  if (['www.youtube.com', 'youtube.com', 'm.youtube.com'].includes(u.hostname)) {
     return u.searchParams.get('v');
   }
   return null;

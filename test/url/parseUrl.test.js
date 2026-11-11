@@ -23,3 +23,8 @@ test('無效網址回傳 null', () => {
   assert.equal(parseUrl('not a url'), null);
   assert.equal(parseUrl('https://example.com/watch?v=dQw4w9WgXcQ'), null);
 });
+
+test('其他 YouTube 主機：youtube.com、m.youtube.com', () => {
+  assert.equal(parseUrl('https://youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
+  assert.equal(parseUrl('https://m.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
+});
