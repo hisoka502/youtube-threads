@@ -117,3 +117,19 @@ test('YouTubePlayer：多個訂閱者只用一個計時器；全部取消後停�
   player.onTimeUpdate(() => {});
   assert.equal(timer.activeCount, 1);
 });
+
+test('YouTubePlayer：在通知過程中取消訂閱，其他訂閱者仍收到這次通知', () => {
+  const yt = createFakeYT();
+  const timer = createFakeTimer();
+  const player = createYouTubePlayer(yt, timer);
+  /** @type {number[]} */
+  const b = [];
+  const unsubscribeA = player.onTimeUpdate(() => unsubscribeA());
+  player.onTimeUpdate((sec) => b.push(sec));
+
+  player.play();
+  yt.setTime(1);
+  timer.tick();
+
+  assert.deepEqual(b, [1]);
+});
