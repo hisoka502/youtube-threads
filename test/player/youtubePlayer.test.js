@@ -32,3 +32,15 @@ test('YouTubePlayer：seekTo 轉呼叫 IFrame API（允許跳到未緩衝處）�
   assert.deepEqual(yt.calls, [['seekTo', 30, true]]);
   assert.equal(player.getCurrentTime(), 31.4);
 });
+
+test('YouTubePlayer：play、pause 轉呼叫 playVideo、pauseVideo；isPlaying 依 getPlayerState 判斷', () => {
+  const yt = createFakeYT();
+  const player = createYouTubePlayer(yt);
+
+  assert.equal(player.isPlaying(), false);
+  player.play();
+  assert.equal(player.isPlaying(), true);
+  player.pause();
+  assert.equal(player.isPlaying(), false);
+  assert.deepEqual(yt.calls, [['playVideo'], ['pauseVideo']]);
+});

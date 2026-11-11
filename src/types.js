@@ -91,6 +91,9 @@
  * @typedef {object} YTPlayerLike
  * @property {(seconds: number, allowSeekAhead: boolean) => void} seekTo
  * @property {() => number} getCurrentTime
+ * @property {() => void} playVideo
+ * @property {() => void} pauseVideo
+ * @property {() => number} getPlayerState 1 為播放中（YT.PlayerState.PLAYING）
  */
 
 export {};
