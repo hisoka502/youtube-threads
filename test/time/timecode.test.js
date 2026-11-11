@@ -51,3 +51,8 @@ test('parseTimecode：科學記號、空白、負號、超過三段都回傳 nul
     assert.equal(parseTimecode(text), null, text);
   }
 });
+
+test('formatTimecode：0 秒與整點小時', () => {
+  assert.equal(formatTimecode(0), '0:00');
+  assert.equal(formatTimecode(3600), '1:00:00');
+});
