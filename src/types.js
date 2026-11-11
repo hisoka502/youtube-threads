@@ -12,4 +12,11 @@
  * @property {IdValidator} [isValidId] 預設接受任何非空字串
  */
 
+/**
+ * 片段的時間區間，單位為秒（可含小數）。
+ * @typedef {object} ClipRange
+ * @property {number} startSec
+ * @property {number} endSec
+ */
+
 export {};
