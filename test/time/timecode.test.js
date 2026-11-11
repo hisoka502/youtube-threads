@@ -60,3 +60,7 @@ test('formatTimecode：0 秒與整點小時', () => {
 test('parseTimecode：秒必須是兩位數', () => {
   assert.equal(parseTimecode('2:5'), null);
 });
+
+test('parseTimecode：h:mm:ss 的分必須是兩位數', () => {
+  assert.equal(parseTimecode('1:2:03'), null);
+});
