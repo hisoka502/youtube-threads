@@ -96,4 +96,11 @@
  * @property {() => number} getPlayerState 1 為播放中（YT.PlayerState.PLAYING）
  */
 
+/**
+ * 計時函式。YouTubePlayer 用它定期讀取播放時間；測試時可替換成假的計時器。
+ * @typedef {object} Timer
+ * @property {(fn: () => void, ms: number) => unknown} setInterval
+ * @property {(id: unknown) => void} clearInterval
+ */
+
 export {};
