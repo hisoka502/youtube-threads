@@ -26,4 +26,12 @@
  * @property {number} [endSec]
  */
 
+/**
+ * 留言。其他欄位（body、createdBy、createdAt）在測試需要時再加。
+ * @typedef {object} Comment
+ * @property {string} id
+ * @property {string} clipId 所屬片段
+ * @property {string | null} parentId 回覆的留言 id；主文留言為 null
+ */
+
 export {};
