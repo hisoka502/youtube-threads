@@ -11,3 +11,8 @@ test('isValidRange：endSec 小於或等於 startSec 為不合法', () => {
   assert.equal(isValidRange({ startSec: 20, endSec: 10 }), false);
   assert.equal(isValidRange({ startSec: 10, endSec: 10 }), false);
 });
+
+test('isValidRange：startSec 不可為負數，0 可以', () => {
+  assert.equal(isValidRange({ startSec: -1, endSec: 5 }), false);
+  assert.equal(isValidRange({ startSec: 0, endSec: 5 }), true);
+});

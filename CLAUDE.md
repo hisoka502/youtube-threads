@@ -110,7 +110,7 @@ test/
 ### 5.3 片段規則（clipRules）
 
 - [x] endSec > startSec 才合法
-- [ ] startSec >= 0
+- [x] startSec >= 0
 - [ ] endSec 不可超過影片長度
 - [ ] （新增）未提供 endSec 時，endSec = startSec + 預設秒數（預設秒數待使用者決定：3 或 5）
 - [ ] （新增）startSec + 預設秒數超過影片長度時的處理（待使用者決定）

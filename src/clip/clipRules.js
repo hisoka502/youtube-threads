@@ -6,5 +6,5 @@
  * @returns {boolean}
  */
 export function isValidRange(range) {
-  return range.endSec > range.startSec;
+  return range.startSec >= 0 && range.endSec > range.startSec;
 }
