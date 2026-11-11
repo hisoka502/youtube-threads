@@ -5,13 +5,21 @@ const WATCH_HOSTS = ['www.youtube.com', 'youtube.com', 'm.youtube.com'];
 /** 路徑第一段為這些值時，第二段是影片 ID，例如 /shorts/ID */
 const ID_PATH_PREFIXES = ['shorts', 'embed', 'live'];
 
+/** @type {import('../types.js').IdValidator} */
+const acceptAny = () => true;
+
 /**
  * 從 YouTube 網址取出影片 ID。
  * @param {string} url
- * @returns {string | null} 無法辨識時回傳 null
+ * @param {import('../types.js').ParseUrlOptions} [options]
+ * @returns {string | null} 無法辨識，或未通過 isValidId 時回傳 null
  */
-export function parseUrl(url) {
-  return extractId(url) || null;
+export function parseUrl(url, { isValidId = acceptAny } = {}) {
+  const id = extractId(url);
+  if (!id || !isValidId(id)) {
+    return null;
+  }
+  return id;
 }
 
 /**

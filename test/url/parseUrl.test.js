@@ -40,3 +40,14 @@ test('網址中沒有 ID 時回傳 null', () => {
   assert.equal(parseUrl('https://youtu.be/'), null);
   assert.equal(parseUrl('https://www.youtube.com/shorts/'), null);
 });
+
+test('可注入 isValidId 檢查函式，不通過時回傳 null', () => {
+  /** @type {string[]} */
+  const seen = [];
+  const rejectAll = (/** @type {string} */ id) => {
+    seen.push(id);
+    return false;
+  };
+  assert.equal(parseUrl('https://youtu.be/abc', { isValidId: rejectAll }), null);
+  assert.deepEqual(seen, ['abc']);
+});
