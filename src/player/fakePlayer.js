@@ -25,9 +25,15 @@ export function createFakePlayer() {
     isPlaying() {
       return playing;
     },
-    /** @param {(sec: number) => void} callback */
+    /**
+     * @param {(sec: number) => void} callback
+     * @returns {() => void} 呼叫後取消訂閱
+     */
     onTimeUpdate(callback) {
       listeners.push(callback);
+      return () => {
+        listeners.splice(listeners.indexOf(callback), 1);
+      };
     },
     /**
      * 測試專用：讓時間往前推進，不屬於 PlayerAdapter 介面。

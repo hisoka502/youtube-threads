@@ -50,3 +50,21 @@ test('FakePlayer：onTimeUpdate 在時間推進時收到目前秒數', () => {
 
   assert.deepEqual(received, [1, 2]);
 });
+
+test('FakePlayer：onTimeUpdate 回傳的函式可取消訂閱，不影響其他訂閱者', () => {
+  const player = createFakePlayer();
+  /** @type {number[]} */
+  const a = [];
+  /** @type {number[]} */
+  const b = [];
+  const unsubscribeA = player.onTimeUpdate((sec) => a.push(sec));
+  player.onTimeUpdate((sec) => b.push(sec));
+
+  player.play();
+  player.advance(1);
+  unsubscribeA();
+  player.advance(1);
+
+  assert.deepEqual(a, [1]);
+  assert.deepEqual(b, [1, 2]);
+});
