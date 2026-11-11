@@ -59,4 +59,20 @@
  * @property {(id: string) => Promise<void>} remove
  */
 
+/**
+ * 影片資訊來源。
+ * @typedef {object} VideoInfoProvider
+ * @property {(videoId: string) => Promise<number | null>} getDurationSec 找不到影片時回傳 null
+ */
+
+/**
+ * 建立片段的輸入；endSec 可省略。
+ * @typedef {ClipRangeInput & { videoId: string }} ClipInput
+ */
+
+/**
+ * 建立片段的結果。
+ * @typedef {{ ok: true, clip: Clip } | { ok: false, error: string }} CreateClipResult
+ */
+
 export {};
