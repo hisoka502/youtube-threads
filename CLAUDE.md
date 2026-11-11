@@ -130,11 +130,14 @@ test/
 - [x] 新增留言後可依 clipId 列出
 - [x] （新增）依 clipId 列出的留言依建立順序排列（討論串為線性對話；建立順序 = 呼叫 add 的順序）
 - [x] 刪除留言
+- [ ] （新增）列出的結果被呼叫端修改時，不影響 Repository 內的資料（回傳複本）
 
 ### 5.6.1 ClipService（建立片段的流程，使用者決定另設 Service）
 
 - [ ] 由 VideoInfoProvider（假實作）取得影片長度，經 resolveRange 補齊後存入 ClipRepository
 - [ ] isValidRange 不通過時不存入，並回報錯誤
+- [ ] （新增）刪除片段時，該片段討論串的留言如何處理？（與使用者確認）
+- [ ] （新增）id 由誰產生：Service 產生，還是 Repository 產生？（寫測試時決定）
 
 ### 5.7 假播放器（fakePlayer）
 
