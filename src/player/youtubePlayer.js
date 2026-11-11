@@ -51,12 +51,21 @@ export function createYouTubePlayer(yt, timer = defaultTimer) {
     isPlaying() {
       return yt.getPlayerState() === PLAYING;
     },
-    /** @param {(sec: number) => void} callback */
+    /**
+     * @param {(sec: number) => void} callback
+     * @returns {() => void} 呼叫後取消訂閱
+     */
     onTimeUpdate(callback) {
       listeners.push(callback);
       if (intervalId === null) {
         intervalId = timer.setInterval(poll, POLL_INTERVAL_MS);
       }
+      return () => {
+        const index = listeners.indexOf(callback);
+        if (index !== -1) {
+          listeners.splice(index, 1);
+        }
+      };
     },
   };
 }

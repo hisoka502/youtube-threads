@@ -77,3 +77,26 @@ test('YouTubePlayer：onTimeUpdate 在播放中定期通知目前秒數，暫停
 
   assert.deepEqual(received, [12.25]);
 });
+
+test('YouTubePlayer：onTimeUpdate 回傳的函式可取消訂閱；呼叫兩次不影響其他訂閱者', () => {
+  const yt = createFakeYT();
+  const timer = createFakeTimer();
+  const player = createYouTubePlayer(yt, timer);
+  /** @type {number[]} */
+  const a = [];
+  /** @type {number[]} */
+  const b = [];
+  const unsubscribeA = player.onTimeUpdate((sec) => a.push(sec));
+  player.onTimeUpdate((sec) => b.push(sec));
+
+  player.play();
+  yt.setTime(1);
+  timer.tick();
+  unsubscribeA();
+  unsubscribeA();
+  yt.setTime(2);
+  timer.tick();
+
+  assert.deepEqual(a, [1]);
+  assert.deepEqual(b, [1, 2]);
+});
