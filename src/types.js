@@ -39,6 +39,7 @@
  * @typedef {object} ClipRepository
  * @property {(clip: Clip) => Promise<void>} add
  * @property {(videoId: string) => Promise<Clip[]>} listByVideo
+ * @property {(id: string) => Promise<void>} remove
  */
 
 export {};

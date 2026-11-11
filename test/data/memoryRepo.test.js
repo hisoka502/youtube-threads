@@ -25,3 +25,14 @@ test('ClipRepo：只列出指定 videoId 的片段', async () => {
     ['c1'],
   );
 });
+
+test('ClipRepo：刪除片段後不再列出', async () => {
+  const repo = createMemoryClipRepo();
+  await repo.add(clip('c1', 'v1'));
+  await repo.add(clip('c2', 'v1'));
+  await repo.remove('c1');
+  assert.deepEqual(
+    (await repo.listByVideo('v1')).map((c) => c.id),
+    ['c2'],
+  );
+});

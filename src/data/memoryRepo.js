@@ -6,13 +6,16 @@
  */
 export function createMemoryClipRepo() {
   /** @type {import('../types.js').Clip[]} */
-  const clips = [];
+  let clips = [];
   return {
     async add(clip) {
       clips.push(clip);
     },
     async listByVideo(videoId) {
       return clips.filter((c) => c.videoId === videoId);
+    },
+    async remove(id) {
+      clips = clips.filter((c) => c.id !== id);
     },
   };
 }
