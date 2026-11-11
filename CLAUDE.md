@@ -131,6 +131,11 @@ test/
 - [ ] （新增）依 clipId 列出的留言依建立順序排列（討論串為線性對話）
 - [ ] 刪除留言
 
+### 5.6.1 ClipService（建立片段的流程，使用者決定另設 Service）
+
+- [ ] 由 VideoInfoProvider（假實作）取得影片長度，經 resolveRange 補齊後存入 ClipRepository
+- [ ] isValidRange 不通過時不存入，並回報錯誤
+
 ### 5.7 假播放器（fakePlayer）
 
 - [ ] seekTo 後 getCurrentTime 回傳該秒數
@@ -148,7 +153,7 @@ test/
 
 - ~~時間單位用秒（可含小數，與 YouTube API 一致）還是毫秒？~~ **已決定：秒，可含小數**（與 YouTube IFrame API 一致）。比較兩個時間時避免用 `===` 比較小數運算結果。
 - ~~回覆只允許兩層（主文＋回覆），還是無限巢狀？~~ **已決定：沒有回覆功能**，每個片段是一個討論串，留言線性排列。
-- 驗證邏輯放在 Repository 內，還是另設 ClipService？
+- ~~驗證邏輯放在 Repository 內，還是另設 ClipService？~~ **已決定：另設 ClipService**。Repository 只負責存取，驗證邏輯放在 Service，只寫一次。
 - 使用情境：個人筆記、小團體討論，還是公開社群？（影響權限設計，UI 階段前要確定）
 - ~~片段型態：一定要起訖區間，還是也允許單一時間點？~~ **已決定：一定是起訖區間**（endSec 必須大於 startSec）。使用者未提供 endSec 時，endSec = startSec + 5 秒；超過影片長度則截到影片結尾。
 
