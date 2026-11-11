@@ -45,7 +45,7 @@ export function createFakePlayer() {
     advance(sec) {
       if (playing) {
         currentTime += sec;
-        for (const listener of listeners) {
+        for (const listener of [...listeners]) {
           listener(currentTime);
         }
       }

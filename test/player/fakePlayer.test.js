@@ -83,3 +83,16 @@ test('FakePlayer：同一個取消函式呼叫兩次，不影響其他訂閱者'
 
   assert.deepEqual(b, [1]);
 });
+
+test('FakePlayer：在通知過程中取消訂閱，其他訂閱者仍收到這次通知', () => {
+  const player = createFakePlayer();
+  /** @type {number[]} */
+  const b = [];
+  const unsubscribeA = player.onTimeUpdate(() => unsubscribeA());
+  player.onTimeUpdate((sec) => b.push(sec));
+
+  player.play();
+  player.advance(1);
+
+  assert.deepEqual(b, [1]);
+});
