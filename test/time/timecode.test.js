@@ -18,3 +18,7 @@ test('formatTimecode：135 → "02:15"', () => {
 test('formatTimecode：超過一小時格式化為 h:mm:ss', () => {
   assert.equal(formatTimecode(3723), '1:02:03');
 });
+
+test('parseTimecode：非數字字串回傳 null', () => {
+  assert.equal(parseTimecode('abc'), null);
+});

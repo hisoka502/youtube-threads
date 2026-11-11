@@ -3,12 +3,13 @@
 /**
  * 把時間碼字串轉成秒數。
  * @param {string} text 例如 "02:15"、"1:02:03"
- * @returns {number} 秒（可含小數）
+ * @returns {number | null} 秒（可含小數）；格式錯誤時回傳 null
  */
 export function parseTimecode(text) {
-  return text
+  const total = text
     .split(':')
-    .reduce((total, part) => total * 60 + Number(part), 0);
+    .reduce((sum, part) => sum * 60 + Number(part), 0);
+  return Number.isNaN(total) ? null : total;
 }
 
 /**
