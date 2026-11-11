@@ -136,7 +136,7 @@ test/
 
 - [x] 由 VideoInfoProvider（假實作）取得影片長度，經 resolveRange 補齊後存入 ClipRepository
 - [x] isValidRange 不通過時不存入，並回報錯誤（`{ ok: false, error: 'INVALID_RANGE' }`）
-- [ ] （新增）刪除片段時，該片段討論串的留言一併刪除（使用者決定）
+- [x] （新增）刪除片段時，該片段討論串的留言一併刪除（使用者決定）
 - [x] （新增）id 由 Service 產生（透過注入的 newId 函式；測試時可預測）
 
 ### 5.7 假播放器（fakePlayer）
