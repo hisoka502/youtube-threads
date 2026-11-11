@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createYouTubePlayer } from '../../src/player/youtubePlayer.js';
+import { playRange } from '../../src/player/playRange.js';
 
 /** 假的 YT.Player：只實作轉接層用到的方法，並記錄呼叫。 */
 function createFakeYT() {
@@ -132,4 +133,24 @@ test('YouTubePlayer：在通知過程中取消訂閱，其他訂閱者仍收到�
   timer.tick();
 
   assert.deepEqual(b, [1]);
+});
+
+test('YouTubePlayer ＋ playRange：定期讀取時超過 endSec，會暫停並跳回 endSec', () => {
+  const yt = createFakeYT();
+  const timer = createFakeTimer();
+  const player = createYouTubePlayer(yt, timer);
+
+  playRange(player, { startSec: 10, endSec: 20 });
+  yt.setTime(19.9);
+  timer.tick();
+  yt.setTime(20.2);
+  timer.tick();
+
+  assert.deepEqual(yt.calls, [
+    ['seekTo', 10, true],
+    ['playVideo'],
+    ['pauseVideo'],
+    ['seekTo', 20, true],
+  ]);
+  assert.equal(timer.activeCount, 0, '片段結束後不再定期讀取');
 });
