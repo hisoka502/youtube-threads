@@ -64,3 +64,7 @@ test('parseTimecode：秒必須是兩位數', () => {
 test('parseTimecode：h:mm:ss 的分必須是兩位數', () => {
   assert.equal(parseTimecode('1:2:03'), null);
 });
+
+test('parseTimecode：沒有小時時，分不可超過 59', () => {
+  assert.equal(parseTimecode('75:00'), null);
+});

@@ -20,8 +20,9 @@ export function parseTimecode(text) {
     return null;
   }
   const numbers = parts.map(Number);
-  // 第一段之後（分、秒）必須小於 60
-  if (numbers.slice(1).some((n) => n >= 60)) {
+  // 分、秒必須小於 60；只有 h:mm:ss 的小時沒有上限
+  const minutesAndSeconds = parts.length === 3 ? numbers.slice(1) : numbers;
+  if (minutesAndSeconds.some((n) => n >= 60)) {
     return null;
   }
   return numbers.reduce((sum, n) => sum * 60 + n, 0);
