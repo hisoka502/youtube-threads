@@ -152,7 +152,7 @@ test/
 - [x] onTimeUpdate 可訂閱與取消訂閱（回傳取消訂閱的函式）
 - [x] （新增）同一個取消函式呼叫兩次，不影響其他訂閱者
 - [x] （新增）在通知過程中取消訂閱，其他訂閱者仍收到這次通知
-- [ ] playRange 播到 endSec 自動暫停（從 startSec 開始播放）
+- [x] playRange 播到 endSec 自動暫停（從 startSec 開始播放；超過 endSec 時停回 endSec）
 
 ### 5.8 之後才做
 

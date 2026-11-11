@@ -10,3 +10,15 @@ test('playRange：跳到 startSec 並開始播放', () => {
   assert.equal(player.getCurrentTime(), 10);
   assert.equal(player.isPlaying(), true);
 });
+
+test('playRange：播到 endSec 自動暫停，並停在 endSec', () => {
+  const player = createFakePlayer();
+  playRange(player, { startSec: 10, endSec: 20 });
+
+  player.advance(5);
+  assert.equal(player.isPlaying(), true, '15 秒時仍在播放');
+
+  player.advance(7); // 超過 endSec，到 22 秒
+  assert.equal(player.isPlaying(), false);
+  assert.equal(player.getCurrentTime(), 20);
+});
