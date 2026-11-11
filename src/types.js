@@ -19,4 +19,11 @@
  * @property {number} endSec
  */
 
+/**
+ * 使用者建立片段時的輸入；endSec 可省略。
+ * @typedef {object} ClipRangeInput
+ * @property {number} startSec
+ * @property {number} [endSec]
+ */
+
 export {};

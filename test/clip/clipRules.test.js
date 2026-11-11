@@ -1,7 +1,7 @@
 // @ts-check
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isValidRange } from '../../src/clip/clipRules.js';
+import { isValidRange, resolveRange } from '../../src/clip/clipRules.js';
 
 test('isValidRange：endSec 大於 startSec 為合法', () => {
   assert.equal(isValidRange({ startSec: 10, endSec: 20 }, 120), true);
@@ -20,4 +20,8 @@ test('isValidRange：startSec 不可為負數，0 可以', () => {
 test('isValidRange：endSec 不可超過影片長度，等於影片長度可以', () => {
   assert.equal(isValidRange({ startSec: 100, endSec: 121 }, 120), false);
   assert.equal(isValidRange({ startSec: 100, endSec: 120 }, 120), true);
+});
+
+test('resolveRange：未提供 endSec 時，endSec = startSec + 5', () => {
+  assert.deepEqual(resolveRange({ startSec: 10 }, 120), { startSec: 10, endSec: 15 });
 });
