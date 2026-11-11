@@ -1,35 +1,24 @@
 // @ts-check
 
+// YouTube 播放器的顯示格式：
+//   m:ss     分 0–59，不補 0；秒 00–59，固定兩位
+//   h:mm:ss  時不補 0、沒有上限；分、秒 00–59，固定兩位
+const M_SS = /^(0|[1-9]|[1-5]\d):([0-5]\d)$/;
+const H_MM_SS = /^(0|[1-9]\d*):([0-5]\d):([0-5]\d)$/;
+
 /**
  * 把 YouTube 顯示格式的時間碼字串轉成秒數。
  * @param {string} text m:ss 或 h:mm:ss，例如 "2:15"、"1:02:03"
  * @returns {number | null} 整數秒；格式錯誤時回傳 null
  */
 export function parseTimecode(text) {
-  const parts = text.split(':');
-  // 只接受 m:ss 或 h:mm:ss
-  if (parts.length !== 2 && parts.length !== 3) {
+  const match = M_SS.exec(text) ?? H_MM_SS.exec(text);
+  if (!match) {
     return null;
   }
-  // 每段只能是數字（不接受小數點、空白、正負號、空字串）
-  if (!parts.every((part) => /^\d+$/.test(part))) {
-    return null;
-  }
-  // 第一段不可補 0：可以是 "0"，但不可以是 "02"
-  if (parts[0].length > 1 && parts[0].startsWith('0')) {
-    return null;
-  }
-  // 第一段之後（分、秒）必須剛好兩位數
-  if (!parts.slice(1).every((part) => part.length === 2)) {
-    return null;
-  }
-  const numbers = parts.map(Number);
-  // 分、秒必須小於 60；只有 h:mm:ss 的小時沒有上限
-  const minutesAndSeconds = parts.length === 3 ? numbers.slice(1) : numbers;
-  if (minutesAndSeconds.some((n) => n >= 60)) {
-    return null;
-  }
-  return numbers.reduce((sum, n) => sum * 60 + n, 0);
+  return match
+    .slice(1)
+    .reduce((sum, part) => sum * 60 + Number(part), 0);
 }
 
 /**
