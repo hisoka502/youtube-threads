@@ -114,7 +114,7 @@ test/
 - [x] endSec 不可超過影片長度
 - [x] （新增）未提供 endSec 時，endSec = startSec + 5（使用者決定：預設 5 秒）
 - [x] （新增）有提供 endSec 時維持原值
-- [ ] （新增）startSec + 5 超過影片長度時，endSec 截到影片長度（使用者決定）
+- [x] （新增）startSec + 5 超過影片長度時，endSec 截到影片長度（使用者決定）
 
 ### 5.4 留言內時間戳（timestamps）
 

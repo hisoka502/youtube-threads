@@ -24,6 +24,7 @@ export function isValidRange(range, durationSec) {
  * @returns {import('../types.js').ClipRange}
  */
 export function resolveRange(input, durationSec) {
-  const endSec = input.endSec ?? input.startSec + DEFAULT_CLIP_LENGTH_SEC;
+  const endSec =
+    input.endSec ?? Math.min(input.startSec + DEFAULT_CLIP_LENGTH_SEC, durationSec);
   return { startSec: input.startSec, endSec };
 }

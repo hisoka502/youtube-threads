@@ -33,3 +33,7 @@ test('resolveRange：預設長度從任意 startSec 起算', () => {
 test('resolveRange：有提供 endSec 時維持原值', () => {
   assert.deepEqual(resolveRange({ startSec: 10, endSec: 40 }, 120), { startSec: 10, endSec: 40 });
 });
+
+test('resolveRange：預設長度超過影片長度時，endSec 截到影片結尾', () => {
+  assert.deepEqual(resolveRange({ startSec: 118 }, 120), { startSec: 118, endSec: 120 });
+});
