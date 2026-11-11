@@ -29,10 +29,10 @@ export function createMemoryCommentRepo() {
   let comments = [];
   return {
     async add(comment) {
-      comments.push(comment);
+      comments.push(structuredClone(comment));
     },
     async listByClip(clipId) {
-      return comments.filter((c) => c.clipId === clipId);
+      return structuredClone(comments.filter((c) => c.clipId === clipId));
     },
     async remove(id) {
       comments = comments.filter((c) => c.id !== id);

@@ -85,3 +85,15 @@ test('ClipRepo：修改列出或傳入的物件，不影響 Repository 內的資
 
   assert.deepEqual(await repo.listByVideo('v1'), [clip('c1', 'v1')]);
 });
+
+test('CommentRepo：修改列出或傳入的物件，不影響 Repository 內的資料', async () => {
+  const repo = createMemoryCommentRepo();
+  const original = comment('m1', 'c1');
+  await repo.add(original);
+
+  original.body = '被改掉';
+  const [listed] = await repo.listByClip('c1');
+  listed.body = '也被改掉';
+
+  assert.deepEqual(await repo.listByClip('c1'), [comment('m1', 'c1')]);
+});
