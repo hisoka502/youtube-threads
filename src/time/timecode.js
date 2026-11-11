@@ -7,7 +7,8 @@
  */
 export function parseTimecode(text) {
   const parts = text.split(':');
-  if (parts.some((part) => part === '')) {
+  // 每段只能是數字（不接受小數點、空白、正負號、空字串）
+  if (!parts.every((part) => /^\d+$/.test(part))) {
     return null;
   }
   const numbers = parts.map(Number);
