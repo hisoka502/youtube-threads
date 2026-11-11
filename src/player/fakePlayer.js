@@ -17,6 +17,9 @@ export function createFakePlayer() {
     play() {
       playing = true;
     },
+    pause() {
+      playing = false;
+    },
     isPlaying() {
       return playing;
     },
@@ -25,7 +28,9 @@ export function createFakePlayer() {
      * @param {number} sec
      */
     advance(sec) {
-      currentTime += sec;
+      if (playing) {
+        currentTime += sec;
+      }
     },
   };
 }

@@ -24,3 +24,16 @@ test('FakePlayer：play 後 advance 會推進時間', () => {
   assert.equal(player.isPlaying(), true);
   assert.equal(player.getCurrentTime(), 13);
 });
+
+test('FakePlayer：未播放或 pause 後，advance 不推進時間', () => {
+  const player = createFakePlayer();
+  player.advance(5);
+  assert.equal(player.getCurrentTime(), 0);
+
+  player.play();
+  player.advance(2);
+  player.pause();
+  player.advance(5);
+  assert.equal(player.isPlaying(), false);
+  assert.equal(player.getCurrentTime(), 2);
+});
