@@ -11,6 +11,14 @@ const ID_PATH_PREFIXES = ['shorts', 'embed', 'live'];
  * @returns {string | null} 無法辨識時回傳 null
  */
 export function parseUrl(url) {
+  return extractId(url) || null;
+}
+
+/**
+ * @param {string} url
+ * @returns {string | null | undefined}
+ */
+function extractId(url) {
   let u;
   try {
     u = new URL(url);

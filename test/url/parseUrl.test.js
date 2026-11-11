@@ -34,3 +34,9 @@ test('其他路徑：/shorts/、/embed/、/live/', () => {
   assert.equal(parseUrl('https://www.youtube.com/embed/dQw4w9WgXcQ?start=10'), 'dQw4w9WgXcQ');
   assert.equal(parseUrl('https://www.youtube.com/live/jfKfPfyJRdk?si=abc'), 'jfKfPfyJRdk');
 });
+
+test('網址中沒有 ID 時回傳 null', () => {
+  assert.equal(parseUrl('https://www.youtube.com/watch?list=PL123'), null);
+  assert.equal(parseUrl('https://youtu.be/'), null);
+  assert.equal(parseUrl('https://www.youtube.com/shorts/'), null);
+});
