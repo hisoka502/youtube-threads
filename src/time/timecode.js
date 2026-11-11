@@ -22,14 +22,14 @@ export function parseTimecode(text) {
 /**
  * 把秒數格式化成時間碼字串。
  * @param {number} sec
- * @returns {string} 未滿一小時為 "mm:ss"，否則為 "h:mm:ss"
+ * @returns {string} 未滿一小時為 "m:ss"，否則為 "h:mm:ss"
  */
 export function formatTimecode(sec) {
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
   const s = Math.floor(sec % 60);
-  const mmss = `${pad2(m)}:${pad2(s)}`;
-  return h > 0 ? `${h}:${mmss}` : mmss;
+  // 與 YouTube 播放器一致：未滿一小時分鐘不補 0（2:15），有小時則補 0（1:02:03）
+  return h > 0 ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`;
 }
 
 /** @param {number} n */

@@ -11,8 +11,8 @@ test('parseTimecode："1:02:03" → 3723', () => {
   assert.equal(parseTimecode('1:02:03'), 3723);
 });
 
-test('formatTimecode：135 → "02:15"', () => {
-  assert.equal(formatTimecode(135), '02:15');
+test('formatTimecode：135 → "2:15"（與 YouTube 一致，分鐘不補 0）', () => {
+  assert.equal(formatTimecode(135), '2:15');
 });
 
 test('formatTimecode：超過一小時格式化為 h:mm:ss', () => {
