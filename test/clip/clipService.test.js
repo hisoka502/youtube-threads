@@ -23,3 +23,12 @@ test('ClipService：建立片段時補齊 endSec，並存入 Repository', async 
   assert.deepEqual(result, { ok: true, clip: expected });
   assert.deepEqual(await clipRepo.listByVideo('v1'), [expected]);
 });
+
+test('ClipService：區間不合法時不存入，並回報 INVALID_RANGE', async () => {
+  const { service, clipRepo } = setup();
+
+  const result = await service.createClip({ videoId: 'v1', startSec: 100, endSec: 130 });
+
+  assert.deepEqual(result, { ok: false, error: 'INVALID_RANGE' });
+  assert.deepEqual(await clipRepo.listByVideo('v1'), []);
+});

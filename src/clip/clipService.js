@@ -1,5 +1,5 @@
 // @ts-check
-import { resolveRange } from './clipRules.js';
+import { isValidRange, resolveRange } from './clipRules.js';
 
 /**
  * 建立與刪除片段的流程。驗證邏輯放在這裡，Repository 只負責存取。
@@ -17,6 +17,9 @@ export function createClipService({ clipRepo, videoInfo, newId }) {
     async createClip(input) {
       const durationSec = /** @type {number} */ (await videoInfo.getDurationSec(input.videoId));
       const range = resolveRange(input, durationSec);
+      if (!isValidRange(range, durationSec)) {
+        return { ok: false, error: 'INVALID_RANGE' };
+      }
       const clip = { id: newId(), videoId: input.videoId, range };
       await clipRepo.add(clip);
       return { ok: true, clip };
