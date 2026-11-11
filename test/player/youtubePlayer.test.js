@@ -100,3 +100,20 @@ test('YouTubePlayer：onTimeUpdate 回傳的函式可取消訂閱；呼叫兩次
   assert.deepEqual(a, [1]);
   assert.deepEqual(b, [1, 2]);
 });
+
+test('YouTubePlayer：多個訂閱者只用一個計時器；全部取消後停止定期讀取，再訂閱時重新開始', () => {
+  const yt = createFakeYT();
+  const timer = createFakeTimer();
+  const player = createYouTubePlayer(yt, timer);
+
+  const off1 = player.onTimeUpdate(() => {});
+  const off2 = player.onTimeUpdate(() => {});
+  assert.equal(timer.activeCount, 1);
+
+  off1();
+  off2();
+  assert.equal(timer.activeCount, 0);
+
+  player.onTimeUpdate(() => {});
+  assert.equal(timer.activeCount, 1);
+});

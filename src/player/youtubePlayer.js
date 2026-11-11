@@ -65,6 +65,11 @@ export function createYouTubePlayer(yt, timer = defaultTimer) {
         if (index !== -1) {
           listeners.splice(index, 1);
         }
+        // 沒有訂閱者時停止定期讀取
+        if (listeners.length === 0 && intervalId !== null) {
+          timer.clearInterval(intervalId);
+          intervalId = null;
+        }
       };
     },
   };
