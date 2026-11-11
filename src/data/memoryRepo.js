@@ -12,7 +12,7 @@ export function createMemoryClipRepo() {
       clips.push(clip);
     },
     async listByVideo(videoId) {
-      return [...clips];
+      return clips.filter((c) => c.videoId === videoId);
     },
   };
 }

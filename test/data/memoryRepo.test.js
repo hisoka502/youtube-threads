@@ -15,3 +15,13 @@ test('ClipRepo：新增片段後可依 videoId 列出', async () => {
   await repo.add(clip('c1', 'v1'));
   assert.deepEqual(await repo.listByVideo('v1'), [clip('c1', 'v1')]);
 });
+
+test('ClipRepo：只列出指定 videoId 的片段', async () => {
+  const repo = createMemoryClipRepo();
+  await repo.add(clip('c1', 'v1'));
+  await repo.add(clip('c2', 'v2'));
+  assert.deepEqual(
+    (await repo.listByVideo('v1')).map((c) => c.id),
+    ['c1'],
+  );
+});
