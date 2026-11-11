@@ -68,3 +68,18 @@ test('FakePlayer：onTimeUpdate 回傳的函式可取消訂閱，不影響其他
   assert.deepEqual(a, [1]);
   assert.deepEqual(b, [1, 2]);
 });
+
+test('FakePlayer：同一個取消函式呼叫兩次，不影響其他訂閱者', () => {
+  const player = createFakePlayer();
+  /** @type {number[]} */
+  const b = [];
+  const unsubscribeA = player.onTimeUpdate(() => {});
+  player.onTimeUpdate((sec) => b.push(sec));
+
+  unsubscribeA();
+  unsubscribeA();
+  player.play();
+  player.advance(1);
+
+  assert.deepEqual(b, [1]);
+});

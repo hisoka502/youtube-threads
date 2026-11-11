@@ -32,7 +32,10 @@ export function createFakePlayer() {
     onTimeUpdate(callback) {
       listeners.push(callback);
       return () => {
-        listeners.splice(listeners.indexOf(callback), 1);
+        const index = listeners.indexOf(callback);
+        if (index !== -1) {
+          listeners.splice(index, 1);
+        }
       };
     },
     /**

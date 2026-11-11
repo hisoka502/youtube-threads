@@ -150,7 +150,7 @@ test/
 - [x] seekTo 後 getCurrentTime 回傳該秒數（起始時間為 0）
 - [x] （新增）play 後 advance 會推進時間；pause 時 advance 不推進
 - [x] onTimeUpdate 可訂閱與取消訂閱（回傳取消訂閱的函式）
-- [ ] （新增）同一個取消函式呼叫兩次，不影響其他訂閱者
+- [x] （新增）同一個取消函式呼叫兩次，不影響其他訂閱者
 - [ ] （新增）在通知過程中取消訂閱，其他訂閱者仍收到這次通知
 - [ ] playRange 播到 endSec 自動暫停（從 startSec 開始播放）
 
