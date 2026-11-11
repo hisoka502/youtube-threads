@@ -48,3 +48,12 @@ test('ClipService：刪除片段時，一併刪除該片段討論串的留言', 
   assert.deepEqual(await commentRepo.listByClip('id-1'), []);
   assert.deepEqual((await commentRepo.listByClip('id-2')).map((c) => c.id), ['m3']);
 });
+
+test('ClipService：找不到影片時不存入，並回報 VIDEO_NOT_FOUND', async () => {
+  const { service, clipRepo } = setup();
+
+  const result = await service.createClip({ videoId: 'nope', startSec: 10 });
+
+  assert.deepEqual(result, { ok: false, error: 'VIDEO_NOT_FOUND' });
+  assert.deepEqual(await clipRepo.listByVideo('nope'), []);
+});

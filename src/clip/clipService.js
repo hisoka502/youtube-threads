@@ -16,7 +16,10 @@ export function createClipService({ clipRepo, commentRepo, videoInfo, newId }) {
      * @returns {Promise<import('../types.js').CreateClipResult>}
      */
     async createClip(input) {
-      const durationSec = /** @type {number} */ (await videoInfo.getDurationSec(input.videoId));
+      const durationSec = await videoInfo.getDurationSec(input.videoId);
+      if (durationSec === null) {
+        return { ok: false, error: 'VIDEO_NOT_FOUND' };
+      }
       const range = resolveRange(input, durationSec);
       if (!isValidRange(range, durationSec)) {
         return { ok: false, error: 'INVALID_RANGE' };
