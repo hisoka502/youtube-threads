@@ -6,5 +6,9 @@
  * @returns {string | null}
  */
 export function parseUrl(url) {
-  return 'dQw4w9WgXcQ';
+  const u = new URL(url);
+  if (u.hostname === 'youtu.be') {
+    return u.pathname.slice(1);
+  }
+  return u.searchParams.get('v');
 }

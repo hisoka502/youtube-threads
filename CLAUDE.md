@@ -79,7 +79,7 @@ test/
 ### 5.1 parseUrl（網址 → youtubeId）
 
 - [x] `https://www.youtube.com/watch?v=ID` → ID
-- [ ] `https://youtu.be/ID` → ID
+- [x] `https://youtu.be/ID` → ID
 - [ ] 帶其他參數（如 `&t=30s`、`&list=`）仍取出正確 ID
 - [ ] 無效網址 → null
 
