@@ -26,4 +26,19 @@
  * @property {number} [endSec]
  */
 
+/**
+ * 片段。其他欄位（title、createdBy、createdAt）在測試需要時再加。
+ * @typedef {object} Clip
+ * @property {string} id
+ * @property {string} videoId
+ * @property {ClipRange} range
+ */
+
+/**
+ * 片段的儲存介面。只負責存取，不做驗證（驗證在 ClipService）。
+ * @typedef {object} ClipRepository
+ * @property {(clip: Clip) => Promise<void>} add
+ * @property {(videoId: string) => Promise<Clip[]>} listByVideo
+ */
+
 export {};
