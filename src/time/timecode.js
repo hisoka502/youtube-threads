@@ -7,6 +7,10 @@
  */
 export function parseTimecode(text) {
   const parts = text.split(':');
+  // 只接受 m:ss 或 h:mm:ss
+  if (parts.length !== 2 && parts.length !== 3) {
+    return null;
+  }
   // 每段只能是數字（不接受小數點、空白、正負號、空字串）
   if (!parts.every((part) => /^\d+$/.test(part))) {
     return null;

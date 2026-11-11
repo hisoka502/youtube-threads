@@ -41,3 +41,7 @@ test('formatTimecode：小數秒無條件捨去（與 YouTube 播放器一致）
 test('parseTimecode：不接受小數秒（只接受 YouTube 顯示格式）', () => {
   assert.equal(parseTimecode('2:15.5'), null);
 });
+
+test('parseTimecode：不接受單一數字（只接受 YouTube 顯示格式）', () => {
+  assert.equal(parseTimecode('90'), null);
+});
