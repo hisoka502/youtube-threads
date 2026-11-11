@@ -15,6 +15,10 @@ export function parseTimecode(text) {
   if (!parts.every((part) => /^\d+$/.test(part))) {
     return null;
   }
+  // 第一段不可補 0：可以是 "0"，但不可以是 "02"
+  if (parts[0].length > 1 && parts[0].startsWith('0')) {
+    return null;
+  }
   // 第一段之後（分、秒）必須剛好兩位數
   if (!parts.slice(1).every((part) => part.length === 2)) {
     return null;
