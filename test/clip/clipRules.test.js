@@ -25,3 +25,7 @@ test('isValidRange：endSec 不可超過影片長度，等於影片長度可以'
 test('resolveRange：未提供 endSec 時，endSec = startSec + 5', () => {
   assert.deepEqual(resolveRange({ startSec: 10 }, 120), { startSec: 10, endSec: 15 });
 });
+
+test('resolveRange：預設長度從任意 startSec 起算', () => {
+  assert.deepEqual(resolveRange({ startSec: 30.5 }, 120), { startSec: 30.5, endSec: 35.5 });
+});

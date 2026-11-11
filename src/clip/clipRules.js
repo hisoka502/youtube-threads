@@ -1,5 +1,8 @@
 // @ts-check
 
+/** 使用者未提供 endSec 時的預設片段長度（秒） */
+export const DEFAULT_CLIP_LENGTH_SEC = 5;
+
 /**
  * 片段的時間區間是否合法。
  * @param {import('../types.js').ClipRange} range
@@ -21,5 +24,5 @@ export function isValidRange(range, durationSec) {
  * @returns {import('../types.js').ClipRange}
  */
 export function resolveRange(input, durationSec) {
-  return { startSec: 10, endSec: 15 };
+  return { startSec: input.startSec, endSec: input.startSec + DEFAULT_CLIP_LENGTH_SEC };
 }
