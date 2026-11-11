@@ -161,6 +161,11 @@ test/
 ### 5.8 之後才做
 
 - [ ] YouTubePlayer 轉接層（手動驗證）
+  - [ ] （新增）seekTo、getCurrentTime 轉呼叫 IFrame API（以假的 YT.Player 物件測試對應關係）
+  - [ ] （新增）play、pause、isPlaying 對應 playVideo、pauseVideo、getPlayerState
+  - [ ] （新增）onTimeUpdate：IFrame API 沒有時間更新事件，播放中定期讀取 getCurrentTime 通知訂閱者
+  - [ ] （新增）取消訂閱；沒有訂閱者時停止定期讀取
+  - [ ] （新增）手動驗證頁面：`dev/index.html` ＋ `dev/server.js`（Node 內建 `node:http`，不新增依賴），由使用者在自己的瀏覽器驗證
 - [ ] UI
 
 ## 6. 待決定事項
@@ -170,7 +175,7 @@ test/
 - ~~時間單位用秒（可含小數，與 YouTube API 一致）還是毫秒？~~ **已決定：秒，可含小數**（與 YouTube IFrame API 一致）。比較兩個時間時避免用 `===` 比較小數運算結果。
 - ~~回覆只允許兩層（主文＋回覆），還是無限巢狀？~~ **已決定：沒有回覆功能**，每個片段是一個討論串，留言線性排列。
 - ~~驗證邏輯放在 Repository 內，還是另設 ClipService？~~ **已決定：另設 ClipService**。Repository 只負責存取，驗證邏輯放在 Service，只寫一次。
-- 使用情境：個人筆記、小團體討論，還是公開社群？（影響權限設計，UI 階段前要確定）
+- ~~使用情境：個人筆記、小團體討論，還是公開社群？~~ **已決定：小團體討論**。登入、權限仍在第 7 節暫不處理。
 - ~~片段型態：一定要起訖區間，還是也允許單一時間點？~~ **已決定：一定是起訖區間**（endSec 必須大於 startSec）。使用者未提供 endSec 時，endSec = startSec + 5 秒；超過影片長度則截到影片結尾。
 
 ## 7. 暫不處理（YAGNI）
