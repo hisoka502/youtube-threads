@@ -81,7 +81,7 @@ test/
 - [x] `https://www.youtube.com/watch?v=ID` → ID
 - [x] `https://youtu.be/ID` → ID
 - [x] 帶其他參數（如 `&t=30s`、`&list=`）仍取出正確 ID
-- [ ] 無效網址 → null
+- [x] 無效網址 → null
 
 ### 5.2 時間格式（timecode）
 

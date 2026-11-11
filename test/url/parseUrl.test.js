@@ -18,3 +18,8 @@ test('帶其他參數仍取出正確 ID', () => {
   );
   assert.equal(parseUrl('https://youtu.be/9bZkp7q19f0?t=30'), '9bZkp7q19f0');
 });
+
+test('無效網址回傳 null', () => {
+  assert.equal(parseUrl('not a url'), null);
+  assert.equal(parseUrl('https://example.com/watch?v=dQw4w9WgXcQ'), null);
+});
