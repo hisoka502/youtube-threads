@@ -42,4 +42,20 @@
  * @property {(id: string) => Promise<void>} remove
  */
 
+/**
+ * 留言。片段即討論串，留言線性排列，沒有回覆功能。
+ * 其他欄位（createdBy、createdAt）在測試需要時再加。
+ * @typedef {object} Comment
+ * @property {string} id
+ * @property {string} clipId 所屬片段（討論串）
+ * @property {string} body
+ */
+
+/**
+ * 留言的儲存介面。只負責存取，不做驗證。
+ * @typedef {object} CommentRepository
+ * @property {(comment: Comment) => Promise<void>} add
+ * @property {(clipId: string) => Promise<Comment[]>} listByClip
+ */
+
 export {};

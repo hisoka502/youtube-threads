@@ -19,3 +19,20 @@ export function createMemoryClipRepo() {
     },
   };
 }
+
+/**
+ * 記憶體版的留言儲存。
+ * @returns {import('../types.js').CommentRepository}
+ */
+export function createMemoryCommentRepo() {
+  /** @type {import('../types.js').Comment[]} */
+  const comments = [];
+  return {
+    async add(comment) {
+      comments.push(comment);
+    },
+    async listByClip(clipId) {
+      return comments.filter((c) => c.clipId === clipId);
+    },
+  };
+}

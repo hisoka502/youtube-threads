@@ -1,7 +1,7 @@
 // @ts-check
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMemoryClipRepo } from '../../src/data/memoryRepo.js';
+import { createMemoryClipRepo, createMemoryCommentRepo } from '../../src/data/memoryRepo.js';
 
 /**
  * @param {string} id
@@ -35,4 +35,18 @@ test('ClipRepo：刪除片段後不再列出', async () => {
     (await repo.listByVideo('v1')).map((c) => c.id),
     ['c2'],
   );
+});
+
+/**
+ * @param {string} id
+ * @param {string} clipId
+ * @returns {import('../../src/types.js').Comment}
+ */
+const comment = (id, clipId) => ({ id, clipId, body: `留言 ${id}` });
+
+test('CommentRepo：新增留言後可依 clipId 列出', async () => {
+  const repo = createMemoryCommentRepo();
+  await repo.add(comment('m1', 'c1'));
+  await repo.add(comment('m2', 'c2'));
+  assert.deepEqual(await repo.listByClip('c1'), [comment('m1', 'c1')]);
 });
