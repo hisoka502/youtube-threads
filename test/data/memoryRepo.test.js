@@ -61,3 +61,15 @@ test('CommentRepo：留言依建立順序排列（線性討論串）', async () 
     ['m1', 'm2', 'm3'],
   );
 });
+
+test('CommentRepo：刪除留言後不再列出，其餘順序不變', async () => {
+  const repo = createMemoryCommentRepo();
+  await repo.add(comment('m1', 'c1'));
+  await repo.add(comment('m2', 'c1'));
+  await repo.add(comment('m3', 'c1'));
+  await repo.remove('m2');
+  assert.deepEqual(
+    (await repo.listByClip('c1')).map((c) => c.id),
+    ['m1', 'm3'],
+  );
+});

@@ -26,13 +26,16 @@ export function createMemoryClipRepo() {
  */
 export function createMemoryCommentRepo() {
   /** @type {import('../types.js').Comment[]} */
-  const comments = [];
+  let comments = [];
   return {
     async add(comment) {
       comments.push(comment);
     },
     async listByClip(clipId) {
       return comments.filter((c) => c.clipId === clipId);
+    },
+    async remove(id) {
+      comments = comments.filter((c) => c.id !== id);
     },
   };
 }

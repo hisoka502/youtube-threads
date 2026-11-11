@@ -56,6 +56,7 @@
  * @typedef {object} CommentRepository
  * @property {(comment: Comment) => Promise<void>} add
  * @property {(clipId: string) => Promise<Comment[]>} listByClip
+ * @property {(id: string) => Promise<void>} remove
  */
 
 export {};
