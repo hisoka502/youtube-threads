@@ -34,3 +34,15 @@ test('playRange：自動暫停後，使用者再按播放可繼續播放', () =>
   assert.equal(player.isPlaying(), true);
   assert.equal(player.getCurrentTime(), 23);
 });
+
+test('playRange：前一個片段還沒播完就播放另一個片段時，前一個的自動暫停不再作用', () => {
+  const player = createFakePlayer();
+  playRange(player, { startSec: 10, endSec: 20 }); // 片段 A
+  player.advance(2);
+
+  playRange(player, { startSec: 50, endSec: 60 }); // 片段 B
+  player.advance(1);
+
+  assert.equal(player.isPlaying(), true, 'B 應繼續播放');
+  assert.equal(player.getCurrentTime(), 51);
+});
