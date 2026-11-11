@@ -10,8 +10,14 @@ const CANDIDATE = /\d+(?::\d+)+/g;
  * @returns {import('../types.js').Timestamp[]}
  */
 export function findTimestamps(text) {
-  return [...text.matchAll(CANDIDATE)].map((match) => ({
-    text: match[0],
-    sec: /** @type {number} */ (parseTimecode(match[0])),
-  }));
+  /** @type {import('../types.js').Timestamp[]} */
+  const result = [];
+  for (const [candidate] of text.matchAll(CANDIDATE)) {
+    const sec = parseTimecode(candidate);
+    // 不是 YouTube 顯示格式的不算時間戳
+    if (sec !== null) {
+      result.push({ text: candidate, sec });
+    }
+  }
+  return result;
 }

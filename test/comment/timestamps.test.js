@@ -18,3 +18,9 @@ test('findTimestamps：沒有時間戳時回傳空陣列', () => {
   assert.deepEqual(findTimestamps('這段好好笑'), []);
   assert.deepEqual(findTimestamps(''), []);
 });
+
+test('findTimestamps：不是 YouTube 顯示格式的字串不算時間戳', () => {
+  assert.deepEqual(findTimestamps('02:15、3:2、2:75 都不是，2:15 才是'), [
+    { text: '2:15', sec: 135 },
+  ]);
+});
