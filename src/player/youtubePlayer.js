@@ -17,6 +17,7 @@ const defaultTimer = {
  * IFrame API 沒有時間更新事件，所以 onTimeUpdate 以定期讀取 getCurrentTime 實作。
  * @param {import('../types.js').YTPlayerLike} yt 已建立好的 YT.Player
  * @param {import('../types.js').Timer} [timer] 測試時可替換
+ * @returns {import('../types.js').PlayerAdapter}
  */
 export function createYouTubePlayer(yt, timer = defaultTimer) {
   /** @type {((sec: number) => void)[]} */
