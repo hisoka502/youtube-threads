@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouTubePlayer 手動驗證</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 24px auto; padding: 0 16px; line-height: 1.6; }
+    fieldset { margin: 16px 0; }
+    input { font: inherit; padding: 4px 6px; }
+    input.url { width: 100%; box-sizing: border-box; }
+    input.time { width: 6em; }
+    #player-box { aspect-ratio: 16 / 9; background: #000; }
+    #player-box iframe, #player-box > div { width: 100%; height: 100%; }
+    #message { min-height: 1.6em; font-weight: bold; }
+    #message.error { color: #b00020; }
+    code { background: #f2f2f2; padding: 0 4px; }
+  </style>
+</head>
+<body>
+  <h1>YouTubePlayer 手動驗證</h1>
+  <p>這個頁面只用來手動驗證 <code>src/player/youtubePlayer.js</code> 與 <code>playRange</code> 在真的 YouTube 播放器上的行為，不是正式 UI。</p>
+
+  <fieldset>
+    <legend>1. 載入影片</legend>
+    <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…">
+    <button id="load">載入</button>
+  </fieldset>
+
+  <div id="player-box"><div id="player"></div></div>
+  <p>目前時間：<span id="current">-</span>　影片長度：<span id="duration">-</span>　狀態：<span id="state">-</span></p>
+
+  <fieldset>
+    <legend>2. 播放片段</legend>
+    開始 <input id="start" class="time" placeholder="2:15">
+    結束 <input id="end" class="time" placeholder="留空＝開始＋5 秒">
+    <button id="play">播放片段</button>
+  </fieldset>
+
+  <p id="message"></p>
+
+  <h2>驗證項目</h2>
+  <ol>
+    <li>貼上網址按「載入」，影片出現在播放器中。</li>
+    <li>輸入開始與結束（例如 <code>0:10</code>、<code>0:20</code>），按「播放片段」：從開始時間播放，到結束時間自動暫停，畫面停在結束時間。</li>
+    <li>結束留空：播放 5 秒後自動暫停。</li>
+    <li>片段還沒播完就改輸入另一段並播放：新片段不會在舊片段的結束時間被暫停。</li>
+    <li>自動暫停後按播放器上的播放鍵：影片繼續播放，不會立刻又被暫停。</li>
+    <li>輸入錯誤格式（例如 <code>02:15</code>、<code>2:5</code>）或超過影片長度的結束時間：顯示錯誤，不播放。</li>
+  </ol>
+
+  <script type="module" src="./main.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
