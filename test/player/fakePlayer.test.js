@@ -37,3 +37,16 @@ test('FakePlayer：未播放或 pause 後，advance 不推進時間', () => {
   assert.equal(player.isPlaying(), false);
   assert.equal(player.getCurrentTime(), 2);
 });
+
+test('FakePlayer：onTimeUpdate 在時間推進時收到目前秒數', () => {
+  const player = createFakePlayer();
+  /** @type {number[]} */
+  const received = [];
+  player.onTimeUpdate((sec) => received.push(sec));
+
+  player.play();
+  player.advance(1);
+  player.advance(1);
+
+  assert.deepEqual(received, [1, 2]);
+});
