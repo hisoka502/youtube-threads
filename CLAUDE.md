@@ -63,7 +63,9 @@ src/
   url/parseUrl.js
   time/timecode.js
   clip/clipRules.js
+  clip/clipService.js
   data/memoryRepo.js
+  video/fakeVideoInfo.js    VideoInfoProvider 假實作
   player/fakePlayer.js
   player/youtubePlayer.js   （最後才做）
 test/
@@ -138,6 +140,7 @@ test/
 - [x] isValidRange 不通過時不存入，並回報錯誤（`{ ok: false, error: 'INVALID_RANGE' }`）
 - [x] （新增）刪除片段時，該片段討論串的留言一併刪除（使用者決定）
 - [x] （新增）id 由 Service 產生（透過注入的 newId 函式；測試時可預測）
+- [ ] （新增）找不到影片時（getDurationSec 回傳 null）不存入，回報 VIDEO_NOT_FOUND
 
 ### 5.7 假播放器（fakePlayer）
 
