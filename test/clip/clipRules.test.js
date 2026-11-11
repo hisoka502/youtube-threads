@@ -16,3 +16,8 @@ test('isValidRange：startSec 不可為負數，0 可以', () => {
   assert.equal(isValidRange({ startSec: -1, endSec: 5 }, 120), false);
   assert.equal(isValidRange({ startSec: 0, endSec: 5 }, 120), true);
 });
+
+test('isValidRange：endSec 不可超過影片長度，等於影片長度可以', () => {
+  assert.equal(isValidRange({ startSec: 100, endSec: 121 }, 120), false);
+  assert.equal(isValidRange({ startSec: 100, endSec: 120 }, 120), true);
+});
