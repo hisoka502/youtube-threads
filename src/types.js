@@ -26,4 +26,11 @@
  * @property {number} [endSec]
  */
 
+/**
+ * 留言中的一個時間戳。
+ * @typedef {object} Timestamp
+ * @property {string} text 原文中的時間戳字串，例如 "2:15"
+ * @property {number} sec 對應的秒數
+ */
+
 export {};
