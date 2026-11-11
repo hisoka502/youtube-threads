@@ -77,3 +77,7 @@ test('parseTimecode：第一段不可補 0（"0:15" 可以，"02:15" 不行）',
 test('parseTimecode：小時不可補 0', () => {
   assert.equal(parseTimecode('01:02:03'), null);
 });
+
+test('parseTimecode：小時不可為 0', () => {
+  assert.equal(parseTimecode('0:01:00'), null);
+});
