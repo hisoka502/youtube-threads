@@ -51,9 +51,9 @@ UI 與商業邏輯只依賴抽象介面；每個介面有「假實作」（開�
 
 - Video：id、youtubeId、title、durationSec
 - Clip：id、videoId、range（startSec, endSec）、title、createdBy、createdAt
-- Comment：id、clipId、parentId（可為 null）、body、createdBy、createdAt
+- Comment：id、clipId、body、createdBy、createdAt
 
-片段之間允許重疊。
+片段之間允許重疊。每個片段就是一個討論串；討論串內的留言依建立順序線性排列，沒有「回覆某則留言」的功能（使用者決定）。
 
 ### 建議檔案結構
 
@@ -63,7 +63,6 @@ src/
   url/parseUrl.js
   time/timecode.js
   clip/clipRules.js
-  comment/replyRules.js
   data/memoryRepo.js
   player/fakePlayer.js
   player/youtubePlayer.js   （最後才做）
@@ -120,16 +119,16 @@ test/
 
 使用者決定：討論串先不開放在留言中寫時間戳，因為片段建立時已經限定了時間範圍。已寫好的 `findTimestamps` 已移除，移到第 7 節；需要時可從 git 歷史找回（commit `9c3d2a2`）。
 
-### 5.5 回覆規則（replyRules）
+### 5.5 回覆規則（replyRules）— 已移除
 
-- [x] parentId 必須指向同一片段內的留言（主文 parentId 為 null；指向其他片段或不存在的留言皆不合法）
-- [ ] 巢狀層數限制（見第 6 節待決定事項）
+使用者決定：服務沒有「回覆」功能，每個片段是一個討論串，留言線性排列。Comment 不再有 parentId，已寫好的 `isValidReply` 已移除；需要時可從 git 歷史找回（commit `5ce66d0`）。
 
 ### 5.6 記憶體版儲存（memoryRepo）
 
 - [ ] 新增片段後可依 videoId 列出
 - [ ] 刪除片段
 - [ ] 新增留言後可依 clipId 列出
+- [ ] （新增）依 clipId 列出的留言依建立順序排列（討論串為線性對話）
 - [ ] 刪除留言
 
 ### 5.7 假播放器（fakePlayer）
@@ -148,7 +147,7 @@ test/
 處理到相關測試時，先停下來問使用者，不要自行假設：
 
 - ~~時間單位用秒（可含小數，與 YouTube API 一致）還是毫秒？~~ **已決定：秒，可含小數**（與 YouTube IFrame API 一致）。比較兩個時間時避免用 `===` 比較小數運算結果。
-- 回覆只允許兩層（主文＋回覆），還是無限巢狀？
+- ~~回覆只允許兩層（主文＋回覆），還是無限巢狀？~~ **已決定：沒有回覆功能**，每個片段是一個討論串，留言線性排列。
 - 驗證邏輯放在 Repository 內，還是另設 ClipService？
 - 使用情境：個人筆記、小團體討論，還是公開社群？（影響權限設計，UI 階段前要確定）
 - ~~片段型態：一定要起訖區間，還是也允許單一時間點？~~ **已決定：一定是起訖區間**（endSec 必須大於 startSec）。使用者未提供 endSec 時，endSec = startSec + 5 秒；超過影片長度則截到影片結尾。
