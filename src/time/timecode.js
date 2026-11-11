@@ -10,7 +10,12 @@ export function parseTimecode(text) {
   if (parts.some((part) => part === '')) {
     return null;
   }
-  const total = parts.reduce((sum, part) => sum * 60 + Number(part), 0);
+  const numbers = parts.map(Number);
+  // 第一段之後（分、秒）必須小於 60
+  if (numbers.slice(1).some((n) => n >= 60)) {
+    return null;
+  }
+  const total = numbers.reduce((sum, n) => sum * 60 + n, 0);
   return Number.isNaN(total) ? null : total;
 }
 

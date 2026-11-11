@@ -27,3 +27,8 @@ test('parseTimecode：空字串或缺少數字的段落回傳 null', () => {
   assert.equal(parseTimecode(''), null);
   assert.equal(parseTimecode('1:'), null);
 });
+
+test('parseTimecode：分或秒超過 59 回傳 null', () => {
+  assert.equal(parseTimecode('1:75'), null);
+  assert.equal(parseTimecode('1:60:00'), null);
+});
