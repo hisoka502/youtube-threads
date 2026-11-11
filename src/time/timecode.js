@@ -6,9 +6,11 @@
  * @returns {number | null} 秒（可含小數）；格式錯誤時回傳 null
  */
 export function parseTimecode(text) {
-  const total = text
-    .split(':')
-    .reduce((sum, part) => sum * 60 + Number(part), 0);
+  const parts = text.split(':');
+  if (parts.some((part) => part === '')) {
+    return null;
+  }
+  const total = parts.reduce((sum, part) => sum * 60 + Number(part), 0);
   return Number.isNaN(total) ? null : total;
 }
 

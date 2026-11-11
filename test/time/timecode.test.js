@@ -22,3 +22,8 @@ test('formatTimecode：超過一小時格式化為 h:mm:ss', () => {
 test('parseTimecode：非數字字串回傳 null', () => {
   assert.equal(parseTimecode('abc'), null);
 });
+
+test('parseTimecode：空字串或缺少數字的段落回傳 null', () => {
+  assert.equal(parseTimecode(''), null);
+  assert.equal(parseTimecode('1:'), null);
+});
