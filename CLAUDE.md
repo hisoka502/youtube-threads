@@ -115,7 +115,7 @@ test/
 - [x] （新增）未提供 endSec 時，endSec = startSec + 5（使用者決定：預設 5 秒）
 - [x] （新增）有提供 endSec 時維持原值
 - [x] （新增）startSec + 5 超過影片長度時，endSec 截到影片長度（使用者決定）
-- [ ] （新增）使用者自己填的 endSec 超過影片長度時：不截斷，交由 isValidRange 判為不合法（使用者決定：維持原值，由畫面提示使用者修正）
+- [x] （新增）使用者自己填的 endSec 超過影片長度時：不截斷，交由 isValidRange 判為不合法（使用者決定：維持原值，由畫面提示使用者修正）
 
 ### 5.4 留言內時間戳（timestamps）
 

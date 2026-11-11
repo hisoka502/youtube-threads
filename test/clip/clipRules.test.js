@@ -37,3 +37,9 @@ test('resolveRange：有提供 endSec 時維持原值', () => {
 test('resolveRange：預設長度超過影片長度時，endSec 截到影片結尾', () => {
   assert.deepEqual(resolveRange({ startSec: 118 }, 120), { startSec: 118, endSec: 120 });
 });
+
+test('resolveRange：使用者自己填的 endSec 超過影片長度時不截斷，由 isValidRange 判為不合法', () => {
+  const range = resolveRange({ startSec: 100, endSec: 130 }, 120);
+  assert.deepEqual(range, { startSec: 100, endSec: 130 });
+  assert.equal(isValidRange(range, 120), false);
+});
