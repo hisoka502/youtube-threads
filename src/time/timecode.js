@@ -1,9 +1,9 @@
 // @ts-check
 
 /**
- * 把時間碼字串轉成秒數。
- * @param {string} text 例如 "02:15"、"1:02:03"
- * @returns {number | null} 秒（可含小數）；格式錯誤時回傳 null
+ * 把 YouTube 顯示格式的時間碼字串轉成秒數。
+ * @param {string} text m:ss 或 h:mm:ss，例如 "2:15"、"1:02:03"
+ * @returns {number | null} 整數秒；格式錯誤時回傳 null
  */
 export function parseTimecode(text) {
   const parts = text.split(':');
@@ -20,8 +20,7 @@ export function parseTimecode(text) {
   if (numbers.slice(1).some((n) => n >= 60)) {
     return null;
   }
-  const total = numbers.reduce((sum, n) => sum * 60 + n, 0);
-  return Number.isNaN(total) ? null : total;
+  return numbers.reduce((sum, n) => sum * 60 + n, 0);
 }
 
 /**
