@@ -122,7 +122,7 @@ test/
 
 ### 5.5 回覆規則（replyRules）
 
-- [ ] parentId 必須指向同一片段內的留言
+- [x] parentId 必須指向同一片段內的留言（主文 parentId 為 null；指向其他片段或不存在的留言皆不合法）
 - [ ] 巢狀層數限制（見第 6 節待決定事項）
 
 ### 5.6 記憶體版儲存（memoryRepo）

@@ -11,3 +11,13 @@ test('isValidReply：parentId 指向其他片段的留言時不合法', () => {
   const existing = [{ id: 'm1', clipId: 'c2', parentId: null }];
   assert.equal(isValidReply({ clipId: 'c1', parentId: 'm1' }, existing), false);
 });
+
+test('isValidReply：parentId 指向同一片段的留言時合法', () => {
+  const existing = [{ id: 'm1', clipId: 'c1', parentId: null }];
+  assert.equal(isValidReply({ clipId: 'c1', parentId: 'm1' }, existing), true);
+});
+
+test('isValidReply：parentId 指向不存在的留言時不合法', () => {
+  const existing = [{ id: 'm1', clipId: 'c1', parentId: null }];
+  assert.equal(isValidReply({ clipId: 'c1', parentId: 'nope' }, existing), false);
+});
