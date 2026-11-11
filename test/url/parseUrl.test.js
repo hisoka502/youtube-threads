@@ -28,3 +28,9 @@ test('其他 YouTube 主機：youtube.com、m.youtube.com', () => {
   assert.equal(parseUrl('https://youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
   assert.equal(parseUrl('https://m.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
 });
+
+test('其他路徑：/shorts/、/embed/、/live/', () => {
+  assert.equal(parseUrl('https://www.youtube.com/shorts/aqz-KE-bpKQ'), 'aqz-KE-bpKQ');
+  assert.equal(parseUrl('https://www.youtube.com/embed/dQw4w9WgXcQ?start=10'), 'dQw4w9WgXcQ');
+  assert.equal(parseUrl('https://www.youtube.com/live/jfKfPfyJRdk?si=abc'), 'jfKfPfyJRdk');
+});

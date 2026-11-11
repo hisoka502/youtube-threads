@@ -16,6 +16,10 @@ export function parseUrl(url) {
     return u.pathname.slice(1);
   }
   if (['www.youtube.com', 'youtube.com', 'm.youtube.com'].includes(u.hostname)) {
+    const [, first, second] = u.pathname.split('/');
+    if (['shorts', 'embed', 'live'].includes(first)) {
+      return second;
+    }
     return u.searchParams.get('v');
   }
   return null;

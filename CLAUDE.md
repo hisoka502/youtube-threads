@@ -83,7 +83,7 @@ test/
 - [x] 帶其他參數（如 `&t=30s`、`&list=`）仍取出正確 ID
 - [x] 無效網址 → null
 - [x] （新增）其他 YouTube 主機：`youtube.com`（無 www）、`m.youtube.com`
-- [ ] （新增）其他路徑：`/shorts/ID`、`/embed/ID`、`/live/ID`
+- [x] （新增）其他路徑：`/shorts/ID`、`/embed/ID`、`/live/ID`
 - [ ] （新增）`watch` 網址缺少 `v` 參數、`youtu.be/` 無 ID → null
 - [ ] （新增）ID 格式檢查：使用者決定先不檢查格式，但預留可注入檢查函式的介面（預設接受任何非空字串）
 
