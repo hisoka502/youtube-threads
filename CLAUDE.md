@@ -223,7 +223,7 @@ test/
 - 建立時間（createdAt）：片段與留言都記錄，單位為毫秒（與 `Date.now()` 相同），由注入的 `now()` 提供；畫面上顯示日期與時間。
 - 影片標題先不做（使用者決定）。
 
-- [ ] ClipService：建立片段時存入 title；未提供時為空字串
+- [x] ClipService：建立片段時存入 title；未提供時為空字串
 - [ ] ClipService：存入 createdBy
 - [ ] ClipService：createdAt 由注入的 now() 提供
 - [ ] app：setUserName(name) 後，狀態有 userName（去掉前後空白）

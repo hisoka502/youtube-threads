@@ -27,11 +27,12 @@
  */
 
 /**
- * 片段。其他欄位（title、createdBy、createdAt）在測試需要時再加。
+ * 片段。其他欄位（createdBy、createdAt）在測試需要時再加。
  * @typedef {object} Clip
  * @property {string} id
  * @property {string} videoId
  * @property {ClipRange} range
+ * @property {string} title 選填；未填為空字串
  */
 
 /**
@@ -67,7 +68,7 @@
 
 /**
  * 建立片段的輸入；endSec 可省略。
- * @typedef {ClipRangeInput & { videoId: string }} ClipInput
+ * @typedef {ClipRangeInput & { videoId: string, title?: string }} ClipInput
  */
 
 /**
