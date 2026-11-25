@@ -138,3 +138,15 @@ test('UI：點片段時，以 playRange 從開始時間播放，播到結束時�
   assert.equal(player.isPlaying(), false);
   assert.equal(player.getCurrentTime(), 15);
 });
+
+test('UI：點的片段不在目前片段列表時，什麼都不做', async () => {
+  const { app, player } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+  const before = app.getState();
+
+  app.playClip('missing');
+
+  assert.equal(player.isPlaying(), false);
+  assert.equal(player.getCurrentTime(), 0);
+  assert.equal(app.getState(), before);
+});

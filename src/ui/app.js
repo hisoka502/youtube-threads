@@ -54,11 +54,12 @@ export function createApp({ clipRepo, clipService, player }) {
     },
 
     /**
-     * 播放目前片段列表中的一個片段。
+     * 播放目前片段列表中的一個片段；不在列表中時什麼都不做。
      * @param {string} clipId
      */
     playClip(clipId) {
-      const clip = /** @type {import('../types.js').Clip} */ (state.clips.find((c) => c.id === clipId));
+      const clip = state.clips.find((c) => c.id === clipId);
+      if (clip === undefined) return;
       playRange(player, clip.range);
     },
   };
