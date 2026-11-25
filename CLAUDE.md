@@ -204,7 +204,7 @@ test/
 - VideoInfoProvider 從播放器讀取影片長度（`getDuration`），不需 API 金鑰；只能取得播放器目前載入的影片。
 - 資料先用記憶體版，重新整理頁面即清空（使用者同意）。
 
-- [ ] FakePlayer：load(videoId) 後，測試專用的 loadedVideoId 為該 ID
+- [x] FakePlayer：load(videoId) 後，測試專用的 getLoadedVideoId() 回傳該 ID
 - [ ] app.loadVideo 成功時呼叫 player.load(videoId)
 - [ ] app.loadVideo 無效網址時不呼叫 player.load
 - [ ] YouTubePlayer：load 轉呼叫 loadVideoById

@@ -78,6 +78,7 @@
 /**
  * 播放器介面。正式實作（YouTubePlayer）只做很薄的包裝，可測的邏輯放在外面（例如 playRange）。
  * @typedef {object} PlayerAdapter
+ * @property {(videoId: string) => void} load 載入另一部影片（YouTubePlayer 轉呼叫 loadVideoById）
  * @property {(sec: number) => void} seekTo
  * @property {() => number} getCurrentTime 秒（可含小數）
  * @property {() => void} play

@@ -96,3 +96,10 @@ test('FakePlayer：在通知過程中取消訂閱，其他訂閱者仍收到這�
 
   assert.deepEqual(b, [1]);
 });
+
+test('FakePlayer：load 後，測試專用的 getLoadedVideoId 回傳該影片 ID', () => {
+  const player = createFakePlayer();
+  assert.equal(player.getLoadedVideoId(), null);
+  player.load('abc');
+  assert.equal(player.getLoadedVideoId(), 'abc');
+});

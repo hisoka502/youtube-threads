@@ -2,14 +2,20 @@
 
 /**
  * 以可控時間模擬播放的假播放器。
- * @returns {import('../types.js').PlayerAdapter & { advance: (sec: number) => void }}
+ * @returns {import('../types.js').PlayerAdapter & { advance: (sec: number) => void, getLoadedVideoId: () => string | null }}
  */
 export function createFakePlayer() {
   let currentTime = 0;
   let playing = false;
+  /** @type {string | null} */
+  let loadedVideoId = null;
   /** @type {((sec: number) => void)[]} */
   const listeners = [];
   return {
+    /** @param {string} videoId */
+    load(videoId) {
+      loadedVideoId = videoId;
+    },
     /** @param {number} sec */
     seekTo(sec) {
       currentTime = sec;
@@ -38,6 +44,10 @@ export function createFakePlayer() {
           listeners.splice(index, 1);
         }
       };
+    },
+    /** 測試專用：最近一次 load 的影片 ID，不屬於 PlayerAdapter 介面。 */
+    getLoadedVideoId() {
+      return loadedVideoId;
     },
     /**
      * 測試專用：讓時間往前推進，不屬於 PlayerAdapter 介面。
