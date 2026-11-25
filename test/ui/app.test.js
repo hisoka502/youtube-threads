@@ -260,3 +260,15 @@ test('UI：尚未開啟討論串時新增留言，狀態有錯誤 NO_CLIP，不�
   assert.deepEqual(state.comments, []);
   assert.deepEqual(await commentRepo.listByClip(/** @type {any} */ (null)), []);
 });
+
+test('UI：新增留言成功後，清除先前的錯誤', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.addComment('沒有討論串');
+  await app.selectClip('c1');
+
+  await app.addComment('第一則');
+
+  assert.equal(app.getState().error, null);
+});

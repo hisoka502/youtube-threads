@@ -96,7 +96,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
         return;
       }
       await commentRepo.add({ id: newId(), clipId, body });
-      state = { ...state, comments: await commentRepo.listByClip(clipId) };
+      state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
     },
 
     /**
