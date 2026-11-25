@@ -7,13 +7,16 @@ import { createClipService } from '../../src/clip/clipService.js';
 import { createFakeVideoInfo } from '../../src/video/fakeVideoInfo.js';
 import { createFakePlayer } from '../../src/player/fakePlayer.js';
 
+/** 測試用的固定時間（毫秒） */
+const NOW = 1764000000000;
+
 function setup() {
   const clipRepo = createMemoryClipRepo();
   const commentRepo = createMemoryCommentRepo();
   const videoInfo = createFakeVideoInfo({ abc: 120, xyz: 60 });
   let n = 0;
   const newId = () => `id-${++n}`;
-  const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId });
+  const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId, now: () => NOW });
   const player = createFakePlayer();
   const app = createApp({ clipRepo, commentRepo, clipService, player, newId });
   return { app, clipRepo, commentRepo, player };
@@ -70,7 +73,7 @@ test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async
   await app.createClip({ start: '0:10', end: '0:20' });
 
   assert.deepEqual(app.getState().clips, [
-    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: undefined },
+    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: undefined, createdAt: NOW },
   ]);
 });
 

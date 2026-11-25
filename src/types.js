@@ -27,13 +27,14 @@
  */
 
 /**
- * 片段。其他欄位（createdAt）在測試需要時再加。
+ * 片段。
  * @typedef {object} Clip
  * @property {string} id
  * @property {string} videoId
  * @property {ClipRange} range
  * @property {string} title 選填；未填為空字串
  * @property {string} createdBy 建立者的名字
+ * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
  */
 
 /**

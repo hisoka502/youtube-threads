@@ -8,8 +8,9 @@ import { isValidRange, resolveRange } from './clipRules.js';
  * @param {import('../types.js').CommentRepository} deps.commentRepo
  * @param {import('../types.js').VideoInfoProvider} deps.videoInfo
  * @param {() => string} deps.newId 產生新片段的 id
+ * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  */
-export function createClipService({ clipRepo, commentRepo, videoInfo, newId }) {
+export function createClipService({ clipRepo, commentRepo, videoInfo, newId, now }) {
   return {
     /**
      * @param {import('../types.js').ClipInput} input
@@ -30,6 +31,7 @@ export function createClipService({ clipRepo, commentRepo, videoInfo, newId }) {
         range,
         title: input.title ?? '',
         createdBy: input.createdBy,
+        createdAt: now(),
       };
       await clipRepo.add(clip);
       return { ok: true, clip };

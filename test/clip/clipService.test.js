@@ -5,13 +5,17 @@ import { createClipService } from '../../src/clip/clipService.js';
 import { createMemoryClipRepo, createMemoryCommentRepo } from '../../src/data/memoryRepo.js';
 import { createFakeVideoInfo } from '../../src/video/fakeVideoInfo.js';
 
+/** 測試用的固定時間（毫秒） */
+const NOW = 1764000000000;
+
 function setup() {
   const clipRepo = createMemoryClipRepo();
   const commentRepo = createMemoryCommentRepo();
   const videoInfo = createFakeVideoInfo({ v1: 120 });
   let n = 0;
   const newId = () => `id-${++n}`;
-  const service = createClipService({ clipRepo, commentRepo, videoInfo, newId });
+  const now = () => NOW;
+  const service = createClipService({ clipRepo, commentRepo, videoInfo, newId, now });
   return { service, clipRepo, commentRepo };
 }
 
@@ -20,7 +24,7 @@ test('ClipService：建立片段時補齊 endSec，並存入 Repository', async 
 
   const result = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明' });
 
-  const expected = { id: 'id-1', videoId: 'v1', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小明' };
+  const expected = { id: 'id-1', videoId: 'v1', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小明', createdAt: NOW };
   assert.deepEqual(result, { ok: true, clip: expected });
   assert.deepEqual(await clipRepo.listByVideo('v1'), [expected]);
 });
@@ -74,4 +78,12 @@ test('ClipService：建立片段時存入 createdBy', async () => {
   const result = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明' });
 
   assert.equal(result.ok && result.clip.createdBy, '小明');
+});
+
+test('ClipService：createdAt 由注入的 now() 提供', async () => {
+  const { service } = setup();
+
+  const result = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明' });
+
+  assert.equal(result.ok && result.clip.createdAt, NOW);
 });

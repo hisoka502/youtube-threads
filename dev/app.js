@@ -48,6 +48,7 @@ const clipService = createClipService({
   commentRepo,
   videoInfo: createPlayerVideoInfo(yt),
   newId,
+  now: () => Date.now(),
 });
 const app = createApp({ clipRepo, commentRepo, clipService, player, newId });
 
