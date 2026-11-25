@@ -16,6 +16,17 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
   /** @type {import('../types.js').AppState} */
   let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [] };
 
+  /**
+   * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
+   * @param {import('../types.js').Clip[]} clips
+   */
+  function setClips(clips) {
+    state = { ...state, clips };
+    if (!clips.some((c) => c.id === state.selectedClipId)) {
+      state = { ...state, selectedClipId: null, comments: [] };
+    }
+  }
+
   return {
     getState() {
       return state;
@@ -28,11 +39,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
-      const clips = await clipRepo.listByVideo(videoId);
-      state = { ...state, videoId, clips, error: null };
-      if (!clips.some((c) => c.id === state.selectedClipId)) {
-        state = { ...state, selectedClipId: null, comments: [] };
-      }
+      state = { ...state, videoId, error: null };
+      setClips(await clipRepo.listByVideo(videoId));
     },
 
     /**
@@ -94,11 +102,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
     async deleteClip(clipId) {
       await clipService.deleteClip(clipId);
       const videoId = /** @type {string} */ (state.videoId);
-      const clips = await clipRepo.listByVideo(videoId);
-      state = { ...state, clips };
-      if (!clips.some((c) => c.id === state.selectedClipId)) {
-        state = { ...state, selectedClipId: null, comments: [] };
-      }
+      setClips(await clipRepo.listByVideo(videoId));
     },
 
     /**
