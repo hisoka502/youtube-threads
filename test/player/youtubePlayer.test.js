@@ -22,6 +22,8 @@ function createFakeYT() {
     getPlayerState() { return state; },
     /** @param {string} videoId */
     loadVideoById(videoId) { calls.push(['loadVideoById', videoId]); },
+    /** 模擬影片播到結尾：狀態變成 ENDED（0），時間停在影片長度。 @param {number} durationSec */
+    end(durationSec) { time = durationSec; state = 0; },
   };
 }
 
