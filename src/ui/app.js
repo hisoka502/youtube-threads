@@ -94,7 +94,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
     async deleteClip(clipId) {
       await clipService.deleteClip(clipId);
       const videoId = /** @type {string} */ (state.videoId);
-      state = { ...state, clips: await clipRepo.listByVideo(videoId) };
+      const clips = await clipRepo.listByVideo(videoId);
+      state = { ...state, clips };
+      if (!clips.some((c) => c.id === state.selectedClipId)) {
+        state = { ...state, selectedClipId: null, comments: [] };
+      }
     },
 
     /**

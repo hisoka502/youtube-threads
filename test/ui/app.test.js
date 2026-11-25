@@ -233,3 +233,17 @@ test('UI：重新載入同一部影片時，保留選取的討論串', async () 
   assert.equal(state.selectedClipId, 'c1');
   assert.deepEqual(state.comments.map((m) => m.id), ['m1']);
 });
+
+test('UI：刪除目前選取的片段後，清除選取與留言列表', async () => {
+  const { app, clipRepo, commentRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+
+  await app.deleteClip('c1');
+
+  const state = app.getState();
+  assert.equal(state.selectedClipId, null);
+  assert.deepEqual(state.comments, []);
+});
