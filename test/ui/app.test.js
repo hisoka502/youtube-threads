@@ -291,3 +291,12 @@ test('UI：載入影片成功時，播放器載入該影片', async () => {
 
   assert.equal(player.getLoadedVideoId(), 'abc');
 });
+
+test('UI：貼上無效網址時，播放器不載入影片', async () => {
+  const { app, player } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.loadVideo('not a url');
+
+  assert.equal(player.getLoadedVideoId(), 'abc');
+});
