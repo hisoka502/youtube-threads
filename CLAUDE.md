@@ -160,7 +160,7 @@ test/
 
 ### 5.8 之後才做
 
-- [ ] YouTubePlayer 轉接層（手動驗證）
+- [x] YouTubePlayer 轉接層（手動驗證）（使用者已在自己的瀏覽器以 `dev/index.html` 驗證通過）
   - [x] （新增）seekTo、getCurrentTime 轉呼叫 IFrame API（以假的 YT.Player 物件測試對應關係）
   - [x] （新增）play、pause、isPlaying 對應 playVideo、pauseVideo、getPlayerState
   - [x] （新增）onTimeUpdate：IFrame API 沒有時間更新事件，播放中定期讀取 getCurrentTime 通知訂閱者
