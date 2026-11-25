@@ -108,6 +108,7 @@
  * @typedef {object} AppState
  * @property {string | null} videoId 尚未載入影片時為 null
  * @property {Clip[]} clips 目前影片的片段
+ * @property {string | null} error 最近一次動作的錯誤碼（如 'INVALID_URL'）；沒有錯誤時為 null
  */
 
 export {};

@@ -8,7 +8,7 @@ import { parseUrl } from '../url/parseUrl.js';
  */
 export function createApp({ clipRepo }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [] };
+  let state = { videoId: null, clips: [], error: null };
 
   return {
     getState() {
@@ -18,8 +18,11 @@ export function createApp({ clipRepo }) {
     /** @param {string} url */
     async loadVideo(url) {
       const videoId = parseUrl(url);
-      if (videoId === null) return;
-      state = { videoId, clips: await clipRepo.listByVideo(videoId) };
+      if (videoId === null) {
+        state = { ...state, error: 'INVALID_URL' };
+        return;
+      }
+      state = { ...state, videoId, clips: await clipRepo.listByVideo(videoId) };
     },
   };
 }

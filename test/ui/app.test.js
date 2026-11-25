@@ -16,3 +16,13 @@ test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片�
   assert.equal(state.videoId, 'abc');
   assert.deepEqual(state.clips, [{ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } }]);
 });
+
+test('UI：貼上無效網址時，狀態有錯誤 INVALID_URL，不載入影片', async () => {
+  const app = createApp({ clipRepo: createMemoryClipRepo() });
+
+  await app.loadVideo('https://example.com/watch?v=abc');
+
+  const state = app.getState();
+  assert.equal(state.error, 'INVALID_URL');
+  assert.equal(state.videoId, null);
+});
