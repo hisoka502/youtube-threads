@@ -93,3 +93,13 @@ test('UI：ClipService 回報錯誤時，狀態有該錯誤，不建立', async 
   assert.equal(state.error, 'INVALID_RANGE');
   assert.deepEqual(state.clips, []);
 });
+
+test('UI：建立片段成功後，清除先前的錯誤', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+  await app.createClip({ start: '02:15', end: '2:20' });
+
+  await app.createClip({ start: '0:10', end: '0:20' });
+
+  assert.equal(app.getState().error, null);
+});

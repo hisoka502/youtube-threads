@@ -44,7 +44,7 @@ export function createApp({ clipRepo, clipService }) {
         state = { ...state, error: result.error };
         return;
       }
-      state = { ...state, clips: await clipRepo.listByVideo(videoId) };
+      state = { ...state, clips: await clipRepo.listByVideo(videoId), error: null };
     },
   };
 }
