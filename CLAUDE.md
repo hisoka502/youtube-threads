@@ -207,7 +207,7 @@ test/
 - [x] FakePlayer：load(videoId) 後，測試專用的 getLoadedVideoId() 回傳該 ID
 - [x] app.loadVideo 成功時呼叫 player.load(videoId)
 - [x] app.loadVideo 無效網址時不呼叫 player.load
-- [ ] YouTubePlayer：load 轉呼叫 loadVideoById
+- [x] YouTubePlayer：load 轉呼叫 loadVideoById
 - [ ] playerVideoInfo：播放器目前載入的影片 → 回傳 getDuration
 - [ ] playerVideoInfo：不是目前載入的影片 → null
 - [ ] playerVideoInfo：getDuration 為 0（影片資訊尚未載入）→ null

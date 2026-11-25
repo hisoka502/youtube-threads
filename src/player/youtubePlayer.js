@@ -36,6 +36,10 @@ export function createYouTubePlayer(yt, timer = defaultTimer) {
   }
 
   return {
+    /** @param {string} videoId */
+    load(videoId) {
+      yt.loadVideoById(videoId);
+    },
     /** @param {number} sec */
     seekTo(sec) {
       yt.seekTo(sec, true);

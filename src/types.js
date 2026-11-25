@@ -95,6 +95,7 @@
  * @property {() => void} playVideo
  * @property {() => void} pauseVideo
  * @property {() => number} getPlayerState 1 為播放中（YT.PlayerState.PLAYING）
+ * @property {(videoId: string) => void} loadVideoById
  */
 
 /**

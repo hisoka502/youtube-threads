@@ -20,6 +20,8 @@ function createFakeYT() {
     playVideo() { calls.push(['playVideo']); state = 1; },
     pauseVideo() { calls.push(['pauseVideo']); state = 2; },
     getPlayerState() { return state; },
+    /** @param {string} videoId */
+    loadVideoById(videoId) { calls.push(['loadVideoById', videoId]); },
   };
 }
 
@@ -153,4 +155,13 @@ test('YouTubePlayer ＋ playRange：定期讀取時超過 endSec，會暫停並�
     ['seekTo', 20, true],
   ]);
   assert.equal(timer.activeCount, 0, '片段結束後不再定期讀取');
+});
+
+test('YouTubePlayer：load 轉呼叫 loadVideoById', () => {
+  const yt = createFakeYT();
+  const player = createYouTubePlayer(yt, createFakeTimer());
+
+  player.load('abc');
+
+  assert.deepEqual(yt.calls, [['loadVideoById', 'abc']]);
 });
