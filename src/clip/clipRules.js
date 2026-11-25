@@ -4,6 +4,13 @@
 export const DEFAULT_CLIP_LENGTH_SEC = 5;
 
 /**
+ * startSec 至少要在影片結尾前這麼多秒。
+ * YouTube 播放器跳到離結尾太近的位置時，會直接判定影片已結束，接著從 0 秒重播
+ * （實測：getDuration 為 328 的影片，seekTo(327) 會重播，seekTo(325) 正常）。
+ */
+export const MIN_START_BEFORE_END_SEC = 3;
+
+/**
  * 片段的時間區間是否合法。
  * @param {import('../types.js').ClipRange} range
  * @param {number} durationSec 影片長度（秒）
@@ -13,7 +20,8 @@ export function isValidRange(range, durationSec) {
   return (
     range.startSec >= 0 &&
     range.endSec > range.startSec &&
-    range.endSec <= durationSec
+    range.endSec <= durationSec &&
+    range.startSec <= durationSec - MIN_START_BEFORE_END_SEC
   );
 }
 

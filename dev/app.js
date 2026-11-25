@@ -19,7 +19,7 @@ const ERROR_TEXT = {
   INVALID_URL: '無法辨識的 YouTube 網址',
   NO_VIDEO: '請先載入影片',
   INVALID_TIMECODE: '時間格式錯誤（請用 YouTube 顯示格式，例如 2:15 或 1:02:03）',
-  INVALID_RANGE: '片段不合法：結束時間必須大於開始時間，且不可超過影片長度',
+  INVALID_RANGE: '片段不合法：結束時間必須大於開始時間、不可超過影片長度，且開始時間至少要在影片結尾前 3 秒',
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
   NO_CLIP: '請先開啟一個討論串',
 };

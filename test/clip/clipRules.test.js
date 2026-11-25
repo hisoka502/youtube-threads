@@ -43,3 +43,9 @@ test('resolveRange：使用者自己填的 endSec 超過影片長度時不截斷
   assert.deepEqual(range, { startSec: 100, endSec: 130 });
   assert.equal(isValidRange(range, 120), false);
 });
+
+test('isValidRange：startSec 離影片結尾不到 3 秒為不合法，剛好 3 秒可以', () => {
+  assert.equal(isValidRange({ startSec: 327, endSec: 328 }, 328), false);
+  assert.equal(isValidRange({ startSec: 325.5, endSec: 328 }, 328), false);
+  assert.equal(isValidRange({ startSec: 325, endSec: 328 }, 328), true);
+});
