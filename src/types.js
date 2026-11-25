@@ -99,6 +99,13 @@
  */
 
 /**
+ * YT.Player 中 playerVideoInfo 用到的方法。
+ * @typedef {object} YTVideoInfoLike
+ * @property {() => { video_id: string }} getVideoData 播放器目前載入的影片
+ * @property {() => number} getDuration 秒；影片資訊尚未載入時為 0
+ */
+
+/**
  * 計時函式。YouTubePlayer 用它定期讀取播放時間；測試時可替換成假的計時器。
  * @typedef {object} Timer
  * @property {(fn: () => void, ms: number) => unknown} setInterval
