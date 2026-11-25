@@ -28,14 +28,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
-      state = {
-        ...state,
-        videoId,
-        clips: await clipRepo.listByVideo(videoId),
-        error: null,
-        selectedClipId: null,
-        comments: [],
-      };
+      const clips = await clipRepo.listByVideo(videoId);
+      state = { ...state, videoId, clips, error: null };
+      if (!clips.some((c) => c.id === state.selectedClipId)) {
+        state = { ...state, selectedClipId: null, comments: [] };
+      }
     },
 
     /**
