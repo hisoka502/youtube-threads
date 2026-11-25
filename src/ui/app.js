@@ -32,7 +32,11 @@ export function createApp({ clipRepo, clipService }) {
      * @param {{ start: string, end: string }} input
      */
     async createClip({ start, end }) {
-      const videoId = /** @type {string} */ (state.videoId);
+      const { videoId } = state;
+      if (videoId === null) {
+        state = { ...state, error: 'NO_VIDEO' };
+        return;
+      }
       const startSec = parseTimecode(start);
       const endSec = end === '' ? undefined : parseTimecode(end);
       if (startSec === null || endSec === null) {

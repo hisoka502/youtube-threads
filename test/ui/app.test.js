@@ -114,3 +114,11 @@ test('UI：建立片段時結束時間留空，補為開始 + 5 秒', async () =
   assert.equal(state.error, null);
   assert.deepEqual(state.clips.map((c) => c.range), [{ startSec: 10, endSec: 15 }]);
 });
+
+test('UI：尚未載入影片時建立片段，狀態有錯誤 NO_VIDEO，不建立', async () => {
+  const { app } = setup();
+
+  await app.createClip({ start: '0:10', end: '0:20' });
+
+  assert.equal(app.getState().error, 'NO_VIDEO');
+});
