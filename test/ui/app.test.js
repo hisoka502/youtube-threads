@@ -283,3 +283,11 @@ test('UI：開啟討論串後，清除先前的錯誤', async () => {
 
   assert.equal(app.getState().error, null);
 });
+
+test('UI：載入影片成功時，播放器載入該影片', async () => {
+  const { app, player } = setup();
+
+  await app.loadVideo('https://youtu.be/abc');
+
+  assert.equal(player.getLoadedVideoId(), 'abc');
+});
