@@ -92,5 +92,15 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
       const videoId = /** @type {string} */ (state.videoId);
       state = { ...state, clips: await clipRepo.listByVideo(videoId) };
     },
+
+    /**
+     * 刪除選取的討論串中的一則留言。
+     * @param {string} commentId
+     */
+    async deleteComment(commentId) {
+      await commentRepo.remove(commentId);
+      const clipId = /** @type {string} */ (state.selectedClipId);
+      state = { ...state, comments: await commentRepo.listByClip(clipId) };
+    },
   };
 }
