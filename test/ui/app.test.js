@@ -350,3 +350,17 @@ test('UI：建立片段時，片段帶有標題與建立者（使用者的名字
   assert.equal(clip.title, '開場');
   assert.equal(clip.createdBy, '小明');
 });
+
+test('UI：未填名字時新增留言，狀態有錯誤 NO_NAME，不存入', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+  app.setUserName('');
+
+  await app.addComment('沒有名字');
+
+  const state = app.getState();
+  assert.equal(state.error, 'NO_NAME');
+  assert.deepEqual(state.comments, []);
+});

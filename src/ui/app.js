@@ -117,6 +117,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
         state = { ...state, error: 'NO_CLIP' };
         return;
       }
+      if (state.userName === '') {
+        state = { ...state, error: 'NO_NAME' };
+        return;
+      }
       await commentRepo.add({ id: newId(), clipId, body });
       state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
     },
