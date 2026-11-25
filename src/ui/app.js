@@ -82,7 +82,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
      * @param {string} clipId
      */
     async selectClip(clipId) {
-      state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId) };
+      state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
     },
 
     /**

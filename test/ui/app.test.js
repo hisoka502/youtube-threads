@@ -272,3 +272,14 @@ test('UI：新增留言成功後，清除先前的錯誤', async () => {
 
   assert.equal(app.getState().error, null);
 });
+
+test('UI：開啟討論串後，清除先前的錯誤', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.addComment('沒有討論串');
+
+  await app.selectClip('c1');
+
+  assert.equal(app.getState().error, null);
+});
