@@ -247,3 +247,16 @@ test('UI：刪除目前選取的片段後，清除選取與留言列表', async 
   assert.equal(state.selectedClipId, null);
   assert.deepEqual(state.comments, []);
 });
+
+test('UI：尚未開啟討論串時新增留言，狀態有錯誤 NO_CLIP，不存入', async () => {
+  const { app, clipRepo, commentRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.addComment('沒有討論串');
+
+  const state = app.getState();
+  assert.equal(state.error, 'NO_CLIP');
+  assert.deepEqual(state.comments, []);
+  assert.deepEqual(await commentRepo.listByClip(/** @type {any} */ (null)), []);
+});

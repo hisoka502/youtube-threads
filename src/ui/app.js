@@ -90,7 +90,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
      * @param {string} body
      */
     async addComment(body) {
-      const clipId = /** @type {string} */ (state.selectedClipId);
+      const clipId = state.selectedClipId;
+      if (clipId === null) {
+        state = { ...state, error: 'NO_CLIP' };
+        return;
+      }
       await commentRepo.add({ id: newId(), clipId, body });
       state = { ...state, comments: await commentRepo.listByClip(clipId) };
     },
