@@ -1,14 +1,16 @@
 // @ts-check
 import { parseUrl } from '../url/parseUrl.js';
 import { parseTimecode } from '../time/timecode.js';
+import { playRange } from '../player/playRange.js';
 
 /**
  * 畫面狀態邏輯。不碰 DOM；接 DOM 的程式只讀取 getState() 並呼叫這裡的動作。
  * @param {object} deps
  * @param {import('../types.js').ClipRepository} deps.clipRepo
  * @param {ReturnType<typeof import('../clip/clipService.js').createClipService>} deps.clipService
+ * @param {import('../types.js').PlayerAdapter} deps.player
  */
-export function createApp({ clipRepo, clipService }) {
+export function createApp({ clipRepo, clipService, player }) {
   /** @type {import('../types.js').AppState} */
   let state = { videoId: null, clips: [], error: null };
 
@@ -49,6 +51,15 @@ export function createApp({ clipRepo, clipService }) {
         return;
       }
       state = { ...state, clips: await clipRepo.listByVideo(videoId), error: null };
+    },
+
+    /**
+     * 播放目前片段列表中的一個片段。
+     * @param {string} clipId
+     */
+    playClip(clipId) {
+      const clip = /** @type {import('../types.js').Clip} */ (state.clips.find((c) => c.id === clipId));
+      playRange(player, clip.range);
     },
   };
 }

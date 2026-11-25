@@ -182,7 +182,9 @@ test/
 - [x] 建立片段：時間格式錯誤 → 狀態有錯誤，不建立
 - [x] （新增）建立片段成功後，清除先前的錯誤
 - [x] 建立片段：ClipService 回報錯誤（INVALID_RANGE、VIDEO_NOT_FOUND）→ 狀態有錯誤（以 INVALID_RANGE 測；兩者走同一條路徑，直接轉交 result.error）
-- [ ] 點片段 → 以 playRange 播放該片段（以 FakePlayer 測）
+- [x] 點片段 → 以 playRange 播放該片段（以 FakePlayer 測；player 由 createApp 注入）
+- [ ] （新增）playClip 給的 clipId 不在目前片段列表 → 不播放（行為待確認）
+- [ ] （新增）DOM 接線時：YouTube 播放器在影片載入後才建立，與 createApp 一開始就注入 player 的方式衝突，屆時再決定（例如只建立一個 YT.Player，換影片時改用 loadVideoById）
 - [ ] 選取片段 → 列出該討論串的留言
 - [ ] 在選取的討論串新增留言 → 留言列表多一筆
 - [ ] 刪除片段 → 從列表移除

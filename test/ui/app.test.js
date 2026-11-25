@@ -5,6 +5,7 @@ import { createApp } from '../../src/ui/app.js';
 import { createMemoryClipRepo, createMemoryCommentRepo } from '../../src/data/memoryRepo.js';
 import { createClipService } from '../../src/clip/clipService.js';
 import { createFakeVideoInfo } from '../../src/video/fakeVideoInfo.js';
+import { createFakePlayer } from '../../src/player/fakePlayer.js';
 
 function setup() {
   const clipRepo = createMemoryClipRepo();
@@ -13,8 +14,9 @@ function setup() {
   let n = 0;
   const newId = () => `id-${++n}`;
   const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId });
-  const app = createApp({ clipRepo, clipService });
-  return { app, clipRepo };
+  const player = createFakePlayer();
+  const app = createApp({ clipRepo, clipService, player });
+  return { app, clipRepo, player };
 }
 
 test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片段', async () => {
@@ -121,4 +123,18 @@ test('UI：尚未載入影片時建立片段，狀態有錯誤 NO_VIDEO，不建
   await app.createClip({ start: '0:10', end: '0:20' });
 
   assert.equal(app.getState().error, 'NO_VIDEO');
+});
+
+test('UI：點片段時，以 playRange 從開始時間播放，播到結束時間自動暫停', async () => {
+  const { app, clipRepo, player } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await app.loadVideo('https://youtu.be/abc');
+
+  app.playClip('c1');
+
+  assert.equal(player.getCurrentTime(), 10);
+  assert.equal(player.isPlaying(), true);
+  player.advance(6);
+  assert.equal(player.isPlaying(), false);
+  assert.equal(player.getCurrentTime(), 15);
 });
