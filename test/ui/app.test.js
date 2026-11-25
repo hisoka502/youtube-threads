@@ -74,7 +74,7 @@ test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async
   await app.createClip({ start: '0:10', end: '0:20' });
 
   assert.deepEqual(app.getState().clips, [
-    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: undefined, createdAt: NOW },
+    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: '小明', createdAt: NOW },
   ]);
 });
 
@@ -338,4 +338,15 @@ test('UI：未填名字時建立片段，狀態有錯誤 NO_NAME，不建立', a
   const state = app.getState();
   assert.equal(state.error, 'NO_NAME');
   assert.deepEqual(state.clips, []);
+});
+
+test('UI：建立片段時，片段帶有標題與建立者（使用者的名字）', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.createClip({ start: '0:10', end: '0:20', title: '開場' });
+
+  const [clip] = app.getState().clips;
+  assert.equal(clip.title, '開場');
+  assert.equal(clip.createdBy, '小明');
 });

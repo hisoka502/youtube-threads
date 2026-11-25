@@ -62,9 +62,9 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
 
     /**
      * 以 YouTube 顯示格式的時間字串（如 "2:15"）建立片段。end 為空字串時由 resolveRange 補為 start + 5 秒。
-     * @param {{ start: string, end: string }} input
+     * @param {{ start: string, end: string, title?: string }} input
      */
-    async createClip({ start, end }) {
+    async createClip({ start, end, title }) {
       const { videoId } = state;
       if (videoId === null) {
         state = { ...state, error: 'NO_VIDEO' };
@@ -80,7 +80,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
         state = { ...state, error: 'INVALID_TIMECODE' };
         return;
       }
-      const result = await clipService.createClip({ videoId, startSec, endSec });
+      const result = await clipService.createClip({ videoId, startSec, endSec, title, createdBy: state.userName });
       if (!result.ok) {
         state = { ...state, error: result.error };
         return;
