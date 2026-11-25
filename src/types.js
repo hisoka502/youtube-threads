@@ -103,4 +103,11 @@
  * @property {(id: unknown) => void} clearInterval
  */
 
+/**
+ * 畫面狀態（src/ui/app.js）。欄位在測試需要時再加。
+ * @typedef {object} AppState
+ * @property {string | null} videoId 尚未載入影片時為 null
+ * @property {Clip[]} clips 目前影片的片段
+ */
+
 export {};
