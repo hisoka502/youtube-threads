@@ -22,7 +22,7 @@ export function createApp({ clipRepo }) {
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
-      state = { ...state, videoId, clips: await clipRepo.listByVideo(videoId) };
+      state = { ...state, videoId, clips: await clipRepo.listByVideo(videoId), error: null };
     },
   };
 }

@@ -26,3 +26,12 @@ test('UI：貼上無效網址時，狀態有錯誤 INVALID_URL，不載入影片
   assert.equal(state.error, 'INVALID_URL');
   assert.equal(state.videoId, null);
 });
+
+test('UI：載入成功後，清除先前的錯誤', async () => {
+  const app = createApp({ clipRepo: createMemoryClipRepo() });
+  await app.loadVideo('not a url');
+
+  await app.loadVideo('https://youtu.be/abc');
+
+  assert.equal(app.getState().error, null);
+});
