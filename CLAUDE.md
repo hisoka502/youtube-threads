@@ -216,6 +216,23 @@ test/
 - [x] playerVideoInfo：不是目前載入的影片 → null
 - [x] playerVideoInfo：getDuration 為 0（影片資訊尚未載入）→ null
 
+### 5.11 補齊資料欄位（使用者決定）
+
+- 片段標題（title）選填，未填存空字串，畫面上空白就不顯示。
+- 建立者（createdBy）：頁面上填一次名字，之後建立的片段與留言都帶這個名字；未填名字不能建立片段或留言（錯誤 NO_NAME）。名字去掉前後空白，只有空白視同未填。
+- 建立時間（createdAt）：片段與留言都記錄，單位為毫秒（與 `Date.now()` 相同），由注入的 `now()` 提供；畫面上顯示日期與時間。
+- 影片標題先不做（使用者決定）。
+
+- [ ] ClipService：建立片段時存入 title；未提供時為空字串
+- [ ] ClipService：存入 createdBy
+- [ ] ClipService：createdAt 由注入的 now() 提供
+- [ ] app：setUserName(name) 後，狀態有 userName（去掉前後空白）
+- [ ] app：未填名字時建立片段 → 狀態有錯誤 NO_NAME，不建立（先檢查 NO_VIDEO）
+- [ ] app：建立片段時，把 title 與 userName（createdBy）交給 ClipService
+- [ ] app：未填名字時新增留言 → 狀態有錯誤 NO_NAME，不存入（先檢查 NO_CLIP）
+- [ ] app：新增留言時帶 createdBy（userName）與 createdAt（注入的 now()）
+- [ ] DOM 接線：名字欄位、片段標題欄位、顯示建立者與建立時間（手動驗證）
+
 ## 6. 待決定事項
 
 處理到相關測試時，先停下來問使用者，不要自行假設：
