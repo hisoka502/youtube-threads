@@ -18,9 +18,9 @@ function setup() {
 test('ClipService：建立片段時補齊 endSec，並存入 Repository', async () => {
   const { service, clipRepo } = setup();
 
-  const result = await service.createClip({ videoId: 'v1', startSec: 10 });
+  const result = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明' });
 
-  const expected = { id: 'id-1', videoId: 'v1', range: { startSec: 10, endSec: 15 }, title: '' };
+  const expected = { id: 'id-1', videoId: 'v1', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小明' };
   assert.deepEqual(result, { ok: true, clip: expected });
   assert.deepEqual(await clipRepo.listByVideo('v1'), [expected]);
 });
@@ -66,4 +66,12 @@ test('ClipService：建立片段時存入 title；未提供時為空字串', asy
 
   assert.equal(withTitle.ok && withTitle.clip.title, '開場');
   assert.equal(withoutTitle.ok && withoutTitle.clip.title, '');
+});
+
+test('ClipService：建立片段時存入 createdBy', async () => {
+  const { service } = setup();
+
+  const result = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明' });
+
+  assert.equal(result.ok && result.clip.createdBy, '小明');
 });

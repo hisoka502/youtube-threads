@@ -70,7 +70,7 @@ test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async
   await app.createClip({ start: '0:10', end: '0:20' });
 
   assert.deepEqual(app.getState().clips, [
-    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '' },
+    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: undefined },
   ]);
 });
 

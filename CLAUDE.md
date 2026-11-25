@@ -224,7 +224,7 @@ test/
 - 影片標題先不做（使用者決定）。
 
 - [x] ClipService：建立片段時存入 title；未提供時為空字串
-- [ ] ClipService：存入 createdBy
+- [x] ClipService：存入 createdBy
 - [ ] ClipService：createdAt 由注入的 now() 提供
 - [ ] app：setUserName(name) 後，狀態有 userName（去掉前後空白）
 - [ ] app：未填名字時建立片段 → 狀態有錯誤 NO_NAME，不建立（先檢查 NO_VIDEO）

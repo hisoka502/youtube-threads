@@ -24,7 +24,13 @@ export function createClipService({ clipRepo, commentRepo, videoInfo, newId }) {
       if (!isValidRange(range, durationSec)) {
         return { ok: false, error: 'INVALID_RANGE' };
       }
-      const clip = { id: newId(), videoId: input.videoId, range, title: input.title ?? '' };
+      const clip = {
+        id: newId(),
+        videoId: input.videoId,
+        range,
+        title: input.title ?? '',
+        createdBy: input.createdBy,
+      };
       await clipRepo.add(clip);
       return { ok: true, clip };
     },
