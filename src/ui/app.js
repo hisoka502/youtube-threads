@@ -10,8 +10,9 @@ import { playRange } from '../player/playRange.js';
  * @param {import('../types.js').CommentRepository} deps.commentRepo
  * @param {ReturnType<typeof import('../clip/clipService.js').createClipService>} deps.clipService
  * @param {import('../types.js').PlayerAdapter} deps.player
+ * @param {() => string} deps.newId 產生新留言的 id
  */
-export function createApp({ clipRepo, commentRepo, clipService, player }) {
+export function createApp({ clipRepo, commentRepo, clipService, player, newId }) {
   /** @type {import('../types.js').AppState} */
   let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [] };
 
@@ -70,6 +71,16 @@ export function createApp({ clipRepo, commentRepo, clipService, player }) {
      */
     async selectClip(clipId) {
       state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId) };
+    },
+
+    /**
+     * 在選取的討論串新增留言。留言先不驗證（使用者決定）。
+     * @param {string} body
+     */
+    async addComment(body) {
+      const clipId = /** @type {string} */ (state.selectedClipId);
+      await commentRepo.add({ id: newId(), clipId, body });
+      state = { ...state, comments: await commentRepo.listByClip(clipId) };
     },
   };
 }
