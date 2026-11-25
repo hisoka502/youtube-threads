@@ -196,7 +196,7 @@ test/
 - [x] 刪除片段 → 從列表移除（透過 ClipService.deleteClip，留言一併刪除）
 - [x] （新增）刪除的是目前選取的片段 → 清除選取與留言列表（依上面的使用者決定）
 - [x] 刪除留言 → 從留言列表移除
-- [ ] DOM 接線頁面（手動驗證）
+- [ ] DOM 接線頁面（手動驗證）：`dev/app.html` ＋ `dev/app.js`，`node dev/server.js` 後開 http://localhost:8080/dev/app.html（待使用者在自己的瀏覽器驗證）
 
 ### 5.10 DOM 接線的前置（使用者決定）
 

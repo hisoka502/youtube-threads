@@ -1,0 +1,139 @@
+// @ts-check
+// DOM 接線：只建立物件、把 getState() 畫到畫面上、把事件接到 app 的動作。
+// 所有可測的邏輯都在 src/ui/app.js；這個檔案以手動驗證為主。
+import { createApp } from '../src/ui/app.js';
+import { createYouTubePlayer } from '../src/player/youtubePlayer.js';
+import { createPlayerVideoInfo } from '../src/video/playerVideoInfo.js';
+import { createMemoryClipRepo, createMemoryCommentRepo } from '../src/data/memoryRepo.js';
+import { createClipService } from '../src/clip/clipService.js';
+import { formatTimecode } from '../src/time/timecode.js';
+
+/** @param {string} id */
+const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
+/** @param {string} id */
+const input = (id) => /** @type {HTMLInputElement} */ (document.getElementById(id));
+
+/** 錯誤碼 → 畫面上的訊息 */
+/** @type {Record<string, string>} */
+const ERROR_TEXT = {
+  INVALID_URL: '無法辨識的 YouTube 網址',
+  NO_VIDEO: '請先載入影片',
+  INVALID_TIMECODE: '時間格式錯誤（請用 YouTube 顯示格式，例如 2:15 或 1:02:03）',
+  INVALID_RANGE: '片段不合法：結束時間必須大於開始時間，且不可超過影片長度',
+  VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
+  NO_CLIP: '請先開啟一個討論串',
+};
+
+/** @type {any} 瀏覽器載入 iframe_api 後提供的全域物件 */
+const w = window;
+
+/** @returns {Promise<any>} IFrame API 載入且播放器就緒後，回傳 YT.Player */
+function createYTPlayer() {
+  return new Promise((resolve) => {
+    const build = () => {
+      const yt = new w.YT.Player('player', { events: { onReady: () => resolve(yt) } });
+    };
+    if (w.YT?.Player) build();
+    else w.onYouTubeIframeAPIReady = build;
+  });
+}
+
+const yt = await createYTPlayer();
+const player = createYouTubePlayer(yt);
+const clipRepo = createMemoryClipRepo();
+const commentRepo = createMemoryCommentRepo();
+const newId = () => crypto.randomUUID();
+const clipService = createClipService({
+  clipRepo,
+  commentRepo,
+  videoInfo: createPlayerVideoInfo(yt),
+  newId,
+});
+const app = createApp({ clipRepo, commentRepo, clipService, player, newId });
+
+/**
+ * @param {string} text
+ * @param {() => void} onClick
+ */
+function button(text, onClick) {
+  const el = document.createElement('button');
+  el.type = 'button';
+  el.textContent = text;
+  el.addEventListener('click', onClick);
+  return el;
+}
+
+/** 依 app.getState() 重畫整個畫面。 */
+function render() {
+  const state = app.getState();
+
+  $('error').textContent = state.error === null ? '' : (ERROR_TEXT[state.error] ?? state.error);
+
+  const clips = $('clips');
+  clips.replaceChildren(
+    ...state.clips.map((clip) => {
+      const li = document.createElement('li');
+      li.classList.toggle('selected', clip.id === state.selectedClipId);
+      li.append(
+        `${formatTimecode(clip.range.startSec)} – ${formatTimecode(clip.range.endSec)}`,
+        button('播放', () => app.playClip(clip.id)),
+        button('討論串', () => run(() => app.selectClip(clip.id))),
+        button('刪除', () => run(() => app.deleteClip(clip.id))),
+      );
+      return li;
+    }),
+  );
+  $('no-clips').hidden = state.videoId === null || state.clips.length > 0;
+
+  const selected = state.clips.find((c) => c.id === state.selectedClipId);
+  $('thread').hidden = selected === undefined;
+  $('no-thread').hidden = selected !== undefined;
+  if (selected !== undefined) {
+    $('thread-title').textContent =
+      `片段 ${formatTimecode(selected.range.startSec)} – ${formatTimecode(selected.range.endSec)} 的討論串`;
+    $('comments').replaceChildren(
+      ...state.comments.map((comment) => {
+        const li = document.createElement('li');
+        const body = document.createElement('span');
+        body.className = 'comment-body';
+        body.textContent = comment.body;
+        li.append(body, button('刪除', () => run(() => app.deleteComment(comment.id))));
+        return li;
+      }),
+    );
+  }
+}
+
+/**
+ * 執行一個 app 動作，完成後重畫。
+ * @param {() => Promise<void> | void} action
+ */
+async function run(action) {
+  await action();
+  render();
+}
+
+/**
+ * @param {string} id
+ * @param {() => Promise<void> | void} action
+ */
+function onSubmit(id, action) {
+  $(id).addEventListener('submit', (event) => {
+    event.preventDefault();
+    run(action);
+  });
+}
+
+onSubmit('load-form', () => app.loadVideo(input('url').value.trim()));
+onSubmit('clip-form', () => app.createClip({ start: input('start').value, end: input('end').value }));
+onSubmit('comment-form', async () => {
+  const body = /** @type {HTMLTextAreaElement} */ ($('body'));
+  await app.addComment(body.value);
+  if (app.getState().error === null) body.value = '';
+});
+
+player.onTimeUpdate((sec) => {
+  $('current').textContent = `${formatTimecode(sec)}（${sec.toFixed(2)} 秒）`;
+});
+
+render();
