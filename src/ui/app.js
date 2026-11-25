@@ -82,5 +82,15 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
       await commentRepo.add({ id: newId(), clipId, body });
       state = { ...state, comments: await commentRepo.listByClip(clipId) };
     },
+
+    /**
+     * 刪除片段（ClipService 會一併刪除該討論串的留言）。
+     * @param {string} clipId
+     */
+    async deleteClip(clipId) {
+      await clipService.deleteClip(clipId);
+      const videoId = /** @type {string} */ (state.videoId);
+      state = { ...state, clips: await clipRepo.listByVideo(videoId) };
+    },
   };
 }

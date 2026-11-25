@@ -179,3 +179,14 @@ test('UI：在選取的討論串新增留言，留言列表多一筆', async () 
     { id: 'id-1', clipId: 'c1', body: '第二則' },
   ]);
 });
+
+test('UI：刪除片段後，從片段列表移除', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await clipRepo.add({ id: 'c2', videoId: 'abc', range: { startSec: 20, endSec: 25 } });
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.deleteClip('c1');
+
+  assert.deepEqual(app.getState().clips.map((c) => c.id), ['c2']);
+});
