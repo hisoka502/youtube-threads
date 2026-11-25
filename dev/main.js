@@ -27,6 +27,36 @@ let player = null;
 let ytPlayer = null;
 let durationSec = 0;
 
+/** YT.PlayerState 的名稱 */
+/** @type {Record<number, string>} */
+const STATE_NAMES = { [-1]: '未開始', 0: '已結束', 1: '播放中', 2: '已暫停', 3: '緩衝中', 5: '已載入' };
+
+/** @param {string} text 記錄一行，前面加上播放器目前的時間 */
+function log(text) {
+  const now = ytPlayer?.getCurrentTime?.();
+  const time = typeof now === 'number' ? now.toFixed(2) : '-';
+  $('log').textContent += `[時間 ${time}] ${text}\n`;
+}
+
+/**
+ * 包一層 YT.Player：轉接層呼叫的指令都先記錄再轉呼叫。只用在這個驗證頁面。
+ * @param {any} yt
+ */
+function withLog(yt) {
+  return {
+    /** @param {number} sec @param {boolean} allowSeekAhead */
+    seekTo(sec, allowSeekAhead) { log(`指令 seekTo(${sec})`); yt.seekTo(sec, allowSeekAhead); },
+    playVideo() { log('指令 playVideo()'); yt.playVideo(); },
+    pauseVideo() { log('指令 pauseVideo()'); yt.pauseVideo(); },
+    /** @param {string} id */
+    loadVideoById(id) { log(`指令 loadVideoById(${id})`); yt.loadVideoById(id); },
+    getCurrentTime: () => yt.getCurrentTime(),
+    getPlayerState: () => yt.getPlayerState(),
+  };
+}
+
+$('clear-log').addEventListener('click', () => { $('log').textContent = ''; });
+
 /** @param {string} text @param {boolean} [isError] */
 function showMessage(text, isError = false) {
   const el = $('message');
@@ -52,7 +82,7 @@ $('load').addEventListener('click', async () => {
     events: {
       /** @param {any} event */
       onReady(event) {
-        player = createYouTubePlayer(event.target);
+        player = createYouTubePlayer(withLog(event.target));
         durationSec = event.target.getDuration();
         $('duration').textContent = formatTimecode(durationSec);
         player.onTimeUpdate((sec) => {
@@ -60,7 +90,9 @@ $('load').addEventListener('click', async () => {
         });
         showMessage(`已載入影片 ${videoId}`);
       },
-      onStateChange() {
+      /** @param {any} event */
+      onStateChange(event) {
+        log(`狀態變成 ${STATE_NAMES[event.data] ?? event.data}（影片長度 ${event.target.getDuration()}）`);
         if (!player) return;
         $('state').textContent = player.isPlaying() ? '播放中' : '未播放';
         const sec = player.getCurrentTime();
@@ -91,6 +123,7 @@ $('play').addEventListener('click', () => {
     showMessage(`片段不合法：${formatTimecode(range.startSec)} – ${formatTimecode(range.endSec)}（影片長度 ${formatTimecode(durationSec)}）`, true);
     return;
   }
+  log(`按下播放片段：startSec ${range.startSec}，endSec ${range.endSec}`);
   playRange(player, range);
   showMessage(`播放片段 ${formatTimecode(range.startSec)} – ${formatTimecode(range.endSec)}`);
 });
