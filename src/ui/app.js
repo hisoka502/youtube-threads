@@ -33,8 +33,12 @@ export function createApp({ clipRepo, clipService }) {
      */
     async createClip({ start, end }) {
       const videoId = /** @type {string} */ (state.videoId);
-      const startSec = /** @type {number} */ (parseTimecode(start));
-      const endSec = /** @type {number} */ (parseTimecode(end));
+      const startSec = parseTimecode(start);
+      const endSec = parseTimecode(end);
+      if (startSec === null || endSec === null) {
+        state = { ...state, error: 'INVALID_TIMECODE' };
+        return;
+      }
       await clipService.createClip({ videoId, startSec, endSec });
       state = { ...state, clips: await clipRepo.listByVideo(videoId) };
     },

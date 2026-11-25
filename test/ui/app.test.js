@@ -71,3 +71,14 @@ test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async
     { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 } },
   ]);
 });
+
+test('UI：建立片段時時間格式錯誤，狀態有錯誤 INVALID_TIMECODE，不建立', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.createClip({ start: '02:15', end: '2:20' });
+
+  const state = app.getState();
+  assert.equal(state.error, 'INVALID_TIMECODE');
+  assert.deepEqual(state.clips, []);
+});
