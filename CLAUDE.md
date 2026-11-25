@@ -181,7 +181,7 @@ test/
 - [ ] （新增）建立片段：尚未載入影片時 → 狀態有錯誤，不建立
 - [x] 建立片段：時間格式錯誤 → 狀態有錯誤，不建立
 - [ ] （新增）建立片段成功後，清除先前的錯誤
-- [ ] 建立片段：ClipService 回報錯誤（INVALID_RANGE、VIDEO_NOT_FOUND）→ 狀態有錯誤
+- [x] 建立片段：ClipService 回報錯誤（INVALID_RANGE、VIDEO_NOT_FOUND）→ 狀態有錯誤（以 INVALID_RANGE 測；兩者走同一條路徑，直接轉交 result.error）
 - [ ] 點片段 → 以 playRange 播放該片段（以 FakePlayer 測）
 - [ ] 選取片段 → 列出該討論串的留言
 - [ ] 在選取的討論串新增留言 → 留言列表多一筆

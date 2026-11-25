@@ -82,3 +82,14 @@ test('UI：建立片段時時間格式錯誤，狀態有錯誤 INVALID_TIMECODE�
   assert.equal(state.error, 'INVALID_TIMECODE');
   assert.deepEqual(state.clips, []);
 });
+
+test('UI：ClipService 回報錯誤時，狀態有該錯誤，不建立', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.createClip({ start: '1:50', end: '2:30' });
+
+  const state = app.getState();
+  assert.equal(state.error, 'INVALID_RANGE');
+  assert.deepEqual(state.clips, []);
+});

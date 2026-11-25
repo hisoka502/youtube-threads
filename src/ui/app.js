@@ -39,7 +39,11 @@ export function createApp({ clipRepo, clipService }) {
         state = { ...state, error: 'INVALID_TIMECODE' };
         return;
       }
-      await clipService.createClip({ videoId, startSec, endSec });
+      const result = await clipService.createClip({ videoId, startSec, endSec });
+      if (!result.ok) {
+        state = { ...state, error: result.error };
+        return;
+      }
       state = { ...state, clips: await clipRepo.listByVideo(videoId) };
     },
   };
