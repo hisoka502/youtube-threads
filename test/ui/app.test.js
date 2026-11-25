@@ -327,3 +327,15 @@ test('UI：setUserName 後，狀態有去掉前後空白的名字', () => {
 
   assert.equal(app.getState().userName, '小明');
 });
+
+test('UI：未填名字時建立片段，狀態有錯誤 NO_NAME，不建立', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+  app.setUserName('   ');
+
+  await app.createClip({ start: '0:10', end: '0:20' });
+
+  const state = app.getState();
+  assert.equal(state.error, 'NO_NAME');
+  assert.deepEqual(state.clips, []);
+});

@@ -70,6 +70,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
         state = { ...state, error: 'NO_VIDEO' };
         return;
       }
+      if (state.userName === '') {
+        state = { ...state, error: 'NO_NAME' };
+        return;
+      }
       const startSec = parseTimecode(start);
       const endSec = end === '' ? undefined : parseTimecode(end);
       if (startSec === null || endSec === null) {
