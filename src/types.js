@@ -123,6 +123,7 @@
  * @property {string | null} error 最近一次動作的錯誤碼（如 'INVALID_URL'）；沒有錯誤時為 null
  * @property {string | null} selectedClipId 目前選取的片段（討論串）；未選取時為 null
  * @property {Comment[]} comments 選取的討論串的留言，依建立順序
+ * @property {string} userName 使用者的名字（已去掉前後空白）；未填為空字串
  */
 
 export {};

@@ -14,7 +14,7 @@ import { playRange } from '../player/playRange.js';
  */
 export function createApp({ clipRepo, commentRepo, clipService, player, newId }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [] };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '' };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -38,6 +38,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
   return {
     getState() {
       return state;
+    },
+
+    /**
+     * 設定使用者的名字，之後建立的片段與留言都帶這個名字。
+     * @param {string} name
+     */
+    setUserName(name) {
+      state = { ...state, userName: name.trim() };
     },
 
     /** @param {string} url */

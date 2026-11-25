@@ -318,3 +318,11 @@ test('UI：播放片段時，討論串自動換成該片段的', async () => {
   assert.equal(state.selectedClipId, 'c2');
   assert.deepEqual(state.comments.map((m) => m.id), ['m2']);
 });
+
+test('UI：setUserName 後，狀態有去掉前後空白的名字', () => {
+  const { app } = setup();
+
+  app.setUserName('  小明 ');
+
+  assert.equal(app.getState().userName, '小明');
+});
