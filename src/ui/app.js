@@ -27,6 +27,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
     }
   }
 
+  /**
+   * 開啟片段的討論串：選取它並列出留言。
+   * @param {string} clipId
+   */
+  async function openThread(clipId) {
+    state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
+  }
+
   return {
     getState() {
       return state;
@@ -76,7 +84,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
       const clip = state.clips.find((c) => c.id === clipId);
       if (clip === undefined) return;
       playRange(player, clip.range);
-      state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
+      await openThread(clipId);
     },
 
     /**
@@ -84,7 +92,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
      * @param {string} clipId
      */
     async selectClip(clipId) {
-      state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
+      await openThread(clipId);
     },
 
     /**
