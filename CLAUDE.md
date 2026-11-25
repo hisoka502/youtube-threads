@@ -184,7 +184,7 @@ test/
 - [x] 建立片段：ClipService 回報錯誤（INVALID_RANGE、VIDEO_NOT_FOUND）→ 狀態有錯誤（以 INVALID_RANGE 測；兩者走同一條路徑，直接轉交 result.error）
 - [x] 點片段 → 以 playRange 播放該片段（以 FakePlayer 測；player 由 createApp 注入）
 - [x] （新增）playClip 給的 clipId 不在目前片段列表 → 什麼都不做（使用者決定：不播放、不顯示錯誤）
-- [ ] （新增）DOM 接線時：YouTube 播放器在影片載入後才建立，與 createApp 一開始就注入 player 的方式衝突，屆時再決定（例如只建立一個 YT.Player，換影片時改用 loadVideoById）
+- [x] （新增）DOM 接線時：YouTube 播放器在影片載入後才建立，與 createApp 一開始就注入 player 的方式衝突 → 使用者決定：只建立一個 YT.Player，換影片時用 loadVideoById（見 5.10）
 - [x] 選取片段 → 列出該討論串的留言
 - 使用者決定：清掉不屬於目前載入影片的任何討論串（選取的討論串必須在目前的片段列表中）
   - [x] （新增）載入另一部影片後，清除先前的選取與留言，列出該影片的片段
@@ -197,6 +197,20 @@ test/
 - [x] （新增）刪除的是目前選取的片段 → 清除選取與留言列表（依上面的使用者決定）
 - [x] 刪除留言 → 從留言列表移除
 - [ ] DOM 接線頁面（手動驗證）
+
+### 5.10 DOM 接線的前置（使用者決定）
+
+- PlayerAdapter 新增 `load(videoId)`；app.loadVideo 成功時呼叫它。YouTubePlayer 轉呼叫 `loadVideoById`。
+- VideoInfoProvider 從播放器讀取影片長度（`getDuration`），不需 API 金鑰；只能取得播放器目前載入的影片。
+- 資料先用記憶體版，重新整理頁面即清空（使用者同意）。
+
+- [ ] FakePlayer：load(videoId) 後，測試專用的 loadedVideoId 為該 ID
+- [ ] app.loadVideo 成功時呼叫 player.load(videoId)
+- [ ] app.loadVideo 無效網址時不呼叫 player.load
+- [ ] YouTubePlayer：load 轉呼叫 loadVideoById
+- [ ] playerVideoInfo：播放器目前載入的影片 → 回傳 getDuration
+- [ ] playerVideoInfo：不是目前載入的影片 → null
+- [ ] playerVideoInfo：getDuration 為 0（影片資訊尚未載入）→ null
 
 ## 6. 待決定事項
 
