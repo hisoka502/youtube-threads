@@ -10,7 +10,7 @@ import { createFakePlayer } from '../../src/player/fakePlayer.js';
 function setup() {
   const clipRepo = createMemoryClipRepo();
   const commentRepo = createMemoryCommentRepo();
-  const videoInfo = createFakeVideoInfo({ abc: 120 });
+  const videoInfo = createFakeVideoInfo({ abc: 120, xyz: 60 });
   let n = 0;
   const newId = () => `id-${++n}`;
   const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId });
@@ -202,4 +202,20 @@ test('UI：刪除留言後，從留言列表移除', async () => {
   await app.deleteComment('m1');
 
   assert.deepEqual(app.getState().comments.map((m) => m.id), ['m2']);
+});
+
+test('UI：載入另一部影片後，清掉不屬於該影片的討論串，列出該影片的片段', async () => {
+  const { app, clipRepo, commentRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await clipRepo.add({ id: 'c2', videoId: 'xyz', range: { startSec: 0, endSec: 5 } });
+  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+
+  await app.loadVideo('https://youtu.be/xyz');
+
+  const state = app.getState();
+  assert.deepEqual(state.clips.map((c) => c.id), ['c2']);
+  assert.equal(state.selectedClipId, null);
+  assert.deepEqual(state.comments, []);
 });
