@@ -35,3 +35,17 @@ test('UI：載入成功後，清除先前的錯誤', async () => {
 
   assert.equal(app.getState().error, null);
 });
+
+test('UI：已載入影片後貼上無效網址，維持原本的影片與片段列表', async () => {
+  const clipRepo = createMemoryClipRepo();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  const app = createApp({ clipRepo });
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.loadVideo('not a url');
+
+  const state = app.getState();
+  assert.equal(state.error, 'INVALID_URL');
+  assert.equal(state.videoId, 'abc');
+  assert.deepEqual(state.clips.map((c) => c.id), ['c1']);
+});
