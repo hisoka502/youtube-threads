@@ -7,12 +7,13 @@ import { playRange } from '../player/playRange.js';
  * 畫面狀態邏輯。不碰 DOM；接 DOM 的程式只讀取 getState() 並呼叫這裡的動作。
  * @param {object} deps
  * @param {import('../types.js').ClipRepository} deps.clipRepo
+ * @param {import('../types.js').CommentRepository} deps.commentRepo
  * @param {ReturnType<typeof import('../clip/clipService.js').createClipService>} deps.clipService
  * @param {import('../types.js').PlayerAdapter} deps.player
  */
-export function createApp({ clipRepo, clipService, player }) {
+export function createApp({ clipRepo, commentRepo, clipService, player }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [] };
 
   return {
     getState() {
@@ -61,6 +62,14 @@ export function createApp({ clipRepo, clipService, player }) {
       const clip = state.clips.find((c) => c.id === clipId);
       if (clip === undefined) return;
       playRange(player, clip.range);
+    },
+
+    /**
+     * 選取片段（討論串），列出它的留言。
+     * @param {string} clipId
+     */
+    async selectClip(clipId) {
+      state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId) };
     },
   };
 }

@@ -15,8 +15,8 @@ function setup() {
   const newId = () => `id-${++n}`;
   const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId });
   const player = createFakePlayer();
-  const app = createApp({ clipRepo, clipService, player });
-  return { app, clipRepo, player };
+  const app = createApp({ clipRepo, commentRepo, clipService, player });
+  return { app, clipRepo, commentRepo, player };
 }
 
 test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片段', async () => {
@@ -149,4 +149,18 @@ test('UI：點的片段不在目前片段列表時，什麼都不做', async () 
   assert.equal(player.isPlaying(), false);
   assert.equal(player.getCurrentTime(), 0);
   assert.equal(app.getState(), before);
+});
+
+test('UI：選取片段後，列出該討論串的留言', async () => {
+  const { app, clipRepo, commentRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
+  await commentRepo.add({ id: 'm2', clipId: 'other', body: '別的討論串' });
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.selectClip('c1');
+
+  const state = app.getState();
+  assert.equal(state.selectedClipId, 'c1');
+  assert.deepEqual(state.comments, [{ id: 'm1', clipId: 'c1', body: '第一則' }]);
 });
