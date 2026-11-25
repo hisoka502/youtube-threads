@@ -19,6 +19,7 @@
     li.selected { background: #fff6d6; }
     li button { margin-left: 4px; }
     .comment-body { white-space: pre-wrap; }
+    .meta { color: #666; font-size: 0.875em; margin-left: 6px; }
     .hint { color: #666; }
     code { background: #f2f2f2; padding: 0 4px; }
   </style>
@@ -26,6 +27,8 @@
 <body>
   <h1>YouTube 片段討論串</h1>
   <p class="hint">開發用頁面：資料存在記憶體，重新整理後會清空。</p>
+
+  <p><label>你的名字 <input id="user-name" placeholder="例如：小明"></label>（建立片段與留言時使用）</p>
 
   <form id="load-form">
     <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…">
@@ -42,6 +45,7 @@
       <form id="clip-form">
         開始 <input id="start" class="time" placeholder="2:15">
         結束 <input id="end" class="time" placeholder="留空＝開始＋5 秒">
+        標題 <input id="title" placeholder="選填">
         <button>建立片段</button>
       </form>
       <ul id="clips"></ul>

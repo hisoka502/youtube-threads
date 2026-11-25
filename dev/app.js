@@ -22,6 +22,7 @@ const ERROR_TEXT = {
   INVALID_RANGE: '片段不合法：結束時間必須大於開始時間、不可超過影片長度，且開始時間至少要在影片結尾前 3 秒',
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
   NO_CLIP: '請先開啟一個討論串',
+  NO_NAME: '請先填寫你的名字',
 };
 
 /** @type {any} 瀏覽器載入 iframe_api 後提供的全域物件 */
@@ -50,7 +51,7 @@ const clipService = createClipService({
   newId,
   now: () => Date.now(),
 });
-const app = createApp({ clipRepo, commentRepo, clipService, player, newId });
+const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => Date.now() });
 
 /**
  * @param {string} text
@@ -64,6 +65,30 @@ function button(text, onClick) {
   return el;
 }
 
+const dateTimeFormat = new Intl.DateTimeFormat('zh-TW', {
+  year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false,
+});
+
+/**
+ * 建立者與建立時間，例如「小明 · 2026/11/25 14:03」。
+ * @param {{ createdBy: string, createdAt: number }} item
+ */
+function meta(item) {
+  const el = document.createElement('span');
+  el.className = 'meta';
+  el.textContent = `${item.createdBy} · ${dateTimeFormat.format(item.createdAt)}`;
+  return el;
+}
+
+/**
+ * 片段的時間區間與標題（標題空白就不顯示）。
+ * @param {import('../src/types.js').Clip} clip
+ */
+function clipLabel(clip) {
+  const range = `${formatTimecode(clip.range.startSec)} – ${formatTimecode(clip.range.endSec)}`;
+  return clip.title === '' ? range : `${range}「${clip.title}」`;
+}
+
 /** 依 app.getState() 重畫整個畫面。 */
 function render() {
   const state = app.getState();
@@ -75,8 +100,11 @@ function render() {
     ...state.clips.map((clip) => {
       const li = document.createElement('li');
       li.classList.toggle('selected', clip.id === state.selectedClipId);
+      const title = document.createElement('span');
+      title.textContent = clipLabel(clip);
       li.append(
-        `${formatTimecode(clip.range.startSec)} – ${formatTimecode(clip.range.endSec)}`,
+        title,
+        meta(clip),
         button('播放', () => run(() => app.playClip(clip.id))),
         button('討論串', () => run(() => app.selectClip(clip.id))),
         button('刪除', () => run(() => app.deleteClip(clip.id))),
@@ -90,15 +118,14 @@ function render() {
   $('thread').hidden = selected === undefined;
   $('no-thread').hidden = selected !== undefined;
   if (selected !== undefined) {
-    $('thread-title').textContent =
-      `片段 ${formatTimecode(selected.range.startSec)} – ${formatTimecode(selected.range.endSec)} 的討論串`;
+    $('thread-title').textContent = `片段 ${clipLabel(selected)} 的討論串`;
     $('comments').replaceChildren(
       ...state.comments.map((comment) => {
         const li = document.createElement('li');
         const body = document.createElement('span');
         body.className = 'comment-body';
         body.textContent = comment.body;
-        li.append(body, button('刪除', () => run(() => app.deleteComment(comment.id))));
+        li.append(body, meta(comment), button('刪除', () => run(() => app.deleteComment(comment.id))));
         return li;
       }),
     );
@@ -126,7 +153,13 @@ function onSubmit(id, action) {
 }
 
 onSubmit('load-form', () => app.loadVideo(input('url').value.trim()));
-onSubmit('clip-form', () => app.createClip({ start: input('start').value, end: input('end').value }));
+onSubmit('clip-form', async () => {
+  await app.createClip({ start: input('start').value, end: input('end').value, title: input('title').value.trim() });
+  if (app.getState().error === null) {
+    for (const id of ['start', 'end', 'title']) input(id).value = '';
+  }
+});
+input('user-name').addEventListener('input', () => app.setUserName(input('user-name').value));
 onSubmit('comment-form', async () => {
   const body = /** @type {HTMLTextAreaElement} */ ($('body'));
   await app.addComment(body.value);
