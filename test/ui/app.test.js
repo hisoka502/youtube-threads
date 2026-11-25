@@ -19,6 +19,7 @@ function setup() {
   const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId, now: () => NOW });
   const player = createFakePlayer();
   const app = createApp({ clipRepo, commentRepo, clipService, player, newId });
+  app.setUserName('小明');
   return { app, clipRepo, commentRepo, player };
 }
 
