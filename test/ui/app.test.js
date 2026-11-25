@@ -103,3 +103,14 @@ test('UI：建立片段成功後，清除先前的錯誤', async () => {
 
   assert.equal(app.getState().error, null);
 });
+
+test('UI：建立片段時結束時間留空，補為開始 + 5 秒', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.createClip({ start: '0:10', end: '' });
+
+  const state = app.getState();
+  assert.equal(state.error, null);
+  assert.deepEqual(state.clips.map((c) => c.range), [{ startSec: 10, endSec: 15 }]);
+});
