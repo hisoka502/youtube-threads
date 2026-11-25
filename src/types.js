@@ -47,11 +47,12 @@
 
 /**
  * 留言。片段即討論串，留言線性排列，沒有回覆功能。
- * 其他欄位（createdBy、createdAt）在測試需要時再加。
  * @typedef {object} Comment
  * @property {string} id
  * @property {string} clipId 所屬片段（討論串）
  * @property {string} body
+ * @property {string} createdBy 建立者的名字
+ * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
  */
 
 /**

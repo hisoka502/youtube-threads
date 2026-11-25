@@ -18,7 +18,7 @@ function setup() {
   const newId = () => `id-${++n}`;
   const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId, now: () => NOW });
   const player = createFakePlayer();
-  const app = createApp({ clipRepo, commentRepo, clipService, player, newId });
+  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW });
   app.setUserName('小明');
   return { app, clipRepo, commentRepo, player };
 }
@@ -180,7 +180,7 @@ test('UI：在選取的討論串新增留言，留言列表多一筆', async () 
 
   assert.deepEqual(app.getState().comments, [
     { id: 'm1', clipId: 'c1', body: '第一則' },
-    { id: 'id-1', clipId: 'c1', body: '第二則' },
+    { id: 'id-1', clipId: 'c1', body: '第二則', createdBy: '小明', createdAt: NOW },
   ]);
 });
 
@@ -363,4 +363,17 @@ test('UI：未填名字時新增留言，狀態有錯誤 NO_NAME，不存入', a
   const state = app.getState();
   assert.equal(state.error, 'NO_NAME');
   assert.deepEqual(state.comments, []);
+});
+
+test('UI：新增留言時，留言帶有建立者（使用者的名字）與建立時間', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+
+  await app.addComment('第一則');
+
+  const [comment] = app.getState().comments;
+  assert.equal(comment.createdBy, '小明');
+  assert.equal(comment.createdAt, NOW);
 });

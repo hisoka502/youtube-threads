@@ -11,8 +11,9 @@ import { playRange } from '../player/playRange.js';
  * @param {ReturnType<typeof import('../clip/clipService.js').createClipService>} deps.clipService
  * @param {import('../types.js').PlayerAdapter} deps.player
  * @param {() => string} deps.newId 產生新留言的 id
+ * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  */
-export function createApp({ clipRepo, commentRepo, clipService, player, newId }) {
+export function createApp({ clipRepo, commentRepo, clipService, player, newId, now }) {
   /** @type {import('../types.js').AppState} */
   let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '' };
 
@@ -121,7 +122,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
         state = { ...state, error: 'NO_NAME' };
         return;
       }
-      await commentRepo.add({ id: newId(), clipId, body });
+      await commentRepo.add({ id: newId(), clipId, body, createdBy: state.userName, createdAt: now() });
       state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
     },
 
