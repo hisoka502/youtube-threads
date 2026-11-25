@@ -69,13 +69,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId })
     },
 
     /**
-     * 播放目前片段列表中的一個片段；不在列表中時什麼都不做。
+     * 播放目前片段列表中的一個片段，並把討論串換成該片段的；不在列表中時什麼都不做。
      * @param {string} clipId
      */
-    playClip(clipId) {
+    async playClip(clipId) {
       const clip = state.clips.find((c) => c.id === clipId);
       if (clip === undefined) return;
       playRange(player, clip.range);
+      state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
     },
 
     /**

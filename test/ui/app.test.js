@@ -300,3 +300,18 @@ test('UI：貼上無效網址時，播放器不載入影片', async () => {
 
   assert.equal(player.getLoadedVideoId(), 'abc');
 });
+
+test('UI：播放片段時，討論串自動換成該片段的', async () => {
+  const { app, clipRepo, commentRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
+  await clipRepo.add({ id: 'c2', videoId: 'abc', range: { startSec: 20, endSec: 25 } });
+  await commentRepo.add({ id: 'm2', clipId: 'c2', body: 'c2 的留言' });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+
+  await app.playClip('c2');
+
+  const state = app.getState();
+  assert.equal(state.selectedClipId, 'c2');
+  assert.deepEqual(state.comments.map((m) => m.id), ['m2']);
+});

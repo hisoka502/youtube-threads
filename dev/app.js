@@ -76,7 +76,7 @@ function render() {
       li.classList.toggle('selected', clip.id === state.selectedClipId);
       li.append(
         `${formatTimecode(clip.range.startSec)} – ${formatTimecode(clip.range.endSec)}`,
-        button('播放', () => app.playClip(clip.id)),
+        button('播放', () => run(() => app.playClip(clip.id))),
         button('討論串', () => run(() => app.selectClip(clip.id))),
         button('刪除', () => run(() => app.deleteClip(clip.id))),
       );
