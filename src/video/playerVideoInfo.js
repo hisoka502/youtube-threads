@@ -7,7 +7,10 @@
  */
 export function createPlayerVideoInfo(yt) {
   return {
-    async getDurationSec() {
+    async getDurationSec(videoId) {
+      if (yt.getVideoData().video_id !== videoId) {
+        return null;
+      }
       return yt.getDuration();
     },
   };

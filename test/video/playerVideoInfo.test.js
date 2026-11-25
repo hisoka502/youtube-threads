@@ -20,3 +20,9 @@ test('playerVideoInfo：播放器目前載入的影片，回傳 getDuration 的�
 
   assert.equal(await videoInfo.getDurationSec('abc'), 212.5);
 });
+
+test('playerVideoInfo：不是播放器目前載入的影片，回傳 null', async () => {
+  const videoInfo = createPlayerVideoInfo(createFakeYT('abc', 212.5));
+
+  assert.equal(await videoInfo.getDurationSec('other'), null);
+});
