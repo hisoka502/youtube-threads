@@ -11,7 +11,8 @@ export function createPlayerVideoInfo(yt) {
       if (yt.getVideoData().video_id !== videoId) {
         return null;
       }
-      return yt.getDuration();
+      const durationSec = yt.getDuration();
+      return durationSec > 0 ? durationSec : null;
     },
   };
 }

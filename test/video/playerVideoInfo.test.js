@@ -26,3 +26,9 @@ test('playerVideoInfo：不是播放器目前載入的影片，回傳 null', asy
 
   assert.equal(await videoInfo.getDurationSec('other'), null);
 });
+
+test('playerVideoInfo：getDuration 為 0（影片資訊尚未載入）時，回傳 null', async () => {
+  const videoInfo = createPlayerVideoInfo(createFakeYT('abc', 0));
+
+  assert.equal(await videoInfo.getDurationSec('abc'), null);
+});
