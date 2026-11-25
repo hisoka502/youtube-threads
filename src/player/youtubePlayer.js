@@ -3,6 +3,9 @@
 /** YT.PlayerState.PLAYING */
 const PLAYING = 1;
 
+/** YT.PlayerState.ENDED */
+const ENDED = 0;
+
 /** 定期讀取播放時間的間隔（毫秒） */
 const POLL_INTERVAL_MS = 250;
 
@@ -26,7 +29,9 @@ export function createYouTubePlayer(yt, timer = defaultTimer) {
   let intervalId = null;
 
   function poll() {
-    if (yt.getPlayerState() !== PLAYING) {
+    // 影片播到結尾時狀態會直接變成 ENDED；也要通知，否則 endSec 等於影片長度的片段等不到結束時間
+    const playerState = yt.getPlayerState();
+    if (playerState !== PLAYING && playerState !== ENDED) {
       return;
     }
     const sec = yt.getCurrentTime();

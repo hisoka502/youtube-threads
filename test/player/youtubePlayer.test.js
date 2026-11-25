@@ -167,3 +167,23 @@ test('YouTubePlayer：load 轉呼叫 loadVideoById', () => {
 
   assert.deepEqual(yt.calls, [['loadVideoById', 'abc']]);
 });
+
+test('YouTubePlayer ＋ playRange：endSec 等於影片長度，影片播到結尾（ENDED）時，仍會暫停並停在 endSec', () => {
+  const yt = createFakeYT();
+  const timer = createFakeTimer();
+  const player = createYouTubePlayer(yt, timer);
+
+  playRange(player, { startSec: 327, endSec: 328.4 });
+  yt.setTime(328.2);
+  timer.tick();
+  yt.end(328.4);
+  timer.tick();
+
+  assert.deepEqual(yt.calls, [
+    ['seekTo', 327, true],
+    ['playVideo'],
+    ['pauseVideo'],
+    ['seekTo', 328.4, true],
+  ]);
+  assert.equal(timer.activeCount, 0, '片段結束後不再定期讀取');
+});
