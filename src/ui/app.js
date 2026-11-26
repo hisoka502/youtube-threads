@@ -90,7 +90,12 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {{ email: string, password: string, displayName: string }} input
      */
     async signUp(input) {
-      const session = await auth.signUp(input);
+      const displayName = input.displayName.trim();
+      if (displayName === '') {
+        state = { ...state, error: 'NO_NAME' };
+        return;
+      }
+      const session = await auth.signUp({ ...input, displayName });
       sessions.set(session);
       state = { ...state, user: session.user };
     },

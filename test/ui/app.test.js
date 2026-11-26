@@ -616,3 +616,12 @@ test('UI：註冊後，狀態有登入的使用者（顯示名稱為註冊時填
 
   assert.deepEqual(app.getState().user, { id: 'user-hua', displayName: '小華' });
 });
+
+test('UI：註冊時顯示名稱空白，狀態有錯誤 NO_NAME，不註冊', async () => {
+  const { app } = setup({ signedIn: false });
+
+  await app.signUp({ email: 'hua@example.com', password: 'secret123', displayName: '   ' });
+
+  assert.equal(app.getState().error, 'NO_NAME');
+  assert.equal(app.getState().user, null);
+});
