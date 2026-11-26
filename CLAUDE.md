@@ -322,7 +322,7 @@ test/
 - 開啟 Pages 的 GitHub API 在 Claude 的雲端環境被擋（403），由使用者在 GitHub 的 Settings → Pages 手動開啟。
 
 - [x] 根目錄 index.html、.nojekyll、config.public.js 讀取順序
-- [ ] dev/config.public.js（填入正式的 Supabase 網址與 publishable key）
+- [x] dev/config.public.js（填入正式的 Supabase 網址與 publishable key）
 - [ ] 使用者開啟 GitHub Pages，在網站上驗證登入、建立片段、留言、分享網址（手動驗證）
 
 ## 6. 待決定事項
