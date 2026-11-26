@@ -54,3 +54,16 @@ test('auth.signUp：POST /auth/v1/signup，帶顯示名稱，回傳工作階段'
   });
   assert.deepEqual(result, session);
 });
+
+test('auth.signIn：POST /auth/v1/token?grant_type=password，回傳工作階段', async () => {
+  const fake = createFakeFetch([new Response(JSON.stringify(sessionBody), { status: 200 })]);
+  const auth = createSupabaseAuth({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const result = await auth.signIn({ email: 'a@example.com', password: 'secret123' });
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/auth/v1/token?grant_type=password`);
+  assert.equal(init.method, 'POST');
+  assert.deepEqual(JSON.parse(String(init.body)), { email: 'a@example.com', password: 'secret123' });
+  assert.deepEqual(result, session);
+});

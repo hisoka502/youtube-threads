@@ -45,5 +45,18 @@ export function createSupabaseAuth(options) {
       });
       return toSession(await response.json());
     },
+
+    /**
+     * 以 Email 與密碼登入。
+     * @param {{ email: string, password: string }} input
+     */
+    async signIn({ email, password }) {
+      const response = await options.fetch(`${options.url}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { apikey: options.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      return toSession(await response.json());
+    },
   };
 }
