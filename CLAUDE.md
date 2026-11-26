@@ -196,7 +196,7 @@ test/
 - [x] （新增）尚未開啟討論串時新增留言 → 狀態有錯誤 NO_CLIP，不存入（使用者決定：留言只能在開啟的討論串中新增；DOM 層在未開啟討論串時不提供留言輸入）
 - [x] （新增）新增留言成功後，清除先前的錯誤（使用者決定）
 - [x] （新增）開啟討論串後，清除先前的錯誤（使用者決定）
-- [x] 刪除片段 → 從列表移除（透過 ClipService.deleteClip，留言一併刪除）。使用者決定：刪除討論串不開放給所有人操作，畫面上不提供刪除片段的按鈕；邏輯保留，待做權限時（第 7 節）給有權限的人使用
+- [x] 刪除片段 → 從列表移除（透過 ClipService.deleteClip，留言一併刪除）。使用者決定：刪除討論串不開放給所有人操作，畫面上不提供刪除片段的按鈕；邏輯保留，待做權限時（第 7 節）給有權限的人使用（5.18 後改為：登入者都可以刪除，刪除前確認）
 - [x] （新增）刪除的是目前選取的片段 → 清除選取與留言列表（依上面的使用者決定）
 - [x] 刪除留言 → 從留言列表移除
 - [x] DOM 接線頁面（手動驗證）：`dev/app.html` ＋ `dev/app.js`，`node dev/server.js` 後開 http://localhost:8080/dev/app.html（使用者已在自己的瀏覽器驗證通過）
@@ -329,6 +329,22 @@ test/
 
 - [x] 刪除註冊者時保留內容（使用者決定）：`db/migrations/004_delete_users.sql` 把 clips、comments 的 user_id 外鍵改為 on delete set null
 - 刪除討論串（片段）：網站上不開放（5.9 使用者決定）；管理者在 Supabase 的 Table Editor 或 SQL Editor 刪除 clips 的資料列，該討論串的留言因 on delete cascade 一併刪除
+
+### 5.18 修改與刪除討論串（使用者決定：先開放給所有人）
+
+- 登入的人都可以修改、刪除任何討論串（片段）；未登入仍只能瀏覽（「所有人」由 Claude 解讀為登入者，使用者可改）。取代 5.9「畫面上不提供刪除片段的按鈕」。
+- 修改只改時間範圍：輸入開始與結束（結束可留空＝開始＋5 秒），規則與建立時相同（isValidRange）。
+- 刪除前跳出確認視窗，提醒該討論串所有人的留言會一起刪除、無法復原。
+
+- [ ] 記憶體版 ClipRepository.updateRange(id, range)
+- [ ] Supabase 版 ClipRepository.updateRange → PATCH `/rest/v1/clips?id=eq.{id}`，body 只有 start_sec、end_sec
+- [ ] ClipService.updateClipRange：依影片長度補齊並驗證，通過才存入
+- [ ] ClipService.updateClipRange：區間不合法 → INVALID_RANGE，不存入
+- [ ] app.updateClip：輸入 timecode 字串修改時間範圍，成功後列表更新
+- [ ] app.updateClip：未登入 → NOT_SIGNED_IN；時間格式錯誤 → INVALID_TIMECODE
+- [ ] app.deleteClip：未登入 → NOT_SIGNED_IN
+- [ ] 資料表權限更新的 SQL（`db/migrations/005_edit_delete_clips.sql`）：登入者可修改片段的時間欄位、刪除片段
+- [ ] DOM：片段的「修改」（就地編輯開始與結束）與「刪除」（確認視窗）按鈕（手動驗證）
 
 ## 6. 待決定事項
 
