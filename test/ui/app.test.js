@@ -587,3 +587,12 @@ test('UI：建立時已有保存的工作階段（重新整理頁面），狀態
 
   assert.deepEqual(app.getState().user, { id: 'user-1', displayName: '小明' });
 });
+
+test('UI：canDeleteComment 只對自己的留言回傳 true；未登入時一律 false', () => {
+  const mine = { id: 'm1', clipId: 'c1', body: 'a', createdBy: '小明', createdAt: NOW, userId: 'user-1' };
+  const others = { ...mine, id: 'm2', userId: 'user-hua' };
+
+  assert.equal(setup().app.canDeleteComment(mine), true);
+  assert.equal(setup().app.canDeleteComment(others), false);
+  assert.equal(setup({ signedIn: false }).app.canDeleteComment(mine), false);
+});

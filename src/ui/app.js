@@ -63,6 +63,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     },
 
     /**
+     * 目前登入的使用者能不能刪除這則留言（只能刪除自己的留言）。
+     * @param {import('../types.js').Comment} comment
+     */
+    canDeleteComment(comment) {
+      return state.user !== null && comment.userId === state.user.id;
+    },
+
+    /**
      * 以 Email 與密碼登入。
      * @param {{ email: string, password: string }} input
      */
