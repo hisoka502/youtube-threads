@@ -684,3 +684,15 @@ test('UI：貼上網址載入影片時，產生新的討論串組 id', async () 
 
   assert.equal(app.getState().setId, 'id-1');
 });
+
+test('UI：打開分享網址（給定討論串組）時沿用它，只列出該組的片段', async () => {
+  const { app, clipRepo } = setup();
+  const base = { videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW, userId: 'user-hua' };
+  await clipRepo.add({ ...base, id: 'c1', setId: 's1' });
+  await clipRepo.add({ ...base, id: 'c2', setId: 's2' });
+
+  await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+
+  assert.equal(app.getState().setId, 's1');
+  assert.deepEqual(app.getState().clips.map((c) => c.id), ['c1']);
+});
