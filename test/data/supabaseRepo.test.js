@@ -169,3 +169,15 @@ test('Supabase ClipRepository：listByVideo 依討論串組篩選；setId 為 nu
   assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=eq.s1&order=seq.asc`);
   assert.equal(fake.calls[1].url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=is.null&order=seq.asc`);
 });
+
+test('Supabase ClipRepository：updateRange 以 PATCH 只送出 start_sec 與 end_sec', async () => {
+  const fake = createFakeFetch([new Response(null, { status: 204 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.updateRange('c1', { startSec: 20, endSec: 30 });
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/clips?id=eq.c1`);
+  assert.equal(init.method, 'PATCH');
+  assert.deepEqual(JSON.parse(String(init.body)), { start_sec: 20, end_sec: 30 });
+});

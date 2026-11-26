@@ -337,7 +337,7 @@ test/
 - 刪除前跳出確認視窗，提醒該討論串所有人的留言會一起刪除、無法復原。
 
 - [x] 記憶體版 ClipRepository.updateRange(id, range)
-- [ ] Supabase 版 ClipRepository.updateRange → PATCH `/rest/v1/clips?id=eq.{id}`，body 只有 start_sec、end_sec
+- [x] Supabase 版 ClipRepository.updateRange → PATCH `/rest/v1/clips?id=eq.{id}`，body 只有 start_sec、end_sec
 - [ ] ClipService.updateClipRange：依影片長度補齊並驗證，通過才存入
 - [ ] ClipService.updateClipRange：區間不合法 → INVALID_RANGE，不存入
 - [ ] app.updateClip：輸入 timecode 字串修改時間範圍，成功後列表更新

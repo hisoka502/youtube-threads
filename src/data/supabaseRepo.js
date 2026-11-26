@@ -107,6 +107,12 @@ export function createSupabaseClipRepo(options) {
         method: 'DELETE',
       });
     },
+    async updateRange(id, range) {
+      await request(options, `/rest/v1/clips?id=eq.${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ start_sec: range.startSec, end_sec: range.endSec }),
+      });
+    },
   };
 }
 
