@@ -57,18 +57,20 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     }
   }
 
+  /**
+   * 目前登入的使用者能不能刪除這則留言（只能刪除自己的留言）。
+   * @param {import('../types.js').Comment} comment
+   */
+  function canDeleteComment(comment) {
+    return state.user !== null && comment.userId === state.user.id;
+  }
+
   return {
     getState() {
       return state;
     },
 
-    /**
-     * 目前登入的使用者能不能刪除這則留言（只能刪除自己的留言）。
-     * @param {import('../types.js').Comment} comment
-     */
-    canDeleteComment(comment) {
-      return state.user !== null && comment.userId === state.user.id;
-    },
+    canDeleteComment,
 
     /**
      * 以 Email 與密碼登入。
@@ -194,7 +196,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     async deleteComment(commentId) {
       if (state.busy) return; // 處理中暫停操作
       const comment = state.comments.find((c) => c.id === commentId);
-      if (comment === undefined || !this.canDeleteComment(comment)) return; // 只能刪除自己的留言
+      if (comment === undefined || !canDeleteComment(comment)) return; // 只能刪除自己的留言
       await guardStorage(async () => {
         await commentRepo.remove(commentId);
         const clipId = /** @type {string} */ (state.selectedClipId);
