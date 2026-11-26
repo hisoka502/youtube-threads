@@ -5,6 +5,7 @@ import { createApp } from '../src/ui/app.js';
 import { createYouTubePlayer } from '../src/player/youtubePlayer.js';
 import { createPlayerVideoInfo } from '../src/video/playerVideoInfo.js';
 import { createMemoryClipRepo, createMemoryCommentRepo } from '../src/data/memoryRepo.js';
+import { createSupabaseClipRepo, createSupabaseCommentRepo } from '../src/data/supabaseRepo.js';
 import { createClipService } from '../src/clip/clipService.js';
 import { formatTimecode } from '../src/time/timecode.js';
 
@@ -41,8 +42,22 @@ function createYTPlayer() {
 
 const yt = await createYTPlayer();
 const player = createYouTubePlayer(yt);
-const clipRepo = createMemoryClipRepo();
-const commentRepo = createMemoryCommentRepo();
+/** 讀取 dev/config.js；檔案不存在時回傳 null（改用記憶體版） */
+async function loadConfig() {
+  try {
+    return (await import('./config.js')).default;
+  } catch {
+    return null;
+  }
+}
+
+const config = await loadConfig();
+const supabase = config && { url: config.supabaseUrl, key: config.supabaseKey, fetch: globalThis.fetch.bind(globalThis) };
+const clipRepo = supabase ? createSupabaseClipRepo(supabase) : createMemoryClipRepo();
+const commentRepo = supabase ? createSupabaseCommentRepo(supabase) : createMemoryCommentRepo();
+$('storage').textContent = supabase
+  ? `資料存在 Supabase（${config.supabaseUrl}）。`
+  : '資料存在記憶體，重新整理後會清空（沒有找到 dev/config.js）。';
 const newId = () => crypto.randomUUID();
 const clipService = createClipService({
   clipRepo,

@@ -250,7 +250,9 @@ test/
 - [x] 查詢參數中的 id 經過 URL 編碼
 - [x] 伺服器回應失敗（非 2xx）→ 拋出錯誤，訊息包含狀態碼
 - [x] 建表與 RLS 的 SQL（`db/schema.sql`），由使用者在 Supabase 執行（片段不可刪除；留言可讀、新增、刪除）
-- [ ] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）
+- [ ] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）。`dev/config.js`（已列入 .gitignore，範本 `dev/config.example.js`）；雲端已用攔截請求的模擬 Supabase 驗證，待使用者以真正的 Supabase 專案驗證
+- [ ] （新增）Repository 拋出錯誤（網路或 Supabase 失敗）時，畫面要顯示錯誤；目前 app 沒有處理，錯誤只會出現在瀏覽器主控台（處理方式待問使用者）
+- [ ] （新增）上一個動作還在等 Supabase 回應時又執行下一個動作，會互相干擾：留言輸入框可能清掉剛打的字，畫面可能以舊資料重畫（雲端模擬時發現；處理方式待問使用者，例如儲存中暫時停用表單）
 
 ## 6. 待決定事項
 
