@@ -253,7 +253,8 @@ test/
 - [x] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）。`dev/config.js`（已列入 .gitignore，範本 `dev/config.example.js`）；使用者已以真正的 Supabase 專案驗證通過（曾遇到 PGRST205 找不到資料表，執行 `db/schema.sql` 後解決）
 - Repository 拋出錯誤（網路或 Supabase 失敗）時 → 使用者決定：畫面顯示通用錯誤 STORAGE_FAILED（「資料存取失敗，請稍後再試」），詳細原因交給注入的 logError（畫面上用 console.error 寫到主控台）
   - [x] 新增留言時 Repository 失敗 → 狀態有錯誤 STORAGE_FAILED，錯誤物件交給 logError
-  - [ ] 載入影片時 Repository 失敗 → 同上
+  - [x] 載入影片時 Repository 失敗 → 同上
+  - [ ] （新增）載入影片時讀取片段失敗：播放器已經換成新影片，但狀態仍是舊影片。要不要等讀取成功才換播放器的影片？（待問使用者）
   - [ ] 其他會存取資料的動作（建立片段、開啟討論串、播放片段、刪除留言、刪除片段）同樣處理
 - 上一個動作還在等回應時又執行下一個動作會互相干擾 → 使用者決定：處理中暫停操作
   - [ ] 動作進行中，狀態的 busy 為 true；完成後為 false

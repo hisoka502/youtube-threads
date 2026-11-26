@@ -37,6 +37,19 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
   }
 
+  /**
+   * 執行會存取資料的步驟；失敗時把錯誤交給 logError，狀態設為 STORAGE_FAILED。
+   * @param {() => Promise<void>} step
+   */
+  async function guardStorage(step) {
+    try {
+      await step();
+    } catch (error) {
+      logError(error);
+      state = { ...state, error: 'STORAGE_FAILED' };
+    }
+  }
+
   return {
     getState() {
       return state;
@@ -58,8 +71,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       player.load(videoId);
-      state = { ...state, videoId, error: null };
-      setClips(await clipRepo.listByVideo(videoId));
+      await guardStorage(async () => {
+        const clips = await clipRepo.listByVideo(videoId);
+        state = { ...state, videoId, error: null };
+        setClips(clips);
+      });
     },
 
     /**

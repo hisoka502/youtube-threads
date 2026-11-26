@@ -408,3 +408,13 @@ test('UI：新增留言時資料存取失敗，狀態有錯誤 STORAGE_FAILED，
   assert.equal(app.getState().error, 'STORAGE_FAILED');
   assert.deepEqual(logged, [boom]);
 });
+
+test('UI：載入影片時資料存取失敗，狀態有錯誤 STORAGE_FAILED，錯誤交給 logError', async () => {
+  const boom = new Error('Supabase 請求失敗');
+  const { app, logged } = setup({ clipRepo: failOn(createMemoryClipRepo(), 'listByVideo', boom) });
+
+  await app.loadVideo('https://youtu.be/abc');
+
+  assert.equal(app.getState().error, 'STORAGE_FAILED');
+  assert.deepEqual(logged, [boom]);
+});
