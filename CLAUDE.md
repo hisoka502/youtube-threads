@@ -244,7 +244,7 @@ test/
 - [x] ClipRepository.add → POST `/rest/v1/clips`，帶 apikey 與 Authorization 標頭，body 為 snake_case 的資料列
 - [x] ClipRepository.listByVideo → GET `/rest/v1/clips?video_id=eq.{id}&order=seq.asc`，把資料列轉回 Clip
 - [x] ClipRepository.remove → DELETE `/rest/v1/clips?id=eq.{id}`
-- [ ] CommentRepository.add → POST `/rest/v1/comments`
+- [x] CommentRepository.add → POST `/rest/v1/comments`
 - [ ] CommentRepository.listByClip → GET `/rest/v1/comments?clip_id=eq.{id}&order=seq.asc`，把資料列轉回 Comment
 - [ ] CommentRepository.remove → DELETE `/rest/v1/comments?id=eq.{id}`
 - [ ] 查詢參數中的 id 經過 URL 編碼

@@ -1,7 +1,7 @@
 // @ts-check
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createSupabaseClipRepo } from '../../src/data/supabaseRepo.js';
+import { createSupabaseClipRepo, createSupabaseCommentRepo } from '../../src/data/supabaseRepo.js';
 
 const URL_BASE = 'https://example.supabase.co';
 const KEY = 'test-key';
@@ -81,4 +81,21 @@ test('Supabase ClipRepository：remove 以 DELETE 刪除指定 id 的資料列',
   const { url, init } = fake.calls[0];
   assert.equal(url, `${URL_BASE}/rest/v1/clips?id=eq.c1`);
   assert.equal(init.method, 'DELETE');
+});
+
+const comment = { id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小明', createdAt: 1764000000000 };
+
+test('Supabase CommentRepository：add 以 POST 送出 snake_case 的資料列', async () => {
+  const fake = createFakeFetch();
+  const repo = createSupabaseCommentRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.add(comment);
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/comments`);
+  assert.equal(init.method, 'POST');
+  assert.equal(/** @type {Record<string, string>} */ (init.headers).apikey, KEY);
+  assert.deepEqual(JSON.parse(String(init.body)), {
+    id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000,
+  });
 });

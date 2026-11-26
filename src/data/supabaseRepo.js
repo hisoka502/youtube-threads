@@ -76,3 +76,30 @@ export function createSupabaseClipRepo(options) {
     },
   };
 }
+
+/**
+ * @param {SupabaseOptions} options
+ * @returns {import('../types.js').CommentRepository}
+ */
+export function createSupabaseCommentRepo(options) {
+  const { url, fetch } = options;
+  return {
+    async add(comment) {
+      await fetch(`${url}/rest/v1/comments`, {
+        method: 'POST',
+        headers: headers(options),
+        body: JSON.stringify({
+          id: comment.id,
+          clip_id: comment.clipId,
+          body: comment.body,
+          created_by: comment.createdBy,
+          created_at: comment.createdAt,
+        }),
+      });
+    },
+    async listByClip() {
+      return [];
+    },
+    async remove() {},
+  };
+}
