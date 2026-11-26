@@ -32,18 +32,27 @@ function toSession(body) {
 
 /** @param {SupabaseAuthOptions} options */
 export function createSupabaseAuth(options) {
+  /**
+   * POST 到 Supabase Auth，回傳轉換後的工作階段。
+   * @param {string} path 例如 /auth/v1/signup
+   * @param {object} body
+   */
+  async function postForSession(path, body) {
+    const response = await options.fetch(`${options.url}${path}`, {
+      method: 'POST',
+      headers: { apikey: options.key, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    return toSession(await response.json());
+  }
+
   return {
     /**
      * 註冊並登入（Supabase 需關閉 Confirm email，註冊後才會直接回傳工作階段）。
      * @param {{ email: string, password: string, displayName: string }} input
      */
     async signUp({ email, password, displayName }) {
-      const response = await options.fetch(`${options.url}/auth/v1/signup`, {
-        method: 'POST',
-        headers: { apikey: options.key, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, data: { display_name: displayName } }),
-      });
-      return toSession(await response.json());
+      return postForSession('/auth/v1/signup', { email, password, data: { display_name: displayName } });
     },
 
     /**
@@ -51,12 +60,7 @@ export function createSupabaseAuth(options) {
      * @param {{ email: string, password: string }} input
      */
     async signIn({ email, password }) {
-      const response = await options.fetch(`${options.url}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: { apikey: options.key, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      return toSession(await response.json());
+      return postForSession('/auth/v1/token?grant_type=password', { email, password });
     },
   };
 }
