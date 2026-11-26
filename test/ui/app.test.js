@@ -216,7 +216,7 @@ test('UI：在選取的討論串新增留言，留言列表多一筆', async () 
 
   assert.deepEqual(app.getState().comments, [
     { id: 'm1', clipId: 'c1', body: '第一則' },
-    { id: 'id-1', clipId: 'c1', body: '第二則', createdBy: '小明', createdAt: NOW },
+    { id: 'id-1', clipId: 'c1', body: '第二則', createdBy: '小明', createdAt: NOW, userId: 'user-1' },
   ]);
 });
 
@@ -401,8 +401,9 @@ test('UI：未登入時新增留言，狀態有錯誤 NOT_SIGNED_IN，不存入'
   assert.deepEqual(state.comments, []);
 });
 
-test('UI：新增留言時，留言帶有建立者（使用者的名字）與建立時間', async () => {
+test('UI：新增留言時，留言帶有建立者（登入者的顯示名稱）、userId 與建立時間', async () => {
   const { app, clipRepo } = setup();
+  await app.signIn({ email: 'hua@example.com', password: 'secret123' });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
   await app.loadVideo('https://youtu.be/abc');
   await app.selectClip('c1');
@@ -410,7 +411,8 @@ test('UI：新增留言時，留言帶有建立者（使用者的名字）與建
   await app.addComment('第一則');
 
   const [comment] = app.getState().comments;
-  assert.equal(comment.createdBy, '小明');
+  assert.equal(comment.createdBy, 'hua');
+  assert.equal(comment.userId, 'user-hua');
   assert.equal(comment.createdAt, NOW);
 });
 

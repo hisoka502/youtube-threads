@@ -292,7 +292,7 @@ test/
 - [x] app：未登入時建立片段 → 錯誤 NOT_SIGNED_IN
 - [x] app：未登入時新增留言 → 錯誤 NOT_SIGNED_IN
 - [ ] app：註冊（顯示名稱必填）、登出
-- [~] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id（片段已完成，留言待做）
+- [x] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id（片段與留言）
 - [ ] app：只能刪除自己的留言（判斷函式供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
 - [ ] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤
 - [ ] 資料表與 RLS 更新的 SQL（`db/migrations/002_auth.sql`）

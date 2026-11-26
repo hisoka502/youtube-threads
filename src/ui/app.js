@@ -168,7 +168,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       await guardStorage(async () => {
-        await commentRepo.add({ id: newId(), clipId, body, createdBy: state.userName, createdAt: now() });
+        const { user } = state;
+        await commentRepo.add({ id: newId(), clipId, body, createdBy: user.displayName, createdAt: now(), userId: user.id });
         state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
       });
     },
