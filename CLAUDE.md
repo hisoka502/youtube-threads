@@ -344,7 +344,7 @@ test/
 - [x] app.updateClip：未登入 → NOT_SIGNED_IN；時間格式錯誤 → INVALID_TIMECODE；區間不合法 → INVALID_RANGE
 - [x] app.deleteClip：未登入 → NOT_SIGNED_IN
 - [x] 資料表權限更新的 SQL（`db/migrations/005_edit_delete_clips.sql`）：登入者可修改片段的時間欄位（欄位層級權限只開放 start_sec、end_sec）、刪除片段
-- [ ] DOM：片段的「修改」（就地編輯開始與結束）與「刪除」（確認視窗）按鈕（手動驗證）
+- [ ] DOM：片段的「修改」（就地編輯開始與結束）與「刪除」（確認視窗）按鈕，只在登入時顯示（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
 
 ## 6. 待決定事項
 

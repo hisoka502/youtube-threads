@@ -165,6 +165,32 @@ function clipLabel(clip) {
   return clip.title === '' ? range : `${range}「${clip.title}」`;
 }
 
+/** 正在修改時間範圍的片段（畫面上的編輯狀態）；沒有時為 null */
+/** @type {string | null} */
+let editingClipId = null;
+
+/**
+ * 修改片段時間範圍的輸入欄位與按鈕。
+ * @param {import('../src/types.js').Clip} clip
+ */
+function clipEditor(clip) {
+  const start = document.createElement('input');
+  start.className = 'time';
+  start.value = formatTimecode(clip.range.startSec);
+  const end = document.createElement('input');
+  end.className = 'time';
+  end.value = formatTimecode(clip.range.endSec);
+  end.placeholder = '留空＝開始＋5 秒';
+  return [
+    '開始 ', start, ' 結束 ', end,
+    button('儲存', async () => {
+      await run(() => app.updateClip(clip.id, { start: start.value, end: end.value }));
+      if (app.getState().error === null) { editingClipId = null; render(); }
+    }),
+    button('取消', () => { editingClipId = null; render(); }),
+  ];
+}
+
 /** 依 app.getState() 重畫整個畫面。 */
 function render() {
   const state = app.getState();
@@ -185,6 +211,10 @@ function render() {
     ...state.clips.map((clip) => {
       const li = document.createElement('li');
       li.classList.toggle('selected', clip.id === state.selectedClipId);
+      if (clip.id === editingClipId) {
+        li.append(...clipEditor(clip));
+        return li;
+      }
       const title = document.createElement('span');
       title.textContent = clipLabel(clip);
       li.append(
@@ -193,6 +223,15 @@ function render() {
         button('播放', () => run(() => app.playClip(clip.id))),
         button('討論串', () => run(() => app.selectClip(clip.id))),
       );
+      if (state.user !== null) {
+        li.append(
+          button('修改', () => { editingClipId = clip.id; render(); }),
+          button('刪除', () => {
+            const ok = confirm(`確定要刪除討論串「${clipLabel(clip)}」嗎？\n裡面所有人的留言都會一起刪除，無法復原。`);
+            if (ok) run(() => app.deleteClip(clip.id));
+          }),
+        );
+      }
       return li;
     }),
   );
