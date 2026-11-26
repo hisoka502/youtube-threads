@@ -233,7 +233,7 @@ test('UI：刪除片段後，從片段列表移除', async () => {
 test('UI：刪除留言後，從留言列表移除', async () => {
   const { app, clipRepo, commentRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
-  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
+  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則', userId: 'user-1' });
   await commentRepo.add({ id: 'm2', clipId: 'c1', body: '第二則' });
   await app.loadVideo('https://youtu.be/abc');
   await app.selectClip('c1');
@@ -468,7 +468,7 @@ test('UI：開啟討論串時資料存取失敗，狀態有錯誤 STORAGE_FAILED
 test('UI：刪除留言時資料存取失敗，狀態有錯誤 STORAGE_FAILED', async () => {
   const boom = new Error('Supabase 請求失敗');
   const commentRepo = createMemoryCommentRepo();
-  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小華', createdAt: NOW });
+  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小明', createdAt: NOW, userId: 'user-1' });
   const { app, clipRepo, logged } = setup({ commentRepo: failOn(commentRepo, 'remove', boom) });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
   await app.loadVideo('https://youtu.be/abc');
@@ -595,4 +595,16 @@ test('UI：canDeleteComment 只對自己的留言回傳 true；未登入時一�
   assert.equal(setup().app.canDeleteComment(mine), true);
   assert.equal(setup().app.canDeleteComment(others), false);
   assert.equal(setup({ signedIn: false }).app.canDeleteComment(mine), false);
+});
+
+test('UI：刪除別人的留言時，什麼都不做', async () => {
+  const { app, clipRepo, commentRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW, userId: 'user-hua' });
+  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '小華的留言', createdBy: '小華', createdAt: NOW, userId: 'user-hua' });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+
+  await app.deleteComment('m1');
+
+  assert.deepEqual((await commentRepo.listByClip('c1')).map((m) => m.id), ['m1']);
 });

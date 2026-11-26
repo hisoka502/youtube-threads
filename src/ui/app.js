@@ -193,6 +193,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async deleteComment(commentId) {
       if (state.busy) return; // 處理中暫停操作
+      const comment = state.comments.find((c) => c.id === commentId);
+      if (comment === undefined || !this.canDeleteComment(comment)) return; // 只能刪除自己的留言
       await guardStorage(async () => {
         await commentRepo.remove(commentId);
         const clipId = /** @type {string} */ (state.selectedClipId);
