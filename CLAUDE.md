@@ -296,7 +296,7 @@ test/
 - [x] app：只能刪除自己的留言（判斷函式 canDeleteComment 供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
 - [x] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤（INVALID_CREDENTIALS、EMAIL_TAKEN、WEAK_PASSWORD、其他 AUTH_FAILED、網路錯誤 STORAGE_FAILED）
 - [x] 資料表與 RLS 更新的 SQL（`db/migrations/002_auth.sql`）：新增 user_id（預設 auth.uid()）；未登入只能讀；登入可讀、新增（user_id 必須是自己）、刪除自己的留言；片段不可刪。注意：created_by 由瀏覽器送出，懂技術的人可以透過 API 填別人的名字（user_id 無法冒用）
-- [ ] DOM：登入／註冊表單、登出、重新整理後維持登入；未登入時隱藏建立與留言表單（手動驗證）
+- [ ] DOM：登入／註冊表單、登出、重新整理後維持登入（工作階段存在 localStorage）；未登入時隱藏建立與留言表單；只有自己的留言顯示刪除按鈕；沒有 dev/config.js 時用本機假登入（手動驗證；雲端以模擬 Supabase 驗證過，待使用者以真正的 Supabase 驗證）
 
 ## 6. 待決定事項
 
