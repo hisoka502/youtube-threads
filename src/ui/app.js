@@ -204,6 +204,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async updateClip(clipId, { start, end }) {
       if (state.busy) return; // 處理中暫停操作
+      if (state.user === null) {
+        state = { ...state, error: 'NOT_SIGNED_IN' };
+        return;
+      }
       const clip = state.clips.find((c) => c.id === clipId);
       if (clip === undefined) return;
       const startSec = /** @type {number} */ (parseTimecode(start));

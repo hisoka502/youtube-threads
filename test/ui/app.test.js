@@ -720,3 +720,14 @@ test('UI：updateClip 以 timecode 字串修改片段的時間範圍，成功後
   assert.equal(state.error, null);
   assert.deepEqual(state.clips.map((c) => c.range), [{ startSec: 30, endSec: 45 }]);
 });
+
+test('UI：未登入時修改片段，狀態有錯誤 NOT_SIGNED_IN，不修改', async () => {
+  const { app, clipRepo } = setup({ signedIn: false });
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW, userId: 'user-hua' });
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
+
+  await app.updateClip('c1', { start: '0:30', end: '0:45' });
+
+  assert.equal(app.getState().error, 'NOT_SIGNED_IN');
+  assert.deepEqual((await clipRepo.listByVideo('abc')).map((c) => c.range), [{ startSec: 10, endSec: 15 }]);
+});
