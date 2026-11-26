@@ -98,12 +98,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'INVALID_TIMECODE' };
         return;
       }
-      const result = await clipService.createClip({ videoId, startSec, endSec, title, createdBy: state.userName });
-      if (!result.ok) {
-        state = { ...state, error: result.error };
-        return;
-      }
-      state = { ...state, clips: await clipRepo.listByVideo(videoId), error: null };
+      await guardStorage(async () => {
+        const result = await clipService.createClip({ videoId, startSec, endSec, title, createdBy: state.userName });
+        if (!result.ok) {
+          state = { ...state, error: result.error };
+          return;
+        }
+        state = { ...state, clips: await clipRepo.listByVideo(videoId), error: null };
+      });
     },
 
     /**
