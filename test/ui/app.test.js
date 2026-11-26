@@ -10,9 +10,12 @@ import { createFakePlayer } from '../../src/player/fakePlayer.js';
 /** 測試用的固定時間（毫秒） */
 const NOW = 1764000000000;
 
-function setup() {
-  const clipRepo = createMemoryClipRepo();
-  const commentRepo = createMemoryCommentRepo();
+/**
+ * @param {object} [overrides] 測試時可換成會失敗的 Repository
+ * @param {import('../../src/types.js').ClipRepository} [overrides.clipRepo]
+ * @param {import('../../src/types.js').CommentRepository} [overrides.commentRepo]
+ */
+function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCommentRepo() } = {}) {
   const videoInfo = createFakeVideoInfo({ abc: 120, xyz: 60 });
   let n = 0;
   const newId = () => `id-${++n}`;
