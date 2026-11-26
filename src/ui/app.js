@@ -14,11 +14,11 @@ import { playRange } from '../player/playRange.js';
  * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  * @param {(error: unknown) => void} deps.logError 資料存取失敗時，接收詳細的錯誤（畫面上寫到主控台）
  * @param {{ signIn: (input: { email: string, password: string }) => Promise<import('../types.js').Session> }} deps.auth
- * @param {{ set: (session: import('../types.js').Session | null) => void }} deps.sessions
+ * @param {{ set: (session: import('../types.js').Session | null) => void, getUser: () => import('../types.js').User | null }} deps.sessions 工作階段（重新整理頁面後仍保存）
  */
 export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '', busy: false, user: null };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '', busy: false, user: sessions.getUser() };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。

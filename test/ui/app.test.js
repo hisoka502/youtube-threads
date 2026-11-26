@@ -575,3 +575,19 @@ test('UI：登入後，狀態有登入的使用者', async () => {
 
   assert.deepEqual(app.getState().user, { id: 'user-hua', displayName: 'hua' });
 });
+
+test('UI：建立時已有保存的工作階段（重新整理頁面），狀態一開始就有登入的使用者', () => {
+  const auth = createFakeAuth();
+  const session = { accessToken: 'a', refreshToken: 'r', expiresAt: NOW + 3600_000, user: { id: 'user-1', displayName: '小明' } };
+  const sessions = createSessionManager({ auth, storage: { load: () => session, save: () => {} }, now: () => NOW });
+  const clipRepo = createMemoryClipRepo();
+  const commentRepo = createMemoryCommentRepo();
+  const clipService = createClipService({ clipRepo, commentRepo, videoInfo: createFakeVideoInfo({}), newId: () => 'x', now: () => NOW });
+
+  const app = createApp({
+    clipRepo, commentRepo, clipService, player: createFakePlayer(), newId: () => 'x', now: () => NOW,
+    logError: () => {}, auth, sessions,
+  });
+
+  assert.deepEqual(app.getState().user, { id: 'user-1', displayName: '小明' });
+});
