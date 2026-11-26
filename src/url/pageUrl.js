@@ -21,3 +21,12 @@ export function pageUrlFor(pageUrl, videoId) {
   url.searchParams.set('v', videoId);
   return url.toString();
 }
+
+/**
+ * 從頁面網址取出討論串組 id（s 參數）。
+ * @param {string} pageUrl
+ * @returns {string | null}
+ */
+export function pageSetId(pageUrl) {
+  return new URL(pageUrl).searchParams.get('s') || null;
+}
