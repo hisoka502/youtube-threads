@@ -241,7 +241,7 @@ test/
 - 留言順序以資料庫自動遞增的 `seq` 欄位排序（等於建立順序，與記憶體版的「呼叫 add 的順序」一致）。
 - `fetch` 由外部注入，測試時用假的 fetch 檢查送出的請求與回應的轉換；與真正的 Supabase 連線以手動驗證。
 
-- [ ] ClipRepository.add → POST `/rest/v1/clips`，帶 apikey 與 Authorization 標頭，body 為 snake_case 的資料列
+- [x] ClipRepository.add → POST `/rest/v1/clips`，帶 apikey 與 Authorization 標頭，body 為 snake_case 的資料列
 - [ ] ClipRepository.listByVideo → GET `/rest/v1/clips?video_id=eq.{id}&order=seq.asc`，把資料列轉回 Clip
 - [ ] ClipRepository.remove → DELETE `/rest/v1/clips?id=eq.{id}`
 - [ ] CommentRepository.add → POST `/rest/v1/comments`
