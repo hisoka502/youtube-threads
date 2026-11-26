@@ -139,3 +139,18 @@ test('Supabase Repository：伺服器回應失敗（非 2xx）時拋出錯誤，
 
   await assert.rejects(repo.add(clip), /401/);
 });
+
+test('Supabase Repository：有 access token 時，在 Authorization 標頭帶 Bearer token', async () => {
+  const fake = createFakeFetch([new Response('[]', { status: 200 })]);
+  const repo = createSupabaseClipRepo({
+    url: URL_BASE, key: KEY, fetch: fake.fetch, getAccessToken: async () => 'user-access-token',
+  });
+
+  await repo.listByVideo('abc');
+
+  assert.deepEqual(fake.calls[0].init.headers, {
+    apikey: KEY,
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer user-access-token',
+  });
+});

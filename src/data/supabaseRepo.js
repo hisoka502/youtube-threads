@@ -7,6 +7,7 @@
  * @property {string} url 專案網址，例如 https://xxxx.supabase.co
  * @property {string} key 瀏覽器端用的公開金鑰（anon / publishable key）
  * @property {typeof fetch} fetch 測試時可替換
+ * @property {() => Promise<string | null>} [getAccessToken] 登入使用者的 access token；未登入時回傳 null
  */
 
 /**
@@ -47,7 +48,11 @@ function headers({ key }) {
  * @param {RequestInit} init
  */
 async function request(options, path, init) {
-  const response = await options.fetch(`${options.url}${path}`, { ...init, headers: headers(options) });
+  const accessToken = (await options.getAccessToken?.()) ?? null;
+  const allHeaders = accessToken === null
+    ? headers(options)
+    : { ...headers(options), Authorization: `Bearer ${accessToken}` };
+  const response = await options.fetch(`${options.url}${path}`, { ...init, headers: allHeaders });
   if (!response.ok) {
     throw new Error(`Supabase 請求失敗：${init.method} ${path} 回應 ${response.status} ${await response.text()}`);
   }
