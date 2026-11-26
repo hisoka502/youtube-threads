@@ -41,16 +41,25 @@ function headers({ key }) {
 }
 
 /**
+ * 送出請求。
+ * @param {SupabaseOptions} options
+ * @param {string} path 例如 /rest/v1/clips?id=eq.c1
+ * @param {RequestInit} init
+ */
+async function request(options, path, init) {
+  const response = await options.fetch(`${options.url}${path}`, { ...init, headers: headers(options) });
+  return response;
+}
+
+/**
  * @param {SupabaseOptions} options
  * @returns {import('../types.js').ClipRepository}
  */
 export function createSupabaseClipRepo(options) {
-  const { url, fetch } = options;
   return {
     async add(clip) {
-      await fetch(`${url}/rest/v1/clips`, {
+      await request(options, `/rest/v1/clips`, {
         method: 'POST',
-        headers: headers(options),
         body: JSON.stringify({
           id: clip.id,
           video_id: clip.videoId,
@@ -63,9 +72,8 @@ export function createSupabaseClipRepo(options) {
       });
     },
     async listByVideo(videoId) {
-      const response = await fetch(`${url}/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&order=seq.asc`, {
+      const response = await request(options, `/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&order=seq.asc`, {
         method: 'GET',
-        headers: headers(options),
       });
       /** @type {ClipRow[]} */
       const rows = await response.json();
@@ -79,9 +87,8 @@ export function createSupabaseClipRepo(options) {
       }));
     },
     async remove(id) {
-      await fetch(`${url}/rest/v1/clips?id=eq.${encodeURIComponent(id)}`, {
+      await request(options, `/rest/v1/clips?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
-        headers: headers(options),
       });
     },
   };
@@ -92,12 +99,10 @@ export function createSupabaseClipRepo(options) {
  * @returns {import('../types.js').CommentRepository}
  */
 export function createSupabaseCommentRepo(options) {
-  const { url, fetch } = options;
   return {
     async add(comment) {
-      await fetch(`${url}/rest/v1/comments`, {
+      await request(options, `/rest/v1/comments`, {
         method: 'POST',
-        headers: headers(options),
         body: JSON.stringify({
           id: comment.id,
           clip_id: comment.clipId,
@@ -108,9 +113,8 @@ export function createSupabaseCommentRepo(options) {
       });
     },
     async listByClip(clipId) {
-      const response = await fetch(`${url}/rest/v1/comments?clip_id=eq.${encodeURIComponent(clipId)}&order=seq.asc`, {
+      const response = await request(options, `/rest/v1/comments?clip_id=eq.${encodeURIComponent(clipId)}&order=seq.asc`, {
         method: 'GET',
-        headers: headers(options),
       });
       /** @type {CommentRow[]} */
       const rows = await response.json();
@@ -123,9 +127,8 @@ export function createSupabaseCommentRepo(options) {
       }));
     },
     async remove(id) {
-      await fetch(`${url}/rest/v1/comments?id=eq.${encodeURIComponent(id)}`, {
+      await request(options, `/rest/v1/comments?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
-        headers: headers(options),
       });
     },
   };
