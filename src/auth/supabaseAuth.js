@@ -68,5 +68,13 @@ export function createSupabaseAuth(options) {
     async signIn({ email, password }) {
       return postForSession('/auth/v1/token?grant_type=password', { email, password });
     },
+
+    /**
+     * 用 refresh token 換新的工作階段（access token 到期前使用）。
+     * @param {string} refreshToken
+     */
+    async refresh(refreshToken) {
+      return postForSession('/auth/v1/token?grant_type=refresh_token', { refresh_token: refreshToken });
+    },
   };
 }

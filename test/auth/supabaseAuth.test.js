@@ -75,3 +75,15 @@ test('auth：Supabase 回應失敗時拋出錯誤，code 為 Supabase 的錯誤�
 
   await assert.rejects(auth.signIn({ email: 'a@example.com', password: 'wrong' }), { code: 'invalid_credentials' });
 });
+
+test('auth.refresh：POST /auth/v1/token?grant_type=refresh_token，回傳新的工作階段', async () => {
+  const fake = createFakeFetch([new Response(JSON.stringify(sessionBody), { status: 200 })]);
+  const auth = createSupabaseAuth({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const result = await auth.refresh('refresh-0');
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/auth/v1/token?grant_type=refresh_token`);
+  assert.deepEqual(JSON.parse(String(init.body)), { refresh_token: 'refresh-0' });
+  assert.deepEqual(result, session);
+});
