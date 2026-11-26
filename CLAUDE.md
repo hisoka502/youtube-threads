@@ -338,8 +338,8 @@ test/
 
 - [x] 記憶體版 ClipRepository.updateRange(id, range)
 - [x] Supabase 版 ClipRepository.updateRange → PATCH `/rest/v1/clips?id=eq.{id}`，body 只有 start_sec、end_sec
-- [ ] ClipService.updateClipRange：依影片長度補齊並驗證，通過才存入
-- [ ] ClipService.updateClipRange：區間不合法 → INVALID_RANGE，不存入
+- [x] ClipService.updateClipRange：依影片長度補齊並驗證，通過才存入
+- [x] ClipService.updateClipRange：區間不合法 → INVALID_RANGE，不存入（讀不到影片長度 → VIDEO_NOT_FOUND，與建立相同）
 - [ ] app.updateClip：輸入 timecode 字串修改時間範圍，成功後列表更新
 - [ ] app.updateClip：未登入 → NOT_SIGNED_IN；時間格式錯誤 → INVALID_TIMECODE
 - [ ] app.deleteClip：未登入 → NOT_SIGNED_IN
