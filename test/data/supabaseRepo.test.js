@@ -55,3 +55,19 @@ test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，�
     created_at: 1764000000000,
   });
 });
+
+test('Supabase ClipRepository：listByVideo 以 GET 依 seq 排序查詢，並把資料列轉回 Clip', async () => {
+  const row = {
+    id: 'c1', video_id: 'abc', start_sec: 10, end_sec: 15,
+    title: '開場', created_by: '小明', created_at: 1764000000000, seq: 1,
+  };
+  const fake = createFakeFetch([new Response(JSON.stringify([row]), { status: 200 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const clips = await repo.listByVideo('abc');
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&order=seq.asc`);
+  assert.equal(init.method, 'GET');
+  assert.deepEqual(clips, [clip]);
+});

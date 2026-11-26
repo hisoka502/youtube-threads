@@ -9,6 +9,18 @@
  * @property {typeof fetch} fetch 測試時可替換
  */
 
+/**
+ * clips 資料表的一列。
+ * @typedef {object} ClipRow
+ * @property {string} id
+ * @property {string} video_id
+ * @property {number} start_sec
+ * @property {number} end_sec
+ * @property {string} title
+ * @property {string} created_by
+ * @property {number} created_at
+ */
+
 /** @param {SupabaseOptions} options */
 function headers({ key }) {
   return {
@@ -40,8 +52,21 @@ export function createSupabaseClipRepo(options) {
         }),
       });
     },
-    async listByVideo() {
-      return [];
+    async listByVideo(videoId) {
+      const response = await fetch(`${url}/rest/v1/clips?video_id=eq.${videoId}&order=seq.asc`, {
+        method: 'GET',
+        headers: headers(options),
+      });
+      /** @type {ClipRow[]} */
+      const rows = await response.json();
+      return rows.map((row) => ({
+        id: row.id,
+        videoId: row.video_id,
+        range: { startSec: row.start_sec, endSec: row.end_sec },
+        title: row.title,
+        createdBy: row.created_by,
+        createdAt: row.created_at,
+      }));
     },
     async remove() {},
   };
