@@ -44,3 +44,13 @@ test('工作階段：access token 離到期不到一分鐘時，先換新的再�
   assert.deepEqual(refreshedWith, ['refresh-1']);
   assert.deepEqual(storage.load(), fresh);
 });
+
+test('工作階段：換新失敗（refresh token 已失效）時，清除工作階段並回傳 null', async () => {
+  const auth = { refresh: async () => { throw Object.assign(new Error('Supabase Auth 失敗'), { code: 'refresh_token_not_found' }); } };
+  const storage = createMemoryStorage();
+  const sessions = createSessionManager({ auth, storage, now: () => NOW });
+  sessions.set(sessionExpiringAt(NOW + 30_000));
+
+  assert.equal(await sessions.getAccessToken(), null);
+  assert.equal(storage.load(), null);
+});

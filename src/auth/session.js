@@ -33,7 +33,11 @@ export function createSessionManager({ auth, storage, now }) {
     async getAccessToken() {
       if (session === null) return null;
       if (session.expiresAt - now() < REFRESH_BEFORE_MS) {
-        set(await auth.refresh(session.refreshToken));
+        try {
+          set(await auth.refresh(session.refreshToken));
+        } catch {
+          set(null); // refresh token 已失效：視同登出
+        }
       }
       return session?.accessToken ?? null;
     },

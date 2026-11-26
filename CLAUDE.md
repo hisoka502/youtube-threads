@@ -286,7 +286,8 @@ test/
 - [x] Repository：有 access token 時，在 Authorization 標頭帶 `Bearer {token}`；沒有時不帶
 - [x] Repository：片段與留言的 userId 與 user_id 互轉
 - [x] 工作階段：access token 快到期時，先用 refresh token 換新的再回傳
-- [ ] （新增）工作階段：換新失敗（refresh token 已失效）時，清除工作階段，視同登出
+- [x] （新增）工作階段：換新失敗（refresh token 已失效）時，清除工作階段，視同登出
+- [ ] （新增）工作階段：換新時是網路錯誤（沒有 Supabase 錯誤碼）→ 不登出，把錯誤丟出（交給 app 顯示 STORAGE_FAILED）
 - [ ] app：登入、註冊、登出改變狀態的 user；未登入時建立片段或留言 → 錯誤 NOT_SIGNED_IN
 - [ ] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id
 - [ ] app：只能刪除自己的留言（判斷函式供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
