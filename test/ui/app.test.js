@@ -21,9 +21,12 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
   const newId = () => `id-${++n}`;
   const clipService = createClipService({ clipRepo, commentRepo, videoInfo, newId, now: () => NOW });
   const player = createFakePlayer();
-  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW });
+  /** @type {unknown[]} */
+  const logged = [];
+  const logError = (/** @type {unknown} */ error) => { logged.push(error); };
+  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW, logError });
   app.setUserName('小明');
-  return { app, clipRepo, commentRepo, player };
+  return { app, clipRepo, commentRepo, player, logged };
 }
 
 test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片段', async () => {
@@ -379,4 +382,29 @@ test('UI：新增留言時，留言帶有建立者（使用者的名字）與建
   const [comment] = app.getState().comments;
   assert.equal(comment.createdBy, '小明');
   assert.equal(comment.createdAt, NOW);
+});
+
+/**
+ * 把 Repository 的某個方法換成一定失敗的版本。
+ * @template {object} T
+ * @param {T} repo
+ * @param {keyof T} method
+ * @param {Error} error
+ * @returns {T}
+ */
+function failOn(repo, method, error) {
+  return { ...repo, [method]: async () => { throw error; } };
+}
+
+test('UI：新增留言時資料存取失敗，狀態有錯誤 STORAGE_FAILED，錯誤交給 logError', async () => {
+  const boom = new Error('Supabase 請求失敗');
+  const { app, clipRepo, logged } = setup({ commentRepo: failOn(createMemoryCommentRepo(), 'add', boom) });
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+
+  await app.addComment('第一則');
+
+  assert.equal(app.getState().error, 'STORAGE_FAILED');
+  assert.deepEqual(logged, [boom]);
 });

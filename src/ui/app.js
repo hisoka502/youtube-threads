@@ -12,8 +12,9 @@ import { playRange } from '../player/playRange.js';
  * @param {import('../types.js').PlayerAdapter} deps.player
  * @param {() => string} deps.newId 產生新留言的 id
  * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
+ * @param {(error: unknown) => void} deps.logError 資料存取失敗時，接收詳細的錯誤（畫面上寫到主控台）
  */
-export function createApp({ clipRepo, commentRepo, clipService, player, newId, now }) {
+export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError }) {
   /** @type {import('../types.js').AppState} */
   let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '' };
 
@@ -122,8 +123,13 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_NAME' };
         return;
       }
-      await commentRepo.add({ id: newId(), clipId, body, createdBy: state.userName, createdAt: now() });
-      state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
+      try {
+        await commentRepo.add({ id: newId(), clipId, body, createdBy: state.userName, createdAt: now() });
+        state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
+      } catch (error) {
+        logError(error);
+        state = { ...state, error: 'STORAGE_FAILED' };
+      }
     },
 
     /**

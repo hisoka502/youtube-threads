@@ -24,6 +24,7 @@ const ERROR_TEXT = {
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
   NO_CLIP: '請先開啟一個討論串',
   NO_NAME: '請先填寫你的名字',
+  STORAGE_FAILED: '資料存取失敗，請稍後再試（詳細原因在瀏覽器主控台）',
 };
 
 /** @type {any} 瀏覽器載入 iframe_api 後提供的全域物件 */
@@ -66,7 +67,11 @@ const clipService = createClipService({
   newId,
   now: () => Date.now(),
 });
-const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => Date.now() });
+const app = createApp({
+  clipRepo, commentRepo, clipService, player, newId,
+  now: () => Date.now(),
+  logError: (error) => console.error(error),
+});
 
 /**
  * @param {string} text

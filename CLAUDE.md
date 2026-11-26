@@ -252,7 +252,7 @@ test/
 - [x] 建表與 RLS 的 SQL（`db/schema.sql`），由使用者在 Supabase 執行（片段不可刪除；留言可讀、新增、刪除）
 - [x] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）。`dev/config.js`（已列入 .gitignore，範本 `dev/config.example.js`）；使用者已以真正的 Supabase 專案驗證通過（曾遇到 PGRST205 找不到資料表，執行 `db/schema.sql` 後解決）
 - Repository 拋出錯誤（網路或 Supabase 失敗）時 → 使用者決定：畫面顯示通用錯誤 STORAGE_FAILED（「資料存取失敗，請稍後再試」），詳細原因交給注入的 logError（畫面上用 console.error 寫到主控台）
-  - [ ] 新增留言時 Repository 失敗 → 狀態有錯誤 STORAGE_FAILED，錯誤物件交給 logError
+  - [x] 新增留言時 Repository 失敗 → 狀態有錯誤 STORAGE_FAILED，錯誤物件交給 logError
   - [ ] 載入影片時 Repository 失敗 → 同上
   - [ ] 其他會存取資料的動作（建立片段、開啟討論串、播放片段、刪除留言、刪除片段）同樣處理
 - 上一個動作還在等回應時又執行下一個動作會互相干擾 → 使用者決定：處理中暫停操作
