@@ -231,7 +231,7 @@ test/
 - [x] app：建立片段時，把 title 與 userName（createdBy）交給 ClipService
 - [x] app：未填名字時新增留言 → 狀態有錯誤 NO_NAME，不存入（先檢查 NO_CLIP）
 - [x] app：新增留言時帶 createdBy（userName）與 createdAt（注入的 now()）
-- [ ] DOM 接線：名字欄位、片段標題欄位、顯示建立者與建立時間（手動驗證；已完成，待使用者在自己的瀏覽器驗證）
+- [x] DOM 接線：名字欄位、片段標題欄位、顯示建立者與建立時間（手動驗證；使用者已在自己的瀏覽器驗證通過）
 
 ## 6. 待決定事項
 
