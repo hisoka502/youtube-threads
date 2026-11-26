@@ -34,8 +34,8 @@
 /** @param {SupabaseOptions} options */
 function headers({ key }) {
   return {
+    // 新式的 publishable key 不是 JWT，只放在 apikey；Authorization 保留給登入使用者的權杖
     apikey: key,
-    Authorization: `Bearer ${key}`,
     'Content-Type': 'application/json',
   };
 }

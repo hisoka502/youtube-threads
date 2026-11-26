@@ -30,7 +30,7 @@ const clip = {
   createdAt: 1764000000000,
 };
 
-test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，並帶金鑰標頭', async () => {
+test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，金鑰只放在 apikey 標頭', async () => {
   const fake = createFakeFetch();
   const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
 
@@ -40,9 +40,9 @@ test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，�
   const { url, init } = fake.calls[0];
   assert.equal(url, `${URL_BASE}/rest/v1/clips`);
   assert.equal(init.method, 'POST');
+  // 新式的 publishable key 不是 JWT，不可放在 Authorization（該標頭保留給登入使用者的權杖）
   assert.deepEqual(init.headers, {
     apikey: KEY,
-    Authorization: `Bearer ${KEY}`,
     'Content-Type': 'application/json',
   });
   assert.deepEqual(JSON.parse(String(init.body)), {
