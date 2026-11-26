@@ -164,9 +164,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} commentId
      */
     async deleteComment(commentId) {
-      await commentRepo.remove(commentId);
-      const clipId = /** @type {string} */ (state.selectedClipId);
-      state = { ...state, comments: await commentRepo.listByClip(clipId) };
+      await guardStorage(async () => {
+        await commentRepo.remove(commentId);
+        const clipId = /** @type {string} */ (state.selectedClipId);
+        state = { ...state, comments: await commentRepo.listByClip(clipId) };
+      });
     },
   };
 }
