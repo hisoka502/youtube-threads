@@ -45,7 +45,7 @@
       <h2>片段</h2>
       <form id="clip-form">
         開始 <input id="start" class="time" placeholder="2:15">
-        結束 <input id="end" class="time" placeholder="留空＝開始＋5 秒">
+        結束 <input id="end" class="time" placeholder="預設+5秒">
         標題 <input id="title" placeholder="選填">
         <button>建立片段</button>
       </form>
@@ -54,10 +54,9 @@
     </section>
 
     <section>
-      <h2>討論串</h2>
+      <h2 id="thread-title">討論串</h2>
       <p id="no-thread" class="hint">點片段的「討論串」開啟。</p>
       <div id="thread" hidden>
-        <p id="thread-title"></p>
         <ul id="comments"></ul>
         <form id="comment-form">
           <textarea id="body" rows="3" placeholder="留言"></textarea>

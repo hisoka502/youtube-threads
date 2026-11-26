@@ -4,6 +4,6 @@
 // 兩個值都在 Supabase 管理頁面：Project Settings → API Keys / Data API。
 // 金鑰請用瀏覽器端用的公開金鑰（publishable key，或舊式的 anon key），不要用 secret / service_role key。
 export default {
-  supabaseUrl: 'https://xxxx.supabase.co',
-  supabaseKey: 'sb_publishable_xxxx',
+  supabaseUrl: 'https://qjxynuykmbixvrtqunaz.supabase.co',
+  supabaseKey: 'sb_publishable_owyhqdMtfUwYzdUIAqZqhA_CQqY-osZ',
 };
