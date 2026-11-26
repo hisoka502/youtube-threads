@@ -24,7 +24,6 @@ const ERROR_TEXT = {
   INVALID_RANGE: '片段不合法：結束時間必須大於開始時間、不可超過影片長度，且開始時間至少要在影片結尾前 3 秒',
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
   NO_CLIP: '請先開啟一個討論串',
-  NO_NAME: '請先填寫你的名字',
   STORAGE_FAILED: '資料存取失敗，請稍後再試（詳細原因在瀏覽器主控台）',
 };
 
@@ -154,11 +153,11 @@ function render() {
   syncDisabled();
 }
 
-/** 處理中（busy）時停用所有按鈕與輸入欄位；「你的名字」欄位不受影響。 */
+/** 處理中（busy）時停用所有按鈕與輸入欄位。 */
 function syncDisabled() {
   const { busy } = app.getState();
   for (const el of document.querySelectorAll('button, input, textarea')) {
-    if (el.id !== 'user-name') /** @type {HTMLButtonElement | HTMLInputElement} */ (el).disabled = busy;
+    /** @type {HTMLButtonElement | HTMLInputElement} */ (el).disabled = busy;
   }
 }
 
@@ -201,7 +200,6 @@ onSubmit('clip-form', async () => {
     for (const id of ['start', 'end', 'title']) input(id).value = '';
   }
 });
-input('user-name').addEventListener('input', () => app.setUserName(input('user-name').value));
 onSubmit('comment-form', async () => {
   const body = /** @type {HTMLTextAreaElement} */ ($('body'));
   await app.addComment(body.value);

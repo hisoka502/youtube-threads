@@ -55,7 +55,6 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
   const storage = { load: () => savedSession, save: (/** @type {any} */ s) => { savedSession = s; } };
   const sessions = createSessionManager({ auth, storage, now: () => NOW });
   const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW, logError, auth, sessions });
-  app.setUserName('小明');
   return { app, clipRepo, commentRepo, player, logged, auth, sessions };
 }
 
@@ -354,14 +353,6 @@ test('UI：播放片段時，討論串自動換成該片段的', async () => {
   const state = app.getState();
   assert.equal(state.selectedClipId, 'c2');
   assert.deepEqual(state.comments.map((m) => m.id), ['m2']);
-});
-
-test('UI：setUserName 後，狀態有去掉前後空白的名字', () => {
-  const { app } = setup();
-
-  app.setUserName('  小明 ');
-
-  assert.equal(app.getState().userName, '小明');
 });
 
 test('UI：未登入時建立片段，狀態有錯誤 NOT_SIGNED_IN，不建立', async () => {

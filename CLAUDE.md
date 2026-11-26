@@ -226,7 +226,7 @@ test/
 - [x] ClipService：建立片段時存入 title；未提供時為空字串
 - [x] ClipService：存入 createdBy
 - [x] ClipService：createdAt 由注入的 now() 提供
-- [x] app：setUserName(name) 後，狀態有 userName（去掉前後空白）
+- [x] app：setUserName(name) 後，狀態有 userName（去掉前後空白）（5.14 登入後已移除，改用登入者的顯示名稱）
 - [x] app：未填名字時建立片段 → 狀態有錯誤 NO_NAME，不建立（先檢查 NO_VIDEO）
 - [x] app：建立片段時，把 title 與 userName（createdBy）交給 ClipService
 - [x] app：未填名字時新增留言 → 狀態有錯誤 NO_NAME，不存入（先檢查 NO_CLIP）
