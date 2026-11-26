@@ -8,6 +8,7 @@ import { createMemoryClipRepo, createMemoryCommentRepo } from '../src/data/memor
 import { createSupabaseClipRepo, createSupabaseCommentRepo } from '../src/data/supabaseRepo.js';
 import { createClipService } from '../src/clip/clipService.js';
 import { formatTimecode } from '../src/time/timecode.js';
+import { pageVideoId, pageUrlFor } from '../src/url/pageUrl.js';
 
 /** @param {string} id */
 const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
@@ -183,7 +184,17 @@ function onSubmit(id, action) {
   });
 }
 
-onSubmit('load-form', () => app.loadVideo(input('url').value.trim()));
+/**
+ * 載入影片；成功後把網址列更新成這部影片的網址（?v=影片ID），方便複製分享。
+ * @param {string} youtubeUrl
+ */
+async function loadVideo(youtubeUrl) {
+  await app.loadVideo(youtubeUrl);
+  const { videoId } = app.getState();
+  if (videoId !== null) history.replaceState(null, '', pageUrlFor(location.href, videoId));
+}
+
+onSubmit('load-form', () => loadVideo(input('url').value.trim()));
 onSubmit('clip-form', async () => {
   await app.createClip({ start: input('start').value, end: input('end').value, title: input('title').value.trim() });
   if (app.getState().error === null) {
@@ -202,3 +213,10 @@ player.onTimeUpdate((sec) => {
 });
 
 render();
+
+// 打開帶 ?v=影片ID 的網址時，自動載入那部影片
+const sharedVideoId = pageVideoId(location.href);
+if (sharedVideoId !== null) {
+  input('url').value = `https://www.youtube.com/watch?v=${sharedVideoId}`;
+  run(() => loadVideo(input('url').value));
+}
