@@ -154,9 +154,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} clipId
      */
     async deleteClip(clipId) {
-      await clipService.deleteClip(clipId);
-      const videoId = /** @type {string} */ (state.videoId);
-      setClips(await clipRepo.listByVideo(videoId));
+      await guardStorage(async () => {
+        await clipService.deleteClip(clipId);
+        const videoId = /** @type {string} */ (state.videoId);
+        setClips(await clipRepo.listByVideo(videoId));
+      });
     },
 
     /**
