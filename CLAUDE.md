@@ -306,7 +306,7 @@ test/
 - 只有 `?v=`、沒有 `s` 的舊網址：顯示加入此功能前建立的片段（討論串組為 null）。
 
 - [x] pageSetId：從頁面網址取出 s 參數；沒有或空字串時為 null
-- [ ] pageUrlFor：同時設定 v 與 s；s 為 null 時移除 s
+- [x] pageUrlFor：同時設定 v 與 s；s 為 null 時移除 s
 - [ ] app.loadVideo：貼上網址時產生新的討論串組 id（注入的 newId），狀態有 setId
 - [ ] app.loadVideo：給定討論串組 id 時（打開分享網址）沿用它
 - [ ] app：片段列表只列出目前討論串組的片段；建立片段時帶 setId

@@ -22,3 +22,8 @@ test('pageSetId：從頁面網址取出 s 參數；沒有或空字串時回傳 n
   assert.equal(pageSetId('https://example.com/dev/app.html?v=abc'), null);
   assert.equal(pageSetId('https://example.com/dev/app.html?v=abc&s='), null);
 });
+
+test('pageUrlFor：同時設定 v 與 s；s 為 null 時移除 s', () => {
+  assert.equal(pageUrlFor('https://example.com/dev/app.html', 'abc', 'set-1'), 'https://example.com/dev/app.html?v=abc&s=set-1');
+  assert.equal(pageUrlFor('https://example.com/dev/app.html?v=old&s=set-0', 'abc', null), 'https://example.com/dev/app.html?v=abc');
+});
