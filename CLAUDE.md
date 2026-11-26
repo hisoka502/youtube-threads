@@ -233,6 +233,25 @@ test/
 - [x] app：新增留言時帶 createdBy（userName）與 createdAt（注入的 now()）
 - [x] DOM 接線：名字欄位、片段標題欄位、顯示建立者與建立時間（手動驗證；使用者已在自己的瀏覽器驗證通過）
 
+### 5.12 Supabase 版儲存（使用者決定：先做資料庫，登入先不做；由 Claude 挑選免費方案）
+
+- 選用 Supabase 免費方案（每專案 500 MB、一週無活動會暫停，可在管理頁面恢復）。以瀏覽器內建 `fetch` 呼叫它的 REST API，不新增 npm 依賴。
+- 沒有登入：任何拿到頁面的人都可以讀取、新增片段與留言、刪除留言；刪除片段在資料庫層以 RLS 禁止（對應 5.9 的使用者決定）。
+- 資料表欄位用 snake_case（`video_id`、`start_sec`…），Repository 負責與程式內的 camelCase 物件互轉。
+- 留言順序以資料庫自動遞增的 `seq` 欄位排序（等於建立順序，與記憶體版的「呼叫 add 的順序」一致）。
+- `fetch` 由外部注入，測試時用假的 fetch 檢查送出的請求與回應的轉換；與真正的 Supabase 連線以手動驗證。
+
+- [ ] ClipRepository.add → POST `/rest/v1/clips`，帶 apikey 與 Authorization 標頭，body 為 snake_case 的資料列
+- [ ] ClipRepository.listByVideo → GET `/rest/v1/clips?video_id=eq.{id}&order=seq.asc`，把資料列轉回 Clip
+- [ ] ClipRepository.remove → DELETE `/rest/v1/clips?id=eq.{id}`
+- [ ] CommentRepository.add → POST `/rest/v1/comments`
+- [ ] CommentRepository.listByClip → GET `/rest/v1/comments?clip_id=eq.{id}&order=seq.asc`，把資料列轉回 Comment
+- [ ] CommentRepository.remove → DELETE `/rest/v1/comments?id=eq.{id}`
+- [ ] 查詢參數中的 id 經過 URL 編碼
+- [ ] 伺服器回應失敗（非 2xx）→ 拋出錯誤，訊息包含狀態碼
+- [ ] 建表與 RLS 的 SQL（`db/schema.sql`），由使用者在 Supabase 執行
+- [ ] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）
+
 ## 6. 待決定事項
 
 處理到相關測試時，先停下來問使用者，不要自行假設：
@@ -245,7 +264,7 @@ test/
 
 ## 7. 暫不處理（YAGNI）
 
-登入與帳號、後端與資料庫選型、即時同步、通知、權限、搜尋、分享連結、手機版排版、留言內時間戳（原 5.4）。
+登入與帳號、即時同步、通知、權限、搜尋、分享連結、手機版排版、留言內時間戳（原 5.4）。
 
 ## 8. 參考
 
