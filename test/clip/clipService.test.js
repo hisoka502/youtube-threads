@@ -22,9 +22,9 @@ function setup() {
 test('ClipService：建立片段時補齊 endSec，並存入 Repository', async () => {
   const { service, clipRepo } = setup();
 
-  const result = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明' });
+  const result = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明', userId: 'user-1' });
 
-  const expected = { id: 'id-1', videoId: 'v1', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小明', createdAt: NOW };
+  const expected = { id: 'id-1', videoId: 'v1', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小明', createdAt: NOW, userId: 'user-1' };
   assert.deepEqual(result, { ok: true, clip: expected });
   assert.deepEqual(await clipRepo.listByVideo('v1'), [expected]);
 });

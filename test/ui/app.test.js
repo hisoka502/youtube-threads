@@ -110,7 +110,7 @@ test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async
   await app.createClip({ start: '0:10', end: '0:20' });
 
   assert.deepEqual(app.getState().clips, [
-    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: '小明', createdAt: NOW },
+    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: '小明', createdAt: NOW, userId: 'user-1' },
   ]);
 });
 
@@ -375,15 +375,17 @@ test('UI：未登入時建立片段，狀態有錯誤 NOT_SIGNED_IN，不建立'
   assert.deepEqual(state.clips, []);
 });
 
-test('UI：建立片段時，片段帶有標題與建立者（使用者的名字）', async () => {
+test('UI：建立片段時，片段帶有標題、建立者（登入者的顯示名稱）與 userId', async () => {
   const { app } = setup();
+  await app.signIn({ email: 'hua@example.com', password: 'secret123' });
   await app.loadVideo('https://youtu.be/abc');
 
   await app.createClip({ start: '0:10', end: '0:20', title: '開場' });
 
   const [clip] = app.getState().clips;
   assert.equal(clip.title, '開場');
-  assert.equal(clip.createdBy, '小明');
+  assert.equal(clip.createdBy, 'hua');
+  assert.equal(clip.userId, 'user-hua');
 });
 
 test('UI：未填名字時新增留言，狀態有錯誤 NO_NAME，不存入', async () => {

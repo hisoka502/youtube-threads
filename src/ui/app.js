@@ -119,7 +119,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       await guardStorage(async () => {
-        const result = await clipService.createClip({ videoId, startSec, endSec, title, createdBy: state.userName });
+        const { user } = state;
+        const result = await clipService.createClip({
+          videoId, startSec, endSec, title, createdBy: user.displayName, userId: user.id,
+        });
         if (!result.ok) {
           state = { ...state, error: result.error };
           return;
