@@ -60,6 +60,28 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     }
   }
 
+  /** Supabase Auth 的錯誤碼 → 畫面上的錯誤碼 */
+  /** @type {Record<string, string>} */
+  const AUTH_ERRORS = {
+    invalid_credentials: 'INVALID_CREDENTIALS',
+  };
+
+  /**
+   * 執行登入或註冊：進行中 busy 為 true；失敗時把 Supabase 的錯誤碼轉成畫面上的錯誤碼。
+   * @param {() => Promise<void>} step
+   */
+  async function guardAuth(step) {
+    state = { ...state, busy: true };
+    try {
+      await step();
+    } catch (error) {
+      const code = /** @type {{ code?: string }} */ (error).code ?? '';
+      state = { ...state, error: AUTH_ERRORS[code] };
+    } finally {
+      state = { ...state, busy: false };
+    }
+  }
+
   /**
    * 目前登入的使用者能不能刪除這則留言（只能刪除自己的留言）。
    * @param {import('../types.js').Comment} comment
@@ -80,9 +102,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {{ email: string, password: string }} input
      */
     async signIn(input) {
-      const session = await auth.signIn(input);
-      sessions.set(session);
-      state = { ...state, user: session.user };
+      await guardAuth(async () => {
+        const session = await auth.signIn(input);
+        sessions.set(session);
+        state = { ...state, user: session.user, error: null };
+      });
     },
 
     /** 登出：清除保存的工作階段。 */

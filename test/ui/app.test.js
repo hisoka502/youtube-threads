@@ -37,8 +37,9 @@ function createFakeAuth() {
  * @param {import('../../src/types.js').ClipRepository} [overrides.clipRepo]
  * @param {import('../../src/types.js').CommentRepository} [overrides.commentRepo]
  * @param {boolean} [overrides.signedIn] 預設 true（以「小明」登入）
+ * @param {ReturnType<typeof createFakeAuth>} [overrides.auth] 測試時可換成會失敗的 auth
  */
-function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCommentRepo(), signedIn = true } = {}) {
+function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCommentRepo(), signedIn = true, auth = createFakeAuth() } = {}) {
   const videoInfo = createFakeVideoInfo({ abc: 120, xyz: 60 });
   let n = 0;
   const newId = () => `id-${++n}`;
@@ -47,7 +48,6 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
   /** @type {unknown[]} */
   const logged = [];
   const logError = (/** @type {unknown} */ error) => { logged.push(error); };
-  const auth = createFakeAuth();
   /** @type {import('../../src/types.js').Session | null} 預設以「小明」登入 */
   let savedSession = signedIn
     ? { accessToken: 'a', refreshToken: 'r', expiresAt: NOW + 3600_000, user: { id: 'user-1', displayName: '小明' } }
@@ -633,4 +633,22 @@ test('UI：登出後，狀態的 user 為 null，保存的工作階段也清除'
 
   assert.equal(app.getState().user, null);
   assert.equal(sessions.getUser(), null);
+});
+
+/**
+ * 登入與註冊都失敗的假 auth。
+ * @param {Error} error
+ */
+function createFailingAuth(error) {
+  return { ...createFakeAuth(), signIn: async () => { throw error; }, signUp: async () => { throw error; } };
+}
+
+test('UI：登入時帳號或密碼錯誤，狀態有錯誤 INVALID_CREDENTIALS', async () => {
+  const error = Object.assign(new Error('Supabase Auth 失敗'), { code: 'invalid_credentials' });
+  const { app } = setup({ signedIn: false, auth: createFailingAuth(error) });
+
+  await app.signIn({ email: 'hua@example.com', password: 'wrong' });
+
+  assert.equal(app.getState().error, 'INVALID_CREDENTIALS');
+  assert.equal(app.getState().user, null);
 });
