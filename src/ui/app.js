@@ -77,8 +77,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     try {
       await step();
     } catch (error) {
-      const code = /** @type {{ code?: string }} */ (error).code ?? '';
-      state = { ...state, error: AUTH_ERRORS[code] };
+      const code = /** @type {{ code?: string }} */ (error).code;
+      if (code === undefined) {
+        // 沒有 Supabase 錯誤碼：連不上伺服器等，與資料存取失敗相同處理
+        logError(error);
+        state = { ...state, error: 'STORAGE_FAILED' };
+      } else {
+        state = { ...state, error: AUTH_ERRORS[code] ?? 'AUTH_FAILED' };
+      }
     } finally {
       state = { ...state, busy: false };
     }

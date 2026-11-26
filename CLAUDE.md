@@ -294,7 +294,7 @@ test/
 - [x] app：註冊（顯示名稱必填，空白 → NO_NAME）、登出
 - [x] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id（片段與留言）
 - [x] app：只能刪除自己的留言（判斷函式 canDeleteComment 供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
-- [ ] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤
+- [x] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤（INVALID_CREDENTIALS、EMAIL_TAKEN、WEAK_PASSWORD、其他 AUTH_FAILED、網路錯誤 STORAGE_FAILED）
 - [ ] 資料表與 RLS 更新的 SQL（`db/migrations/002_auth.sql`）
 - [ ] DOM：登入／註冊表單、登出、重新整理後維持登入；未登入時隱藏建立與留言表單（手動驗證）
 

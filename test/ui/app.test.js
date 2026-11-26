@@ -663,3 +663,16 @@ test('UI：註冊時 Email 已被註冊或密碼太弱，狀態有對應的錯�
     assert.equal(app.getState().error, expected, code);
   }
 });
+
+test('UI：登入時遇到其他 Supabase 錯誤碼 → AUTH_FAILED；網路錯誤（沒有錯誤碼）→ STORAGE_FAILED 並交給 logError', async () => {
+  const other = Object.assign(new Error('Supabase Auth 失敗'), { code: 'over_request_rate_limit' });
+  const a = setup({ signedIn: false, auth: createFailingAuth(other) });
+  await a.app.signIn({ email: 'hua@example.com', password: 'secret123' });
+  assert.equal(a.app.getState().error, 'AUTH_FAILED');
+
+  const network = new TypeError('Failed to fetch');
+  const b = setup({ signedIn: false, auth: createFailingAuth(network) });
+  await b.app.signIn({ email: 'hua@example.com', password: 'secret123' });
+  assert.equal(b.app.getState().error, 'STORAGE_FAILED');
+  assert.deepEqual(b.logged, [network]);
+});
