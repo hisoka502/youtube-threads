@@ -12,6 +12,13 @@
     textarea { font: inherit; width: 100%; box-sizing: border-box; }
     #player-box { aspect-ratio: 16 / 9; background: #000; }
     #player-box iframe, #player-box > div { width: 100%; height: 100%; }
+    #auth form { margin: 4px 0; }
+    #auth input { width: 12em; }
+    .guide { background: #f6f8fa; border: 1px solid #ddd; padding: 8px 12px; margin: 8px 0 16px; }
+    .guide summary { font-weight: bold; cursor: pointer; }
+    .guide li { margin: 6px 0; }
+    .modes { border-collapse: collapse; margin: 8px 0; font-size: 0.875em; }
+    .modes th, .modes td { border: 1px solid #ddd; padding: 2px 8px; text-align: left; }
     #error { min-height: 1.6em; font-weight: bold; color: #b00020; }
     .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     ul { padding-left: 0; list-style: none; }
@@ -29,7 +36,6 @@
   <h1>YouTube 片段討論串</h1>
   <p class="hint">開發用頁面。<span id="storage"></span></p>
 
-  <p><label>你的名字 <input id="user-name" placeholder="例如：小明"></label>（建立片段與留言時使用）</p>
 
   <form id="load-form">
     <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…">
@@ -38,6 +44,51 @@
 
   <div id="player-box"><div id="player"></div></div>
   <p>目前時間：<span id="current">-</span></p>
+
+  <details class="guide">
+    <summary>使用說明：用比賽影片做團隊檢討</summary>
+    <p>把比賽或訓練影片裡的關鍵片段標記出來，全隊針對每一段各自留言討論。影片不會被下載或剪輯，播放的一律是 YouTube 上的原影片。</p>
+    <ol>
+      <li><strong>教練或隊長：建立這場比賽的討論頁。</strong>登入後，貼上比賽影片的 YouTube 網址，按「載入」。網址列會變成這場討論專用的網址（結尾有 <code>&amp;s=…</code>），把這個網址傳到球隊群組。<br>
+        同一支影片每貼一次都會產生新的一組討論，所以一軍、二軍或不同隊伍可以各自檢討同一場比賽，互不干擾。之後要回到這場討論，請用當初傳出去的網址。</li>
+      <li><strong>標記要檢討的片段。</strong>輸入開始與結束時間（照 YouTube 播放器上顯示的格式，例如 <code>2:15</code> 或 <code>1:02:03</code>；結束可以留空，自動抓 5 秒），標題寫清楚是哪一個回合，例如「第二節 防守輪轉漏人」「最後一波進攻戰術」。標錯時間可以按「修改」調整。</li>
+      <li><strong>球員：看片段、留言。</strong>打開群組裡的網址，按片段的「播放」，影片會從那個時間開始播，播到結束時間自動暫停；右邊同時打開這個片段的討論串。在這裡寫下你當時的判斷、看到的問題或想問教練的地方。</li>
+      <li><strong>要不要登入？</strong>只想看片段、留言的球員可以不登入，填名字就能留言（顯示為「名字（訪客）」，送出後無法刪除）。需要新增、修改、刪除片段，或想刪掉自己留言的人，請註冊登入。</li>
+    </ol>
+  </details>
+
+  <section id="auth">
+    <div id="signed-in" hidden>
+      已登入：<strong id="user-display-name"></strong>
+      <button id="sign-out" type="button">登出</button>
+    </div>
+    <div id="signed-out">
+      <p class="hint"><strong>這裡的帳號是本站獨立的帳號，與 Google／YouTube 帳號無關。</strong>請另外設定一組本站專用的密碼，不要使用你的 Google 密碼。</p>
+      <form id="sign-in-form">
+        <strong>登入</strong>
+        <input id="sign-in-email" type="email" placeholder="Email" autocomplete="email">
+        <input id="sign-in-password" type="password" placeholder="密碼" autocomplete="current-password">
+        <button>登入</button>
+      </form>
+      <form id="sign-up-form">
+        <strong>註冊</strong>
+        <input id="sign-up-email" type="email" placeholder="Email" autocomplete="email">
+        <input id="sign-up-password" type="password" placeholder="密碼（至少 6 個字元）" autocomplete="new-password">
+        <input id="sign-up-name" placeholder="顯示名稱（留言時顯示）">
+        <button>註冊</button>
+      </form>
+    </div>
+    <details class="guide">
+      <summary>匿名與登入的差別</summary>
+      <table class="modes">
+        <tr><th></th><th>匿名（不登入）</th><th>登入</th></tr>
+        <tr><td>瀏覽片段與留言</td><td>可以</td><td>可以</td></tr>
+        <tr><td>留言</td><td>可以，要填名字；顯示為「名字（訪客）」</td><td>可以，顯示註冊時的顯示名稱</td></tr>
+        <tr><td>刪除留言</td><td>不行（送出後無法刪除）</td><td>只能刪除自己的留言</td></tr>
+        <tr><td>新增、修改、刪除討論串</td><td>不行</td><td>可以</td></tr>
+      </table>
+    </details>
+  </section>
   <p id="error" role="alert"></p>
 
   <div class="columns">
@@ -59,6 +110,7 @@
       <div id="thread" hidden>
         <ul id="comments"></ul>
         <form id="comment-form">
+          <p id="guest-name-row"><label>你的名字 <input id="guest-name" placeholder="匿名留言時顯示"></label>（匿名留言送出後無法刪除）</p>
           <textarea id="body" rows="3" placeholder="留言"></textarea>
           <button>送出留言</button>
         </form>

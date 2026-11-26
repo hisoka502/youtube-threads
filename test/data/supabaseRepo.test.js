@@ -28,6 +28,8 @@ const clip = {
   title: '開場',
   createdBy: '小明',
   createdAt: 1764000000000,
+  userId: 'user-1',
+  setId: 's1',
 };
 
 test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，金鑰只放在 apikey 標頭', async () => {
@@ -53,13 +55,15 @@ test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，�
     title: '開場',
     created_by: '小明',
     created_at: 1764000000000,
+    user_id: 'user-1',
+    set_id: 's1',
   });
 });
 
 test('Supabase ClipRepository：listByVideo 以 GET 依 seq 排序查詢，並把資料列轉回 Clip', async () => {
   const row = {
     id: 'c1', video_id: 'abc', start_sec: 10, end_sec: 15,
-    title: '開場', created_by: '小明', created_at: 1764000000000, seq: 1,
+    title: '開場', created_by: '小明', created_at: 1764000000000, user_id: 'user-1', set_id: 's1', seq: 1,
   };
   const fake = createFakeFetch([new Response(JSON.stringify([row]), { status: 200 })]);
   const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
@@ -67,7 +71,7 @@ test('Supabase ClipRepository：listByVideo 以 GET 依 seq 排序查詢，並�
   const clips = await repo.listByVideo('abc');
 
   const { url, init } = fake.calls[0];
-  assert.equal(url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&order=seq.asc`);
+  assert.equal(url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=is.null&order=seq.asc`);
   assert.equal(init.method, 'GET');
   assert.deepEqual(clips, [clip]);
 });
@@ -83,7 +87,7 @@ test('Supabase ClipRepository：remove 以 DELETE 刪除指定 id 的資料列',
   assert.equal(init.method, 'DELETE');
 });
 
-const comment = { id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小明', createdAt: 1764000000000 };
+const comment = { id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小明', createdAt: 1764000000000, userId: 'user-1' };
 
 test('Supabase CommentRepository：add 以 POST 送出 snake_case 的資料列', async () => {
   const fake = createFakeFetch();
@@ -96,12 +100,12 @@ test('Supabase CommentRepository：add 以 POST 送出 snake_case 的資料列',
   assert.equal(init.method, 'POST');
   assert.equal(/** @type {Record<string, string>} */ (init.headers).apikey, KEY);
   assert.deepEqual(JSON.parse(String(init.body)), {
-    id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000,
+    id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000, user_id: 'user-1',
   });
 });
 
 test('Supabase CommentRepository：listByClip 以 GET 依 seq 排序查詢，並把資料列轉回 Comment', async () => {
-  const row = { id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000, seq: 7 };
+  const row = { id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000, user_id: 'user-1', seq: 7 };
   const fake = createFakeFetch([new Response(JSON.stringify([row]), { status: 200 })]);
   const repo = createSupabaseCommentRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
 
@@ -130,7 +134,7 @@ test('Supabase Repository：查詢參數中的 id 經過 URL 編碼', async () =
 
   await repo.listByVideo('a&b=c');
 
-  assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b%3Dc&order=seq.asc`);
+  assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b%3Dc&set_id=is.null&order=seq.asc`);
 });
 
 test('Supabase Repository：伺服器回應失敗（非 2xx）時拋出錯誤，訊息包含狀態碼', async () => {
@@ -138,4 +142,42 @@ test('Supabase Repository：伺服器回應失敗（非 2xx）時拋出錯誤，
   const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
 
   await assert.rejects(repo.add(clip), /401/);
+});
+
+test('Supabase Repository：有 access token 時，在 Authorization 標頭帶 Bearer token', async () => {
+  const fake = createFakeFetch([new Response('[]', { status: 200 })]);
+  const repo = createSupabaseClipRepo({
+    url: URL_BASE, key: KEY, fetch: fake.fetch, getAccessToken: async () => 'user-access-token',
+  });
+
+  await repo.listByVideo('abc');
+
+  assert.deepEqual(fake.calls[0].init.headers, {
+    apikey: KEY,
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer user-access-token',
+  });
+});
+
+test('Supabase ClipRepository：listByVideo 依討論串組篩選；setId 為 null 時篩出 set_id 為 null 的片段', async () => {
+  const fake = createFakeFetch([new Response('[]', { status: 200 }), new Response('[]', { status: 200 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.listByVideo('abc', 's1');
+  await repo.listByVideo('abc', null);
+
+  assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=eq.s1&order=seq.asc`);
+  assert.equal(fake.calls[1].url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=is.null&order=seq.asc`);
+});
+
+test('Supabase ClipRepository：updateRange 以 PATCH 只送出 start_sec 與 end_sec', async () => {
+  const fake = createFakeFetch([new Response(null, { status: 204 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.updateRange('c1', { startSec: 20, endSec: 30 });
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/clips?id=eq.c1`);
+  assert.equal(init.method, 'PATCH');
+  assert.deepEqual(JSON.parse(String(init.body)), { start_sec: 20, end_sec: 30 });
 });

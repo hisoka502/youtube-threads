@@ -191,12 +191,12 @@ test/
 - [x] 選取片段 → 列出該討論串的留言
 - 使用者決定：清掉不屬於目前載入影片的任何討論串（選取的討論串必須在目前的片段列表中）
   - [x] （新增）載入另一部影片後，清除先前的選取與留言，列出該影片的片段
-  - [x] （新增）重新載入同一部影片時，保留選取的討論串（它仍屬於該影片）
+  - [x] （新增）重新載入同一部影片時，保留選取的討論串（它仍屬於該影片）（5.15 後改為：同一組討論串網址重新載入時保留）
 - [x] 在選取的討論串新增留言 → 留言列表多一筆（id 由注入的 newId 產生）
 - [x] （新增）尚未開啟討論串時新增留言 → 狀態有錯誤 NO_CLIP，不存入（使用者決定：留言只能在開啟的討論串中新增；DOM 層在未開啟討論串時不提供留言輸入）
 - [x] （新增）新增留言成功後，清除先前的錯誤（使用者決定）
 - [x] （新增）開啟討論串後，清除先前的錯誤（使用者決定）
-- [x] 刪除片段 → 從列表移除（透過 ClipService.deleteClip，留言一併刪除）。使用者決定：刪除討論串不開放給所有人操作，畫面上不提供刪除片段的按鈕；邏輯保留，待做權限時（第 7 節）給有權限的人使用
+- [x] 刪除片段 → 從列表移除（透過 ClipService.deleteClip，留言一併刪除）。使用者決定：刪除討論串不開放給所有人操作，畫面上不提供刪除片段的按鈕；邏輯保留，待做權限時（第 7 節）給有權限的人使用（5.18 後改為：登入者都可以刪除，刪除前確認）
 - [x] （新增）刪除的是目前選取的片段 → 清除選取與留言列表（依上面的使用者決定）
 - [x] 刪除留言 → 從留言列表移除
 - [x] DOM 接線頁面（手動驗證）：`dev/app.html` ＋ `dev/app.js`，`node dev/server.js` 後開 http://localhost:8080/dev/app.html（使用者已在自己的瀏覽器驗證通過）
@@ -226,7 +226,7 @@ test/
 - [x] ClipService：建立片段時存入 title；未提供時為空字串
 - [x] ClipService：存入 createdBy
 - [x] ClipService：createdAt 由注入的 now() 提供
-- [x] app：setUserName(name) 後，狀態有 userName（去掉前後空白）
+- [x] app：setUserName(name) 後，狀態有 userName（去掉前後空白）（5.14 登入後已移除，改用登入者的顯示名稱）
 - [x] app：未填名字時建立片段 → 狀態有錯誤 NO_NAME，不建立（先檢查 NO_VIDEO）
 - [x] app：建立片段時，把 title 與 userName（createdBy）交給 ClipService
 - [x] app：未填名字時新增留言 → 狀態有錯誤 NO_NAME，不存入（先檢查 NO_CLIP）
@@ -269,7 +269,97 @@ test/
 
 - [x] pageVideoId：從頁面網址的查詢字串取出 v 參數；沒有或空字串時為 null
 - [x] pageUrlFor：在頁面網址加上（或取代）v 參數，保留其他部分
-- [ ] DOM：打開帶 `?v=` 的網址時自動載入；載入影片後更新網址列（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
+- [x] DOM：打開帶 `?v=` 的網址時自動載入；載入影片後更新網址列（手動驗證；使用者已在自己的瀏覽器驗證通過）
+
+### 5.14 登入（使用者決定：盡快做，讓人測試）
+
+- Email ＋ 密碼，註冊後不需收信驗證（在 Supabase 關閉 Confirm email）。開放註冊。
+- 未登入只能看（讀取片段與留言）；登入後可以建立片段、留言，只能刪除自己的留言；片段仍然沒有人能刪（後兩點為 Claude 依先前建議的預設，使用者可改）。
+- 註冊時填顯示名稱，取代原本頁面上的「你的名字」欄位；createdBy 用顯示名稱。
+- 以 `fetch` 呼叫 Supabase Auth 的 REST API（`/auth/v1/...`），不新增依賴。登入後，資料庫請求在 Authorization 標頭帶使用者的 access token；權限由資料庫 RLS 依 `auth.uid()` 判斷。
+- 片段與留言新增 userId（資料庫欄位 user_id），用來判斷「自己的留言」。
+
+- [x] auth.signUp：POST `/auth/v1/signup`（email、password、顯示名稱），回傳工作階段（access token、refresh token、到期時間、使用者 id 與顯示名稱）
+- [x] auth.signIn：POST `/auth/v1/token?grant_type=password`，回傳工作階段
+- [x] auth：Supabase 回應失敗時拋出錯誤（含 Supabase 的錯誤碼）
+- [x] auth.refresh：POST `/auth/v1/token?grant_type=refresh_token`，回傳新的工作階段
+- [x] Repository：有 access token 時，在 Authorization 標頭帶 `Bearer {token}`；沒有時不帶
+- [x] Repository：片段與留言的 userId 與 user_id 互轉
+- [x] 工作階段：access token 快到期時，先用 refresh token 換新的再回傳
+- [x] （新增）工作階段：換新失敗（refresh token 已失效）時，清除工作階段，視同登出
+- [x] （新增）工作階段：換新時是網路錯誤（沒有 Supabase 錯誤碼）→ 不登出，把錯誤丟出（交給 app 顯示 STORAGE_FAILED）
+- [x] app：登入後狀態有 user；建立時讀取已保存的工作階段（重新整理後維持登入）
+- [x] app：未登入時建立片段 → 錯誤 NOT_SIGNED_IN
+- [x] app：未登入時新增留言 → 錯誤 NOT_SIGNED_IN
+- [x] app：註冊（顯示名稱必填，空白 → NO_NAME）、登出
+- [x] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id（片段與留言）
+- [x] app：只能刪除自己的留言（判斷函式 canDeleteComment 供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
+- [x] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤（INVALID_CREDENTIALS、EMAIL_TAKEN、WEAK_PASSWORD、其他 AUTH_FAILED、網路錯誤 STORAGE_FAILED）
+- [x] 資料表與 RLS 更新的 SQL（`db/migrations/002_auth.sql`）：新增 user_id（預設 auth.uid()）；未登入只能讀；登入可讀、新增（user_id 必須是自己）、刪除自己的留言；片段不可刪。注意：created_by 由瀏覽器送出，懂技術的人可以透過 API 填別人的名字（user_id 無法冒用）
+- [x] DOM：登入／註冊表單、登出、重新整理後維持登入（工作階段存在 localStorage）；未登入時隱藏建立與留言表單；只有自己的留言顯示刪除按鈕；沒有 dev/config.js 時用本機假登入（手動驗證；使用者已在網站上驗證通過）
+
+### 5.15 同一部影片的多組討論串（使用者決定：不做團體／成員，只用網址參數區分）
+
+- 每次貼上 YouTube 網址帶進影片時，產生新的隨機參數 `s`（討論串組 id，UUID），頁面網址變成 `?v=影片ID&s=討論串組id`。片段屬於「影片 ＋ 討論串組」。
+- 打開帶 `s` 的網址即進入該組；知道網址的人都能看，登入後可建立片段與留言（無成員名單）。
+- 再次貼上同一部影片的網址會產生新的一組（取代 5.9「重新載入同一部影片時保留選取」：改為同一組網址重新載入時保留選取）。
+- 只有 `?v=`、沒有 `s` 的舊網址：顯示加入此功能前建立的片段（討論串組為 null）。
+
+- [x] pageSetId：從頁面網址取出 s 參數；沒有或空字串時為 null
+- [x] pageUrlFor：同時設定 v 與 s；s 為 null 時移除 s
+- [x] app.loadVideo：貼上網址時產生新的討論串組 id（注入的 newId），狀態有 setId
+- [x] app.loadVideo：給定討論串組 id 時（打開分享網址）沿用它
+- [x] app：片段列表只列出目前討論串組的片段；建立片段時帶 setId
+- [x] 記憶體版與 Supabase 版 ClipRepository：listByVideo 依 videoId 與 setId 篩選；setId 為 null 時篩出沒有討論串組的片段
+- [x] Supabase：setId 與 set_id 互轉
+- [x] 資料表更新的 SQL（`db/migrations/003_clip_sets.sql`）：新增 set_id 欄位與索引
+- [x] DOM：網址帶 v 與 s；打開分享網址時沿用 s（手動驗證；使用者已在網站上驗證通過）
+
+### 5.16 部署（使用者決定：GitHub Pages）
+
+- 從 `main` 分支根目錄部署。根目錄 `index.html` 轉到 `dev/app.html` 並保留查詢參數；`.nojekyll` 讓 Pages 直接提供檔案。
+- 設定檔：先讀本機 `dev/config.js`（不 commit），找不到再讀 `dev/config.public.js`（commit，網站上使用）。publishable key 本來就公開給瀏覽器，安全靠 RLS。
+- 開啟 Pages 的 GitHub API 在 Claude 的雲端環境被擋（403），由使用者在 GitHub 的 Settings → Pages 手動開啟。
+
+- [x] 根目錄 index.html、.nojekyll、config.public.js 讀取順序
+- [x] dev/config.public.js（填入正式的 Supabase 網址與 publishable key）
+- [x] 使用者開啟 GitHub Pages，在網站上驗證登入、建立片段、留言、分享網址（手動驗證；使用者已驗證通過）
+
+### 5.17 管理（使用者在 Supabase 管理頁面操作）
+
+- [x] 刪除註冊者時保留內容（使用者決定）：`db/migrations/004_delete_users.sql` 把 clips、comments 的 user_id 外鍵改為 on delete set null
+- 刪除討論串（片段）：網站上不開放（5.9 使用者決定）；管理者在 Supabase 的 Table Editor 或 SQL Editor 刪除 clips 的資料列，該討論串的留言因 on delete cascade 一併刪除
+
+### 5.18 修改與刪除討論串（使用者決定：先開放給所有人）
+
+- 登入的人都可以修改、刪除任何討論串（片段）；未登入仍只能瀏覽（「所有人」由 Claude 解讀為登入者，使用者可改）。取代 5.9「畫面上不提供刪除片段的按鈕」。
+- 修改只改時間範圍：輸入開始與結束（結束可留空＝開始＋5 秒），規則與建立時相同（isValidRange）。
+- 刪除前跳出確認視窗，提醒該討論串所有人的留言會一起刪除、無法復原。
+
+- [x] 記憶體版 ClipRepository.updateRange(id, range)
+- [x] Supabase 版 ClipRepository.updateRange → PATCH `/rest/v1/clips?id=eq.{id}`，body 只有 start_sec、end_sec
+- [x] ClipService.updateClipRange：依影片長度補齊並驗證，通過才存入
+- [x] ClipService.updateClipRange：區間不合法 → INVALID_RANGE，不存入（讀不到影片長度 → VIDEO_NOT_FOUND，與建立相同）
+- [x] app.updateClip：輸入 timecode 字串修改時間範圍，成功後列表更新
+- [x] app.updateClip：未登入 → NOT_SIGNED_IN；時間格式錯誤 → INVALID_TIMECODE；區間不合法 → INVALID_RANGE
+- [x] app.deleteClip：未登入 → NOT_SIGNED_IN
+- [x] 資料表權限更新的 SQL（`db/migrations/005_edit_delete_clips.sql`）：登入者可修改片段的時間欄位（欄位層級權限只開放 start_sec、end_sec）、刪除片段
+- [x] DOM：片段的「修改」（就地編輯開始與結束）與「刪除」（確認視窗）按鈕，只在登入時顯示（手動驗證；使用者已在網站上驗證通過，005 已執行）
+
+### 5.19 訪客留言（使用者決定：登入改為非必要；未登入只能留言，不能新增討論串）
+
+- 未登入：可以瀏覽、留言；不能建立、修改、刪除討論串（維持 NOT_SIGNED_IN）。
+- 訪客留言要填名字（使用者決定），沒填 → NO_NAME；留言的 createdBy 為「名字（訪客）」，userId 為 null。訪客留言之後沒有人能透過網站刪除（管理者可在 Supabase 刪除）。
+- 資料庫：anon 可新增留言，但 user_id 必須為 null。
+
+- [x] app.setGuestName(name)：狀態有 guestName（去掉前後空白）
+- [x] app：未登入、有填名字時留言 → createdBy 為「名字（訪客）」，userId 為 null（取代 5.14「未登入時新增留言 → NOT_SIGNED_IN」）
+- [x] app：未登入、沒填名字時留言 → NO_NAME，不存入
+- [x] 資料表權限更新的 SQL（`db/migrations/006_guest_comments.sql`）：anon 可新增 user_id 為 null 的留言
+- [x] （新增）DOM：登入／註冊處註明帳號與 Google／YouTube 帳號無關，是本站獨立服務（使用者要求）
+- [x] （新增）DOM：頁面最上方加上以運動團隊檢討比賽影片為情境的使用說明（使用者要求；可收合）
+- [x] （新增）DOM：使用說明與「匿名與登入的差別」都改為預設收合的 toggle；使用說明與登入區移到影片網址與播放器下方（使用者要求）
+- [ ] DOM：未登入時顯示留言表單與「你的名字」欄位；頁面最上方的登入區列出匿名與登入的操作差異（使用者要求）（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
 
 ## 6. 待決定事項
 
@@ -283,7 +373,7 @@ test/
 
 ## 7. 暫不處理（YAGNI）
 
-登入與帳號、YouTube 影片載入失敗的處理（影片不存在、私人影片等，需接 IFrame API 的 onError；使用者決定先不做）、即時同步、通知、權限、搜尋、分享連結（「每部影片一個網址」以外的形式，如每個討論串一個網址、總覽頁）、手機版排版、留言內時間戳（原 5.4）。
+YouTube 影片載入失敗的處理（影片不存在、私人影片等，需接 IFrame API 的 onError；使用者決定先不做）、即時同步、通知、權限、搜尋、分享連結（「每部影片一個網址」以外的形式，如每個討論串一個網址、總覽頁）、手機版排版、留言內時間戳（原 5.4）。
 
 ## 8. 參考
 

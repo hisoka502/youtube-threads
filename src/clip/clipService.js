@@ -32,9 +32,30 @@ export function createClipService({ clipRepo, commentRepo, videoInfo, newId, now
         title: input.title ?? '',
         createdBy: input.createdBy,
         createdAt: now(),
+        userId: input.userId,
+        setId: input.setId ?? null,
       };
       await clipRepo.add(clip);
       return { ok: true, clip };
+    },
+
+    /**
+     * 修改片段的時間範圍。endSec 省略時補為 startSec + 5 秒。
+     * @param {import('../types.js').Clip} clip
+     * @param {import('../types.js').ClipRangeInput} input
+     * @returns {Promise<import('../types.js').CreateClipResult>}
+     */
+    async updateClipRange(clip, input) {
+      const durationSec = await videoInfo.getDurationSec(clip.videoId);
+      if (durationSec === null) {
+        return { ok: false, error: 'VIDEO_NOT_FOUND' };
+      }
+      const range = resolveRange(input, durationSec);
+      if (!isValidRange(range, durationSec)) {
+        return { ok: false, error: 'INVALID_RANGE' };
+      }
+      await clipRepo.updateRange(clip.id, range);
+      return { ok: true, clip: { ...clip, range } };
     },
 
     /**

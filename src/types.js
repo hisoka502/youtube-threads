@@ -35,14 +35,17 @@
  * @property {string} title 選填；未填為空字串
  * @property {string} createdBy 建立者的名字
  * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
+ * @property {string} userId 建立者的使用者 id
+ * @property {string | null} [setId] 所屬的討論串組（網址的 s 參數）；加入此功能前建立的片段為 null
  */
 
 /**
  * 片段的儲存介面。只負責存取，不做驗證（驗證在 ClipService）。
  * @typedef {object} ClipRepository
  * @property {(clip: Clip) => Promise<void>} add
- * @property {(videoId: string) => Promise<Clip[]>} listByVideo
+ * @property {(videoId: string, setId?: string | null) => Promise<Clip[]>} listByVideo setId 為 null 或省略時，列出沒有討論串組的片段
  * @property {(id: string) => Promise<void>} remove
+ * @property {(id: string, range: ClipRange) => Promise<void>} updateRange 只修改時間範圍
  */
 
 /**
@@ -53,6 +56,7 @@
  * @property {string} body
  * @property {string} createdBy 建立者的名字
  * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
+ * @property {string | null} userId 建立者的使用者 id（用來判斷「自己的留言」）；訪客留言為 null
  */
 
 /**
@@ -71,7 +75,7 @@
 
 /**
  * 建立片段的輸入；endSec 可省略。
- * @typedef {ClipRangeInput & { videoId: string, title?: string, createdBy: string }} ClipInput
+ * @typedef {ClipRangeInput & { videoId: string, title?: string, createdBy: string, userId: string, setId?: string | null }} ClipInput
  */
 
 /**
@@ -124,8 +128,26 @@
  * @property {string | null} error 最近一次動作的錯誤碼（如 'INVALID_URL'）；沒有錯誤時為 null
  * @property {string | null} selectedClipId 目前選取的片段（討論串）；未選取時為 null
  * @property {Comment[]} comments 選取的討論串的留言，依建立順序
- * @property {string} userName 使用者的名字（已去掉前後空白）；未填為空字串
  * @property {boolean} busy 正在等待資料存取完成
+ * @property {User | null} user 登入的使用者；未登入時為 null
+ * @property {string | null} setId 目前的討論串組（網址的 s 參數）
+ * @property {string} guestName 訪客（未登入）留言時的名字（已去掉前後空白）；未填為空字串
+ */
+
+/**
+ * 登入的使用者。
+ * @typedef {object} User
+ * @property {string} id Supabase Auth 的使用者 id
+ * @property {string} displayName 註冊時填的顯示名稱
+ */
+
+/**
+ * 登入的工作階段。
+ * @typedef {object} Session
+ * @property {string} accessToken 帶在資料庫請求的 Authorization 標頭
+ * @property {string} refreshToken 用來換新的 access token
+ * @property {number} expiresAt access token 到期時間（毫秒）
+ * @property {User} user
  */
 
 export {};

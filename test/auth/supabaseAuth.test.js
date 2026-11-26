@@ -1,0 +1,89 @@
+// @ts-check
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createSupabaseAuth } from '../../src/auth/supabaseAuth.js';
+
+const URL_BASE = 'https://example.supabase.co';
+const KEY = 'test-key';
+
+/**
+ * 假的 fetch：記錄每次呼叫，依序回傳事先給定的回應。
+ * @param {Response[]} responses
+ */
+function createFakeFetch(responses) {
+  /** @type {{ url: string, init: RequestInit }[]} */
+  const calls = [];
+  /** @param {string} url @param {RequestInit} init */
+  async function fakeFetch(url, init) {
+    calls.push({ url, init });
+    return /** @type {Response} */ (responses.shift());
+  }
+  return { fetch: fakeFetch, calls };
+}
+
+/** Supabase Auth 成功時回傳的內容（只列出用到的欄位） */
+const sessionBody = {
+  access_token: 'access-1',
+  refresh_token: 'refresh-1',
+  expires_at: 1764003600,
+  user: { id: 'user-1', email: 'a@example.com', user_metadata: { display_name: '小明' } },
+};
+
+/** 轉換後的工作階段 */
+const session = {
+  accessToken: 'access-1',
+  refreshToken: 'refresh-1',
+  expiresAt: 1764003600000,
+  user: { id: 'user-1', displayName: '小明' },
+};
+
+test('auth.signUp：POST /auth/v1/signup，帶顯示名稱，回傳工作階段', async () => {
+  const fake = createFakeFetch([new Response(JSON.stringify(sessionBody), { status: 200 })]);
+  const auth = createSupabaseAuth({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const result = await auth.signUp({ email: 'a@example.com', password: 'secret123', displayName: '小明' });
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/auth/v1/signup`);
+  assert.equal(init.method, 'POST');
+  assert.equal(/** @type {Record<string, string>} */ (init.headers).apikey, KEY);
+  assert.deepEqual(JSON.parse(String(init.body)), {
+    email: 'a@example.com',
+    password: 'secret123',
+    data: { display_name: '小明' },
+  });
+  assert.deepEqual(result, session);
+});
+
+test('auth.signIn：POST /auth/v1/token?grant_type=password，回傳工作階段', async () => {
+  const fake = createFakeFetch([new Response(JSON.stringify(sessionBody), { status: 200 })]);
+  const auth = createSupabaseAuth({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const result = await auth.signIn({ email: 'a@example.com', password: 'secret123' });
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/auth/v1/token?grant_type=password`);
+  assert.equal(init.method, 'POST');
+  assert.deepEqual(JSON.parse(String(init.body)), { email: 'a@example.com', password: 'secret123' });
+  assert.deepEqual(result, session);
+});
+
+test('auth：Supabase 回應失敗時拋出錯誤，code 為 Supabase 的錯誤碼', async () => {
+  const body = { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' };
+  const fake = createFakeFetch([new Response(JSON.stringify(body), { status: 400 })]);
+  const auth = createSupabaseAuth({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await assert.rejects(auth.signIn({ email: 'a@example.com', password: 'wrong' }), { code: 'invalid_credentials' });
+});
+
+test('auth.refresh：POST /auth/v1/token?grant_type=refresh_token，回傳新的工作階段', async () => {
+  const fake = createFakeFetch([new Response(JSON.stringify(sessionBody), { status: 200 })]);
+  const auth = createSupabaseAuth({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const result = await auth.refresh('refresh-0');
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/auth/v1/token?grant_type=refresh_token`);
+  assert.deepEqual(JSON.parse(String(init.body)), { refresh_token: 'refresh-0' });
+  assert.deepEqual(result, session);
+});

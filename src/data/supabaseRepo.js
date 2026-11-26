@@ -7,6 +7,7 @@
  * @property {string} url 專案網址，例如 https://xxxx.supabase.co
  * @property {string} key 瀏覽器端用的公開金鑰（anon / publishable key）
  * @property {typeof fetch} fetch 測試時可替換
+ * @property {() => Promise<string | null>} [getAccessToken] 登入使用者的 access token；未登入時回傳 null
  */
 
 /**
@@ -19,6 +20,8 @@
  * @property {string} title
  * @property {string} created_by
  * @property {number} created_at
+ * @property {string} user_id
+ * @property {string | null} set_id
  */
 
 /**
@@ -29,6 +32,7 @@
  * @property {string} body
  * @property {string} created_by
  * @property {number} created_at
+ * @property {string} user_id
  */
 
 /** @param {SupabaseOptions} options */
@@ -47,7 +51,11 @@ function headers({ key }) {
  * @param {RequestInit} init
  */
 async function request(options, path, init) {
-  const response = await options.fetch(`${options.url}${path}`, { ...init, headers: headers(options) });
+  const accessToken = (await options.getAccessToken?.()) ?? null;
+  const allHeaders = accessToken === null
+    ? headers(options)
+    : { ...headers(options), Authorization: `Bearer ${accessToken}` };
+  const response = await options.fetch(`${options.url}${path}`, { ...init, headers: allHeaders });
   if (!response.ok) {
     throw new Error(`Supabase 請求失敗：${init.method} ${path} 回應 ${response.status} ${await response.text()}`);
   }
@@ -71,11 +79,14 @@ export function createSupabaseClipRepo(options) {
           title: clip.title,
           created_by: clip.createdBy,
           created_at: clip.createdAt,
+          user_id: clip.userId,
+          set_id: clip.setId ?? null,
         }),
       });
     },
-    async listByVideo(videoId) {
-      const response = await request(options, `/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&order=seq.asc`, {
+    async listByVideo(videoId, setId = null) {
+      const setFilter = setId === null ? 'set_id=is.null' : `set_id=eq.${encodeURIComponent(setId)}`;
+      const response = await request(options, `/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&${setFilter}&order=seq.asc`, {
         method: 'GET',
       });
       /** @type {ClipRow[]} */
@@ -87,11 +98,19 @@ export function createSupabaseClipRepo(options) {
         title: row.title,
         createdBy: row.created_by,
         createdAt: row.created_at,
+        userId: row.user_id,
+        setId: row.set_id,
       }));
     },
     async remove(id) {
       await request(options, `/rest/v1/clips?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
+      });
+    },
+    async updateRange(id, range) {
+      await request(options, `/rest/v1/clips?id=eq.${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ start_sec: range.startSec, end_sec: range.endSec }),
       });
     },
   };
@@ -112,6 +131,7 @@ export function createSupabaseCommentRepo(options) {
           body: comment.body,
           created_by: comment.createdBy,
           created_at: comment.createdAt,
+          user_id: comment.userId,
         }),
       });
     },
@@ -127,6 +147,7 @@ export function createSupabaseCommentRepo(options) {
         body: row.body,
         createdBy: row.created_by,
         createdAt: row.created_at,
+        userId: row.user_id,
       }));
     },
     async remove(id) {

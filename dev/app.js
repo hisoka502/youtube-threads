@@ -6,9 +6,11 @@ import { createYouTubePlayer } from '../src/player/youtubePlayer.js';
 import { createPlayerVideoInfo } from '../src/video/playerVideoInfo.js';
 import { createMemoryClipRepo, createMemoryCommentRepo } from '../src/data/memoryRepo.js';
 import { createSupabaseClipRepo, createSupabaseCommentRepo } from '../src/data/supabaseRepo.js';
+import { createSupabaseAuth } from '../src/auth/supabaseAuth.js';
+import { createSessionManager } from '../src/auth/session.js';
 import { createClipService } from '../src/clip/clipService.js';
 import { formatTimecode } from '../src/time/timecode.js';
-import { pageVideoId, pageUrlFor } from '../src/url/pageUrl.js';
+import { pageVideoId, pageSetId, pageUrlFor } from '../src/url/pageUrl.js';
 
 /** @param {string} id */
 const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
@@ -24,7 +26,12 @@ const ERROR_TEXT = {
   INVALID_RANGE: '片段不合法：結束時間必須大於開始時間、不可超過影片長度，且開始時間至少要在影片結尾前 3 秒',
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
   NO_CLIP: '請先開啟一個討論串',
-  NO_NAME: '請先填寫你的名字',
+  NOT_SIGNED_IN: '請先登入',
+  NO_NAME: '請填寫名字（註冊時的顯示名稱，或匿名留言時的名字）',
+  INVALID_CREDENTIALS: 'Email 或密碼錯誤',
+  EMAIL_TAKEN: '這個 Email 已經註冊過，請直接登入',
+  WEAK_PASSWORD: '密碼太短或太簡單（至少 6 個字元）',
+  AUTH_FAILED: '登入失敗，請稍後再試（詳細原因在瀏覽器主控台）',
   STORAGE_FAILED: '資料存取失敗，請稍後再試（詳細原因在瀏覽器主控台）',
 };
 
@@ -44,22 +51,68 @@ function createYTPlayer() {
 
 const yt = await createYTPlayer();
 const player = createYouTubePlayer(yt);
-/** 讀取 dev/config.js；檔案不存在時回傳 null（改用記憶體版） */
+/**
+ * 讀取 Supabase 設定：先找本機的 dev/config.js（不 commit），
+ * 再找部署用的 dev/config.public.js（commit 進 repository，GitHub Pages 上使用）。
+ * 兩個都沒有時回傳 null（改用記憶體版與本機假登入）。
+ */
 async function loadConfig() {
-  try {
-    return (await import('./config.js')).default;
-  } catch {
-    return null;
+  for (const path of ['./config.js', './config.public.js']) {
+    try {
+      return (await import(path)).default;
+    } catch {
+      // 檔案不存在，試下一個
+    }
   }
+  return null;
 }
 
+/** 工作階段存在 localStorage，重新整理頁面後仍維持登入；瀏覽器不允許存取時當作沒有保存 */
+const sessionStorageKey = 'youtube-threads-session';
+const localSessionStorage = {
+  load() {
+    try {
+      return JSON.parse(localStorage.getItem(sessionStorageKey) ?? 'null');
+    } catch {
+      return null;
+    }
+  },
+  /** @param {import('../src/types.js').Session | null} session */
+  save(session) {
+    try {
+      if (session === null) localStorage.removeItem(sessionStorageKey);
+      else localStorage.setItem(sessionStorageKey, JSON.stringify(session));
+    } catch {
+      // 無法保存時，只是重新整理後要重新登入
+    }
+  },
+};
+
+/** 沒有 Supabase 時用的本機假登入：任何 Email 與密碼都能登入（只供開發） */
+const localAuth = {
+  /** @param {{ email: string, displayName?: string }} input */
+  async signIn({ email, displayName }) {
+    return {
+      accessToken: 'local', refreshToken: 'local', expiresAt: Date.now() + 365 * 86400_000,
+      user: { id: `local-${email}`, displayName: displayName ?? email.split('@')[0] },
+    };
+  },
+  /** @param {{ email: string, password: string, displayName: string }} input */
+  async signUp(input) { return localAuth.signIn(input); },
+  async refresh() { return /** @type {any} */ (localSessionStorage.load()); },
+};
+
 const config = await loadConfig();
-const supabase = config && { url: config.supabaseUrl, key: config.supabaseKey, fetch: globalThis.fetch.bind(globalThis) };
-const clipRepo = supabase ? createSupabaseClipRepo(supabase) : createMemoryClipRepo();
-const commentRepo = supabase ? createSupabaseCommentRepo(supabase) : createMemoryCommentRepo();
+const fetchFn = globalThis.fetch.bind(globalThis);
+const supabase = config && { url: config.supabaseUrl, key: config.supabaseKey, fetch: fetchFn };
+const auth = supabase ? createSupabaseAuth(supabase) : localAuth;
+const sessions = createSessionManager({ auth, storage: localSessionStorage, now: () => Date.now() });
+const repoOptions = supabase && { ...supabase, getAccessToken: () => sessions.getAccessToken() };
+const clipRepo = repoOptions ? createSupabaseClipRepo(repoOptions) : createMemoryClipRepo();
+const commentRepo = repoOptions ? createSupabaseCommentRepo(repoOptions) : createMemoryCommentRepo();
 $('storage').textContent = supabase
   ? `資料存在 Supabase（${config.supabaseUrl}）。`
-  : '資料存在記憶體，重新整理後會清空（沒有找到 dev/config.js）。';
+  : '資料存在記憶體，重新整理後會清空（沒有找到 dev/config.js 或 dev/config.public.js）。';
 const newId = () => crypto.randomUUID();
 const clipService = createClipService({
   clipRepo,
@@ -72,6 +125,8 @@ const app = createApp({
   clipRepo, commentRepo, clipService, player, newId,
   now: () => Date.now(),
   logError: (error) => console.error(error),
+  auth,
+  sessions,
 });
 
 /**
@@ -110,6 +165,32 @@ function clipLabel(clip) {
   return clip.title === '' ? range : `${range}「${clip.title}」`;
 }
 
+/** 正在修改時間範圍的片段（畫面上的編輯狀態）；沒有時為 null */
+/** @type {string | null} */
+let editingClipId = null;
+
+/**
+ * 修改片段時間範圍的輸入欄位與按鈕。
+ * @param {import('../src/types.js').Clip} clip
+ */
+function clipEditor(clip) {
+  const start = document.createElement('input');
+  start.className = 'time';
+  start.value = formatTimecode(clip.range.startSec);
+  const end = document.createElement('input');
+  end.className = 'time';
+  end.value = formatTimecode(clip.range.endSec);
+  end.placeholder = '留空＝開始＋5 秒';
+  return [
+    '開始 ', start, ' 結束 ', end,
+    button('儲存', async () => {
+      await run(() => app.updateClip(clip.id, { start: start.value, end: end.value }));
+      if (app.getState().error === null) { editingClipId = null; render(); }
+    }),
+    button('取消', () => { editingClipId = null; render(); }),
+  ];
+}
+
 /** 依 app.getState() 重畫整個畫面。 */
 function render() {
   const state = app.getState();
@@ -117,11 +198,24 @@ function render() {
   $('error').textContent = state.error === null ? '' : (ERROR_TEXT[state.error] ?? state.error);
   document.body.classList.toggle('busy', state.busy);
 
+  const signedIn = state.user !== null;
+  $('signed-in').hidden = !signedIn;
+  $('signed-out').hidden = signedIn;
+  $('user-display-name').textContent = state.user?.displayName ?? '';
+  // 未登入不能建立討論串
+  $('clip-form').hidden = !signedIn;
+  // 匿名也可以留言，但要填名字
+  $('guest-name-row').hidden = signedIn;
+
   const clips = $('clips');
   clips.replaceChildren(
     ...state.clips.map((clip) => {
       const li = document.createElement('li');
       li.classList.toggle('selected', clip.id === state.selectedClipId);
+      if (clip.id === editingClipId) {
+        li.append(...clipEditor(clip));
+        return li;
+      }
       const title = document.createElement('span');
       title.textContent = clipLabel(clip);
       li.append(
@@ -130,6 +224,15 @@ function render() {
         button('播放', () => run(() => app.playClip(clip.id))),
         button('討論串', () => run(() => app.selectClip(clip.id))),
       );
+      if (state.user !== null) {
+        li.append(
+          button('修改', () => { editingClipId = clip.id; render(); }),
+          button('刪除', () => {
+            const ok = confirm(`確定要刪除討論串「${clipLabel(clip)}」嗎？\n裡面所有人的留言都會一起刪除，無法復原。`);
+            if (ok) run(() => app.deleteClip(clip.id));
+          }),
+        );
+      }
       return li;
     }),
   );
@@ -146,7 +249,9 @@ function render() {
         const body = document.createElement('span');
         body.className = 'comment-body';
         body.textContent = comment.body;
-        li.append(body, meta(comment), button('刪除', () => run(() => app.deleteComment(comment.id))));
+        li.append(body, meta(comment));
+        // 只能刪除自己的留言
+        if (app.canDeleteComment(comment)) li.append(button('刪除', () => run(() => app.deleteComment(comment.id))));
         return li;
       }),
     );
@@ -154,11 +259,11 @@ function render() {
   syncDisabled();
 }
 
-/** 處理中（busy）時停用所有按鈕與輸入欄位；「你的名字」欄位不受影響。 */
+/** 處理中（busy）時停用所有按鈕與輸入欄位。 */
 function syncDisabled() {
   const { busy } = app.getState();
   for (const el of document.querySelectorAll('button, input, textarea')) {
-    if (el.id !== 'user-name') /** @type {HTMLButtonElement | HTMLInputElement} */ (el).disabled = busy;
+    /** @type {HTMLButtonElement | HTMLInputElement} */ (el).disabled = busy;
   }
 }
 
@@ -185,23 +290,37 @@ function onSubmit(id, action) {
 }
 
 /**
- * 載入影片；成功後把網址列更新成這部影片的網址（?v=影片ID），方便複製分享。
+ * 載入影片；成功後把網址列更新成這組討論串的網址（?v=影片ID&s=討論串組id），方便複製分享。
  * @param {string} youtubeUrl
+ * @param {{ setId?: string | null }} [options] 省略 setId 時產生新的一組（貼上網址帶進影片）
  */
-async function loadVideo(youtubeUrl) {
-  await app.loadVideo(youtubeUrl);
-  const { videoId } = app.getState();
-  if (videoId !== null) history.replaceState(null, '', pageUrlFor(location.href, videoId));
+async function loadVideo(youtubeUrl, options) {
+  await app.loadVideo(youtubeUrl, options);
+  const { videoId, setId } = app.getState();
+  if (videoId !== null) history.replaceState(null, '', pageUrlFor(location.href, videoId, setId));
 }
 
 onSubmit('load-form', () => loadVideo(input('url').value.trim()));
+onSubmit('sign-in-form', async () => {
+  await app.signIn({ email: input('sign-in-email').value.trim(), password: input('sign-in-password').value });
+  if (app.getState().user !== null) input('sign-in-password').value = '';
+});
+onSubmit('sign-up-form', async () => {
+  await app.signUp({
+    email: input('sign-up-email').value.trim(),
+    password: input('sign-up-password').value,
+    displayName: input('sign-up-name').value,
+  });
+  if (app.getState().user !== null) input('sign-up-password').value = '';
+});
+$('sign-out').addEventListener('click', () => run(() => app.signOut()));
+input('guest-name').addEventListener('input', () => app.setGuestName(input('guest-name').value));
 onSubmit('clip-form', async () => {
   await app.createClip({ start: input('start').value, end: input('end').value, title: input('title').value.trim() });
   if (app.getState().error === null) {
     for (const id of ['start', 'end', 'title']) input(id).value = '';
   }
 });
-input('user-name').addEventListener('input', () => app.setUserName(input('user-name').value));
 onSubmit('comment-form', async () => {
   const body = /** @type {HTMLTextAreaElement} */ ($('body'));
   await app.addComment(body.value);
@@ -214,9 +333,10 @@ player.onTimeUpdate((sec) => {
 
 render();
 
-// 打開帶 ?v=影片ID 的網址時，自動載入那部影片
+// 打開分享網址（?v=影片ID&s=討論串組id）時，自動載入那部影片與那組討論串；
+// 沒有 s 的舊網址顯示加入此功能前建立的片段
 const sharedVideoId = pageVideoId(location.href);
 if (sharedVideoId !== null) {
   input('url').value = `https://www.youtube.com/watch?v=${sharedVideoId}`;
-  run(() => loadVideo(input('url').value));
+  run(() => loadVideo(input('url').value, { setId: pageSetId(location.href) }));
 }

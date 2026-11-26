@@ -13,10 +13,15 @@ import { playRange } from '../player/playRange.js';
  * @param {() => string} deps.newId 產生新留言的 id
  * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  * @param {(error: unknown) => void} deps.logError 資料存取失敗時，接收詳細的錯誤（畫面上寫到主控台）
+ * @param {{
+ *   signIn: (input: { email: string, password: string }) => Promise<import('../types.js').Session>,
+ *   signUp: (input: { email: string, password: string, displayName: string }) => Promise<import('../types.js').Session>,
+ * }} deps.auth
+ * @param {{ set: (session: import('../types.js').Session | null) => void, getUser: () => import('../types.js').User | null }} deps.sessions 工作階段（重新整理頁面後仍保存）
  */
-export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError }) {
+export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '', busy: false };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '' };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -55,32 +60,113 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     }
   }
 
+  /** Supabase Auth 的錯誤碼 → 畫面上的錯誤碼 */
+  /** @type {Record<string, string>} */
+  const AUTH_ERRORS = {
+    invalid_credentials: 'INVALID_CREDENTIALS',
+    user_already_exists: 'EMAIL_TAKEN',
+    weak_password: 'WEAK_PASSWORD',
+  };
+
+  /**
+   * 執行登入或註冊：進行中 busy 為 true；失敗時把 Supabase 的錯誤碼轉成畫面上的錯誤碼。
+   * @param {() => Promise<void>} step
+   */
+  async function guardAuth(step) {
+    state = { ...state, busy: true };
+    try {
+      await step();
+    } catch (error) {
+      const code = /** @type {{ code?: string }} */ (error).code;
+      if (code === undefined) {
+        // 沒有 Supabase 錯誤碼：連不上伺服器等，與資料存取失敗相同處理
+        logError(error);
+        state = { ...state, error: 'STORAGE_FAILED' };
+      } else {
+        state = { ...state, error: AUTH_ERRORS[code] ?? 'AUTH_FAILED' };
+      }
+    } finally {
+      state = { ...state, busy: false };
+    }
+  }
+
+  /**
+   * 目前登入的使用者能不能刪除這則留言（只能刪除自己的留言）。
+   * @param {import('../types.js').Comment} comment
+   */
+  function canDeleteComment(comment) {
+    return state.user !== null && comment.userId === state.user.id;
+  }
+
   return {
     getState() {
       return state;
     },
 
+    canDeleteComment,
+
     /**
-     * 設定使用者的名字，之後建立的片段與留言都帶這個名字。
-     * @param {string} name
+     * 以 Email 與密碼登入。
+     * @param {{ email: string, password: string }} input
      */
-    setUserName(name) {
-      state = { ...state, userName: name.trim() };
+    async signIn(input) {
+      await guardAuth(async () => {
+        const session = await auth.signIn(input);
+        sessions.set(session);
+        state = { ...state, user: session.user, error: null };
+      });
     },
 
-    /** @param {string} url */
-    async loadVideo(url) {
+    /**
+     * 設定訪客（未登入）留言時使用的名字。
+     * @param {string} name
+     */
+    setGuestName(name) {
+      state = { ...state, guestName: name.trim() };
+    },
+
+    /** 登出：清除保存的工作階段。 */
+    signOut() {
+      sessions.set(null);
+      state = { ...state, user: null };
+    },
+
+    /**
+     * 註冊並登入。
+     * @param {{ email: string, password: string, displayName: string }} input
+     */
+    async signUp(input) {
+      const displayName = input.displayName.trim();
+      if (displayName === '') {
+        state = { ...state, error: 'NO_NAME' };
+        return;
+      }
+      await guardAuth(async () => {
+        const session = await auth.signUp({ ...input, displayName });
+        sessions.set(session);
+        state = { ...state, user: session.user, error: null };
+      });
+    },
+
+    /**
+     * 載入影片與它的片段。
+     * @param {string} url YouTube 網址
+     * @param {{ setId?: string | null }} [options] 討論串組；省略時產生新的一組，null 為加入此功能前建立的片段
+     */
+    async loadVideo(url, options = {}) {
       if (state.busy) return; // 處理中暫停操作
       const videoId = parseUrl(url);
       if (videoId === null) {
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
+      // 沒給討論串組（貼上網址帶進影片）時產生新的一組；給了（打開分享網址）則沿用
+      const setId = options.setId === undefined ? newId() : options.setId;
       await guardStorage(async () => {
-        const clips = await clipRepo.listByVideo(videoId);
+        const clips = await clipRepo.listByVideo(videoId, setId);
         // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片
         player.load(videoId);
-        state = { ...state, videoId, error: null };
+        state = { ...state, videoId, setId, error: null };
         setClips(clips);
       });
     },
@@ -96,8 +182,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_VIDEO' };
         return;
       }
-      if (state.userName === '') {
-        state = { ...state, error: 'NO_NAME' };
+      if (state.user === null) {
+        state = { ...state, error: 'NOT_SIGNED_IN' };
         return;
       }
       const startSec = parseTimecode(start);
@@ -107,12 +193,44 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       await guardStorage(async () => {
-        const result = await clipService.createClip({ videoId, startSec, endSec, title, createdBy: state.userName });
+        const { user } = state;
+        const result = await clipService.createClip({
+          videoId, startSec, endSec, title, createdBy: user.displayName, userId: user.id, setId: state.setId,
+        });
         if (!result.ok) {
           state = { ...state, error: result.error };
           return;
         }
-        state = { ...state, clips: await clipRepo.listByVideo(videoId), error: null };
+        state = { ...state, clips: await clipRepo.listByVideo(videoId, state.setId), error: null };
+      });
+    },
+
+    /**
+     * 修改片段的時間範圍（YouTube 顯示格式的時間字串；end 為空字串時補為 start + 5 秒）。
+     * @param {string} clipId
+     * @param {{ start: string, end: string }} input
+     */
+    async updateClip(clipId, { start, end }) {
+      if (state.busy) return; // 處理中暫停操作
+      if (state.user === null) {
+        state = { ...state, error: 'NOT_SIGNED_IN' };
+        return;
+      }
+      const clip = state.clips.find((c) => c.id === clipId);
+      if (clip === undefined) return;
+      const startSec = parseTimecode(start);
+      const endSec = end === '' ? undefined : parseTimecode(end);
+      if (startSec === null || endSec === null) {
+        state = { ...state, error: 'INVALID_TIMECODE' };
+        return;
+      }
+      await guardStorage(async () => {
+        const result = await clipService.updateClipRange(clip, { startSec, endSec });
+        if (!result.ok) {
+          state = { ...state, error: result.error };
+          return;
+        }
+        state = { ...state, clips: await clipRepo.listByVideo(clip.videoId, state.setId), error: null };
       });
     },
 
@@ -148,12 +266,16 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_CLIP' };
         return;
       }
-      if (state.userName === '') {
+      // 登入者用顯示名稱；訪客（未登入）用填的名字並標示「（訪客）」，沒有使用者 id
+      const { user } = state;
+      if (user === null && state.guestName === '') {
         state = { ...state, error: 'NO_NAME' };
         return;
       }
+      const createdBy = user === null ? `${state.guestName}（訪客）` : user.displayName;
+      const userId = user === null ? null : user.id;
       await guardStorage(async () => {
-        await commentRepo.add({ id: newId(), clipId, body, createdBy: state.userName, createdAt: now() });
+        await commentRepo.add({ id: newId(), clipId, body, createdBy, createdAt: now(), userId });
         state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
       });
     },
@@ -164,10 +286,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async deleteClip(clipId) {
       if (state.busy) return; // 處理中暫停操作
+      if (state.user === null) {
+        state = { ...state, error: 'NOT_SIGNED_IN' };
+        return;
+      }
       await guardStorage(async () => {
         await clipService.deleteClip(clipId);
         const videoId = /** @type {string} */ (state.videoId);
-        setClips(await clipRepo.listByVideo(videoId));
+        setClips(await clipRepo.listByVideo(videoId, state.setId));
       });
     },
 
@@ -177,6 +303,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async deleteComment(commentId) {
       if (state.busy) return; // 處理中暫停操作
+      const comment = state.comments.find((c) => c.id === commentId);
+      if (comment === undefined || !canDeleteComment(comment)) return; // 只能刪除自己的留言
       await guardStorage(async () => {
         await commentRepo.remove(commentId);
         const clipId = /** @type {string} */ (state.selectedClipId);

@@ -97,3 +97,24 @@ test('CommentRepo：修改列出或傳入的物件，不影響 Repository 內的
 
   assert.deepEqual(await repo.listByClip('c1'), [comment('m1', 'c1')]);
 });
+
+test('ClipRepository：listByVideo 依討論串組篩選；setId 為 null 時篩出沒有討論串組的片段', async () => {
+  const repo = createMemoryClipRepo();
+  const base = { videoId: 'abc', range: { startSec: 0, endSec: 5 }, title: '', createdBy: '小明', createdAt: 0, userId: 'user-1' };
+  await repo.add({ ...base, id: 'c1', setId: 's1' });
+  await repo.add({ ...base, id: 'c2', setId: 's2' });
+  await repo.add({ ...base, id: 'c3', setId: null });
+
+  assert.deepEqual((await repo.listByVideo('abc', 's1')).map((c) => c.id), ['c1']);
+  assert.deepEqual((await repo.listByVideo('abc', null)).map((c) => c.id), ['c3']);
+});
+
+test('ClipRepository：updateRange 修改片段的時間範圍，其他欄位不變', async () => {
+  const repo = createMemoryClipRepo();
+  const clip = { id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '開場', createdBy: '小明', createdAt: 0, userId: 'user-1', setId: null };
+  await repo.add(clip);
+
+  await repo.updateRange('c1', { startSec: 20, endSec: 30 });
+
+  assert.deepEqual(await repo.listByVideo('abc'), [{ ...clip, range: { startSec: 20, endSec: 30 } }]);
+});
