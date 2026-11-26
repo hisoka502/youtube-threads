@@ -13,7 +13,10 @@ import { playRange } from '../player/playRange.js';
  * @param {() => string} deps.newId 產生新留言的 id
  * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  * @param {(error: unknown) => void} deps.logError 資料存取失敗時，接收詳細的錯誤（畫面上寫到主控台）
- * @param {{ signIn: (input: { email: string, password: string }) => Promise<import('../types.js').Session> }} deps.auth
+ * @param {{
+ *   signIn: (input: { email: string, password: string }) => Promise<import('../types.js').Session>,
+ *   signUp: (input: { email: string, password: string, displayName: string }) => Promise<import('../types.js').Session>,
+ * }} deps.auth
  * @param {{ set: (session: import('../types.js').Session | null) => void, getUser: () => import('../types.js').User | null }} deps.sessions 工作階段（重新整理頁面後仍保存）
  */
 export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError, auth, sessions }) {
@@ -78,6 +81,16 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async signIn(input) {
       const session = await auth.signIn(input);
+      sessions.set(session);
+      state = { ...state, user: session.user };
+    },
+
+    /**
+     * 註冊並登入。
+     * @param {{ email: string, password: string, displayName: string }} input
+     */
+    async signUp(input) {
+      const session = await auth.signUp(input);
       sessions.set(session);
       state = { ...state, user: session.user };
     },

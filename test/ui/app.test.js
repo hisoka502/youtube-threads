@@ -608,3 +608,11 @@ test('UI：刪除別人的留言時，什麼都不做', async () => {
 
   assert.deepEqual((await commentRepo.listByClip('c1')).map((m) => m.id), ['m1']);
 });
+
+test('UI：註冊後，狀態有登入的使用者（顯示名稱為註冊時填的）', async () => {
+  const { app } = setup({ signedIn: false });
+
+  await app.signUp({ email: 'hua@example.com', password: 'secret123', displayName: '小華' });
+
+  assert.deepEqual(app.getState().user, { id: 'user-hua', displayName: '小華' });
+});
