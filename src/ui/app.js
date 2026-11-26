@@ -70,6 +70,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
 
     /** @param {string} url */
     async loadVideo(url) {
+      if (state.busy) return; // 處理中暫停操作
       const videoId = parseUrl(url);
       if (videoId === null) {
         state = { ...state, error: 'INVALID_URL' };
@@ -88,6 +89,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {{ start: string, end: string, title?: string }} input
      */
     async createClip({ start, end, title }) {
+      if (state.busy) return; // 處理中暫停操作
       const { videoId } = state;
       if (videoId === null) {
         state = { ...state, error: 'NO_VIDEO' };
@@ -118,6 +120,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} clipId
      */
     async playClip(clipId) {
+      if (state.busy) return; // 處理中暫停操作
       const clip = state.clips.find((c) => c.id === clipId);
       if (clip === undefined) return;
       playRange(player, clip.range);
@@ -129,6 +132,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} clipId
      */
     async selectClip(clipId) {
+      if (state.busy) return; // 處理中暫停操作
       await openThread(clipId);
     },
 
@@ -137,6 +141,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} body
      */
     async addComment(body) {
+      if (state.busy) return; // 處理中暫停操作
       const clipId = state.selectedClipId;
       if (clipId === null) {
         state = { ...state, error: 'NO_CLIP' };
@@ -157,6 +162,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} clipId
      */
     async deleteClip(clipId) {
+      if (state.busy) return; // 處理中暫停操作
       await guardStorage(async () => {
         await clipService.deleteClip(clipId);
         const videoId = /** @type {string} */ (state.videoId);
@@ -169,6 +175,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} commentId
      */
     async deleteComment(commentId) {
+      if (state.busy) return; // 處理中暫停操作
       await guardStorage(async () => {
         await commentRepo.remove(commentId);
         const clipId = /** @type {string} */ (state.selectedClipId);

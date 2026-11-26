@@ -477,17 +477,18 @@ test('UI：刪除片段時資料存取失敗，狀態有錯誤 STORAGE_FAILED', 
  * @param {keyof T} method
  */
 function holdOn(repo, method) {
-  /** @type {() => void} */
-  let release = () => {};
+  /** @type {(() => void)[]} */
+  const waiting = [];
   const original = /** @type {(...args: unknown[]) => Promise<unknown>} */ (repo[method]);
   const held = {
     ...repo,
     [method]: async (/** @type {unknown[]} */ ...args) => {
-      await new Promise((resolve) => { release = () => resolve(undefined); });
+      await new Promise((resolve) => { waiting.push(() => resolve(undefined)); });
       return original(...args);
     },
   };
-  return { repo: /** @type {T} */ (held), release: () => release() };
+  // release 讓所有正在等待的呼叫一起完成
+  return { repo: /** @type {T} */ (held), release: () => waiting.splice(0).forEach((done) => done()) };
 }
 
 test('UI：動作進行中 busy 為 true，完成後為 false', async () => {
@@ -505,4 +506,20 @@ test('UI：動作進行中 busy 為 true，完成後為 false', async () => {
   await pending;
 
   assert.equal(app.getState().busy, false);
+});
+
+test('UI：busy 時呼叫其他動作會被忽略', async () => {
+  const hold = holdOn(createMemoryCommentRepo(), 'add');
+  const { app, clipRepo } = setup({ commentRepo: hold.repo });
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+
+  const first = app.addComment('第一則');
+  const second = app.addComment('第二則');
+  await new Promise((resolve) => setImmediate(resolve));
+  hold.release();
+  await Promise.all([first, second]);
+
+  assert.deepEqual(app.getState().comments.map((m) => m.body), ['第一則']);
 });
