@@ -532,3 +532,11 @@ test('UI：資料存取失敗後，busy 也恢復為 false', async () => {
   assert.equal(app.getState().error, 'STORAGE_FAILED');
   assert.equal(app.getState().busy, false);
 });
+
+test('UI：載入影片時讀取片段失敗，播放器不換影片', async () => {
+  const { app, player } = setup({ clipRepo: failOn(createMemoryClipRepo(), 'listByVideo', new Error('Supabase 請求失敗')) });
+
+  await app.loadVideo('https://youtu.be/abc');
+
+  assert.equal(player.getLoadedVideoId(), null);
+});

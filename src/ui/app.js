@@ -76,9 +76,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
-      player.load(videoId);
       await guardStorage(async () => {
         const clips = await clipRepo.listByVideo(videoId);
+        // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片
+        player.load(videoId);
         state = { ...state, videoId, error: null };
         setClips(clips);
       });
