@@ -325,6 +325,11 @@ test/
 - [x] dev/config.public.js（填入正式的 Supabase 網址與 publishable key）
 - [ ] 使用者開啟 GitHub Pages，在網站上驗證登入、建立片段、留言、分享網址（手動驗證）
 
+### 5.17 管理（使用者在 Supabase 管理頁面操作）
+
+- [x] 刪除註冊者時保留內容（使用者決定）：`db/migrations/004_delete_users.sql` 把 clips、comments 的 user_id 外鍵改為 on delete set null
+- 刪除討論串（片段）：網站上不開放（5.9 使用者決定）；管理者在 Supabase 的 Table Editor 或 SQL Editor 刪除 clips 的資料列，該討論串的留言因 on delete cascade 一併刪除
+
 ## 6. 待決定事項
 
 處理到相關測試時，先停下來問使用者，不要自行假設：
