@@ -33,6 +33,7 @@ export function createClipService({ clipRepo, commentRepo, videoInfo, newId, now
         createdBy: input.createdBy,
         createdAt: now(),
         userId: input.userId,
+        setId: input.setId ?? null,
       };
       await clipRepo.add(clip);
       return { ok: true, clip };

@@ -109,7 +109,7 @@ test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async
   await app.createClip({ start: '0:10', end: '0:20' });
 
   assert.deepEqual(app.getState().clips, [
-    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: '小明', createdAt: NOW, userId: 'user-1' },
+    { id: 'id-1', videoId: 'abc', range: { startSec: 10, endSec: 20 }, title: '', createdBy: '小明', createdAt: NOW, userId: 'user-1', setId: null },
   ]);
 });
 
@@ -695,4 +695,15 @@ test('UI：打開分享網址（給定討論串組）時沿用它，只列出該
 
   assert.equal(app.getState().setId, 's1');
   assert.deepEqual(app.getState().clips.map((c) => c.id), ['c1']);
+});
+
+test('UI：建立片段時帶目前的討論串組，建立後仍列在該組', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+
+  await app.createClip({ start: '0:10', end: '0:20' });
+
+  const { clips } = app.getState();
+  assert.equal(clips.length, 1);
+  assert.equal(clips[0].setId, 's1');
 });

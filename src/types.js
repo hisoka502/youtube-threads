@@ -74,7 +74,7 @@
 
 /**
  * 建立片段的輸入；endSec 可省略。
- * @typedef {ClipRangeInput & { videoId: string, title?: string, createdBy: string, userId: string }} ClipInput
+ * @typedef {ClipRangeInput & { videoId: string, title?: string, createdBy: string, userId: string, setId?: string | null }} ClipInput
  */
 
 /**

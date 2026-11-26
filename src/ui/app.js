@@ -187,13 +187,13 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       await guardStorage(async () => {
         const { user } = state;
         const result = await clipService.createClip({
-          videoId, startSec, endSec, title, createdBy: user.displayName, userId: user.id,
+          videoId, startSec, endSec, title, createdBy: user.displayName, userId: user.id, setId: state.setId,
         });
         if (!result.ok) {
           state = { ...state, error: result.error };
           return;
         }
-        state = { ...state, clips: await clipRepo.listByVideo(videoId), error: null };
+        state = { ...state, clips: await clipRepo.listByVideo(videoId, state.setId), error: null };
       });
     },
 
@@ -249,7 +249,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       await guardStorage(async () => {
         await clipService.deleteClip(clipId);
         const videoId = /** @type {string} */ (state.videoId);
-        setClips(await clipRepo.listByVideo(videoId));
+        setClips(await clipRepo.listByVideo(videoId, state.setId));
       });
     },
 
