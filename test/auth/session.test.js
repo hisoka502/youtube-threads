@@ -65,3 +65,13 @@ test('工作階段：換新時是網路錯誤（沒有 Supabase 錯誤碼）時�
   await assert.rejects(sessions.getAccessToken(), networkError);
   assert.equal(storage.load()?.refreshToken, 'refresh-1');
 });
+
+test('工作階段：getUser 回傳登入的使用者；未登入時為 null', () => {
+  const auth = { refresh: async () => { throw new Error('不應呼叫'); } };
+  const sessions = createSessionManager({ auth, storage: createMemoryStorage(), now: () => NOW });
+  assert.equal(sessions.getUser(), null);
+
+  sessions.set(sessionExpiringAt(NOW + 3600_000));
+
+  assert.deepEqual(sessions.getUser(), { id: 'user-1', displayName: '小明' });
+});

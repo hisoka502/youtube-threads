@@ -29,6 +29,11 @@ export function createSessionManager({ auth, storage, now }) {
   return {
     set,
 
+    /** 登入的使用者；未登入時為 null */
+    getUser() {
+      return session?.user ?? null;
+    },
+
     /** 登入使用者的 access token；未登入時為 null */
     async getAccessToken() {
       if (session === null) return null;
