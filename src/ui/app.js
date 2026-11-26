@@ -16,7 +16,7 @@ import { playRange } from '../player/playRange.js';
  */
 export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '' };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '', busy: false };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -40,15 +40,18 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
   }
 
   /**
-   * 執行會存取資料的步驟；失敗時把錯誤交給 logError，狀態設為 STORAGE_FAILED。
+   * 執行會存取資料的步驟：進行中 busy 為 true；失敗時把錯誤交給 logError，狀態設為 STORAGE_FAILED。
    * @param {() => Promise<void>} step
    */
   async function guardStorage(step) {
+    state = { ...state, busy: true };
     try {
       await step();
     } catch (error) {
       logError(error);
       state = { ...state, error: 'STORAGE_FAILED' };
+    } finally {
+      state = { ...state, busy: false };
     }
   }
 

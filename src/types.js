@@ -125,6 +125,7 @@
  * @property {string | null} selectedClipId 目前選取的片段（討論串）；未選取時為 null
  * @property {Comment[]} comments 選取的討論串的留言，依建立順序
  * @property {string} userName 使用者的名字（已去掉前後空白）；未填為空字串
+ * @property {boolean} busy 正在等待資料存取完成
  */
 
 export {};

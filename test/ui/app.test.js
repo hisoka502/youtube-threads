@@ -469,3 +469,40 @@ test('UI：刪除片段時資料存取失敗，狀態有錯誤 STORAGE_FAILED', 
   assert.equal(app.getState().error, 'STORAGE_FAILED');
   assert.deepEqual(logged, [boom]);
 });
+
+/**
+ * 把 Repository 的某個方法換成「呼叫後要等 release() 才完成」的版本，用來檢查進行中的狀態。
+ * @template {object} T
+ * @param {T} repo
+ * @param {keyof T} method
+ */
+function holdOn(repo, method) {
+  /** @type {() => void} */
+  let release = () => {};
+  const original = /** @type {(...args: unknown[]) => Promise<unknown>} */ (repo[method]);
+  const held = {
+    ...repo,
+    [method]: async (/** @type {unknown[]} */ ...args) => {
+      await new Promise((resolve) => { release = () => resolve(undefined); });
+      return original(...args);
+    },
+  };
+  return { repo: /** @type {T} */ (held), release: () => release() };
+}
+
+test('UI：動作進行中 busy 為 true，完成後為 false', async () => {
+  const hold = holdOn(createMemoryCommentRepo(), 'add');
+  const { app, clipRepo } = setup({ commentRepo: hold.repo });
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
+  await app.loadVideo('https://youtu.be/abc');
+  await app.selectClip('c1');
+  assert.equal(app.getState().busy, false);
+
+  const pending = app.addComment('第一則');
+  assert.equal(app.getState().busy, true);
+  await new Promise((resolve) => setImmediate(resolve));
+  hold.release();
+  await pending;
+
+  assert.equal(app.getState().busy, false);
+});
