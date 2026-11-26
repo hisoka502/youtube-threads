@@ -313,7 +313,7 @@ test/
 - [x] 記憶體版與 Supabase 版 ClipRepository：listByVideo 依 videoId 與 setId 篩選；setId 為 null 時篩出沒有討論串組的片段
 - [x] Supabase：setId 與 set_id 互轉
 - [x] 資料表更新的 SQL（`db/migrations/003_clip_sets.sql`）：新增 set_id 欄位與索引
-- [ ] DOM：網址帶 v 與 s；打開分享網址時沿用 s（手動驗證）
+- [ ] DOM：網址帶 v 與 s；打開分享網址時沿用 s（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
 
 ## 6. 待決定事項
 

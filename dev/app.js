@@ -10,7 +10,7 @@ import { createSupabaseAuth } from '../src/auth/supabaseAuth.js';
 import { createSessionManager } from '../src/auth/session.js';
 import { createClipService } from '../src/clip/clipService.js';
 import { formatTimecode } from '../src/time/timecode.js';
-import { pageVideoId, pageUrlFor } from '../src/url/pageUrl.js';
+import { pageVideoId, pageSetId, pageUrlFor } from '../src/url/pageUrl.js';
 
 /** @param {string} id */
 const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
@@ -243,13 +243,14 @@ function onSubmit(id, action) {
 }
 
 /**
- * 載入影片；成功後把網址列更新成這部影片的網址（?v=影片ID），方便複製分享。
+ * 載入影片；成功後把網址列更新成這組討論串的網址（?v=影片ID&s=討論串組id），方便複製分享。
  * @param {string} youtubeUrl
+ * @param {{ setId?: string | null }} [options] 省略 setId 時產生新的一組（貼上網址帶進影片）
  */
-async function loadVideo(youtubeUrl) {
-  await app.loadVideo(youtubeUrl);
-  const { videoId } = app.getState();
-  if (videoId !== null) history.replaceState(null, '', pageUrlFor(location.href, videoId));
+async function loadVideo(youtubeUrl, options) {
+  await app.loadVideo(youtubeUrl, options);
+  const { videoId, setId } = app.getState();
+  if (videoId !== null) history.replaceState(null, '', pageUrlFor(location.href, videoId, setId));
 }
 
 onSubmit('load-form', () => loadVideo(input('url').value.trim()));
@@ -284,9 +285,10 @@ player.onTimeUpdate((sec) => {
 
 render();
 
-// 打開帶 ?v=影片ID 的網址時，自動載入那部影片
+// 打開分享網址（?v=影片ID&s=討論串組id）時，自動載入那部影片與那組討論串；
+// 沒有 s 的舊網址顯示加入此功能前建立的片段
 const sharedVideoId = pageVideoId(location.href);
 if (sharedVideoId !== null) {
   input('url').value = `https://www.youtube.com/watch?v=${sharedVideoId}`;
-  run(() => loadVideo(input('url').value));
+  run(() => loadVideo(input('url').value, { setId: pageSetId(location.href) }));
 }
