@@ -268,7 +268,7 @@ test/
 - 讀取與產生網址的邏輯寫成純函式（`src/url/pageUrl.js`）；讀寫 `location`、`history` 的部分在 DOM 層，手動驗證。
 
 - [x] pageVideoId：從頁面網址的查詢字串取出 v 參數；沒有或空字串時為 null
-- [ ] pageUrlFor：在頁面網址加上（或取代）v 參數，保留其他部分
+- [x] pageUrlFor：在頁面網址加上（或取代）v 參數，保留其他部分
 - [ ] DOM：打開帶 `?v=` 的網址時自動載入；載入影片後更新網址列（手動驗證）
 
 ## 6. 待決定事項

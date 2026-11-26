@@ -9,3 +9,15 @@
 export function pageVideoId(pageUrl) {
   return new URL(pageUrl).searchParams.get('v') || null;
 }
+
+/**
+ * 產生某部影片的頁面網址：加上（或取代）v 參數，保留其他查詢參數與 #。
+ * @param {string} pageUrl 目前的頁面網址，例如 location.href
+ * @param {string} videoId
+ * @returns {string}
+ */
+export function pageUrlFor(pageUrl, videoId) {
+  const url = new URL(pageUrl);
+  url.searchParams.set('v', videoId);
+  return url.toString();
+}
