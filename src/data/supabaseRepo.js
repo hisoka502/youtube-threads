@@ -63,7 +63,7 @@ export function createSupabaseClipRepo(options) {
       });
     },
     async listByVideo(videoId) {
-      const response = await fetch(`${url}/rest/v1/clips?video_id=eq.${videoId}&order=seq.asc`, {
+      const response = await fetch(`${url}/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&order=seq.asc`, {
         method: 'GET',
         headers: headers(options),
       });
@@ -79,7 +79,7 @@ export function createSupabaseClipRepo(options) {
       }));
     },
     async remove(id) {
-      await fetch(`${url}/rest/v1/clips?id=eq.${id}`, {
+      await fetch(`${url}/rest/v1/clips?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: headers(options),
       });
@@ -108,7 +108,7 @@ export function createSupabaseCommentRepo(options) {
       });
     },
     async listByClip(clipId) {
-      const response = await fetch(`${url}/rest/v1/comments?clip_id=eq.${clipId}&order=seq.asc`, {
+      const response = await fetch(`${url}/rest/v1/comments?clip_id=eq.${encodeURIComponent(clipId)}&order=seq.asc`, {
         method: 'GET',
         headers: headers(options),
       });
@@ -123,7 +123,7 @@ export function createSupabaseCommentRepo(options) {
       }));
     },
     async remove(id) {
-      await fetch(`${url}/rest/v1/comments?id=eq.${id}`, {
+      await fetch(`${url}/rest/v1/comments?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: headers(options),
       });

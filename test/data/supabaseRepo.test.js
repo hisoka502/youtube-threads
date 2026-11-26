@@ -123,3 +123,12 @@ test('Supabase CommentRepository：remove 以 DELETE 刪除指定 id 的資料�
   assert.equal(url, `${URL_BASE}/rest/v1/comments?id=eq.m1`);
   assert.equal(init.method, 'DELETE');
 });
+
+test('Supabase Repository：查詢參數中的 id 經過 URL 編碼', async () => {
+  const fake = createFakeFetch([new Response('[]', { status: 200 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.listByVideo('a&b=c');
+
+  assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b%3Dc&order=seq.asc`);
+});
