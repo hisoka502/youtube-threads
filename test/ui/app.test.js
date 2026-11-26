@@ -652,3 +652,14 @@ test('UI：登入時帳號或密碼錯誤，狀態有錯誤 INVALID_CREDENTIALS'
   assert.equal(app.getState().error, 'INVALID_CREDENTIALS');
   assert.equal(app.getState().user, null);
 });
+
+test('UI：註冊時 Email 已被註冊或密碼太弱，狀態有對應的錯誤', async () => {
+  for (const [code, expected] of [['user_already_exists', 'EMAIL_TAKEN'], ['weak_password', 'WEAK_PASSWORD']]) {
+    const error = Object.assign(new Error('Supabase Auth 失敗'), { code });
+    const { app } = setup({ signedIn: false, auth: createFailingAuth(error) });
+
+    await app.signUp({ email: 'hua@example.com', password: '1', displayName: '小華' });
+
+    assert.equal(app.getState().error, expected, code);
+  }
+});

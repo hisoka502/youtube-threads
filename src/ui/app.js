@@ -64,6 +64,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
   /** @type {Record<string, string>} */
   const AUTH_ERRORS = {
     invalid_credentials: 'INVALID_CREDENTIALS',
+    user_already_exists: 'EMAIL_TAKEN',
+    weak_password: 'WEAK_PASSWORD',
   };
 
   /**
@@ -125,9 +127,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_NAME' };
         return;
       }
-      const session = await auth.signUp({ ...input, displayName });
-      sessions.set(session);
-      state = { ...state, user: session.user };
+      await guardAuth(async () => {
+        const session = await auth.signUp({ ...input, displayName });
+        sessions.set(session);
+        state = { ...state, user: session.user, error: null };
+      });
     },
 
     /** @param {string} url */
