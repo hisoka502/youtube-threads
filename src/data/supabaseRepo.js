@@ -68,6 +68,11 @@ export function createSupabaseClipRepo(options) {
         createdAt: row.created_at,
       }));
     },
-    async remove() {},
+    async remove(id) {
+      await fetch(`${url}/rest/v1/clips?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: headers(options),
+      });
+    },
   };
 }
