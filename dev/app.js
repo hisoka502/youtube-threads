@@ -107,7 +107,6 @@ function render() {
         meta(clip),
         button('播放', () => run(() => app.playClip(clip.id))),
         button('討論串', () => run(() => app.selectClip(clip.id))),
-        button('刪除', () => run(() => app.deleteClip(clip.id))),
       );
       return li;
     }),
