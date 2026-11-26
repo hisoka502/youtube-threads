@@ -248,7 +248,7 @@ test/
 - [x] CommentRepository.listByClip → GET `/rest/v1/comments?clip_id=eq.{id}&order=seq.asc`，把資料列轉回 Comment
 - [x] CommentRepository.remove → DELETE `/rest/v1/comments?id=eq.{id}`
 - [x] 查詢參數中的 id 經過 URL 編碼
-- [ ] 伺服器回應失敗（非 2xx）→ 拋出錯誤，訊息包含狀態碼
+- [x] 伺服器回應失敗（非 2xx）→ 拋出錯誤，訊息包含狀態碼
 - [ ] 建表與 RLS 的 SQL（`db/schema.sql`），由使用者在 Supabase 執行
 - [ ] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）
 

@@ -41,13 +41,16 @@ function headers({ key }) {
 }
 
 /**
- * 送出請求。
+ * 送出請求；伺服器回應失敗（非 2xx）時拋出錯誤。
  * @param {SupabaseOptions} options
  * @param {string} path 例如 /rest/v1/clips?id=eq.c1
  * @param {RequestInit} init
  */
 async function request(options, path, init) {
   const response = await options.fetch(`${options.url}${path}`, { ...init, headers: headers(options) });
+  if (!response.ok) {
+    throw new Error(`Supabase 請求失敗：${init.method} ${path} 回應 ${response.status} ${await response.text()}`);
+  }
   return response;
 }
 

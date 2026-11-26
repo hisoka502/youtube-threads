@@ -132,3 +132,10 @@ test('Supabase Repository：查詢參數中的 id 經過 URL 編碼', async () =
 
   assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b%3Dc&order=seq.asc`);
 });
+
+test('Supabase Repository：伺服器回應失敗（非 2xx）時拋出錯誤，訊息包含狀態碼', async () => {
+  const fake = createFakeFetch([new Response('{"message":"permission denied"}', { status: 401 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await assert.rejects(repo.add(clip), /401/);
+});
