@@ -17,6 +17,9 @@ export function createMemoryClipRepo() {
     async remove(id) {
       clips = clips.filter((c) => c.id !== id);
     },
+    async updateRange(id, range) {
+      clips = clips.map((c) => (c.id === id ? { ...c, range: structuredClone(range) } : c));
+    },
   };
 }
 

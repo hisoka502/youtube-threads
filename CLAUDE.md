@@ -336,7 +336,7 @@ test/
 - 修改只改時間範圍：輸入開始與結束（結束可留空＝開始＋5 秒），規則與建立時相同（isValidRange）。
 - 刪除前跳出確認視窗，提醒該討論串所有人的留言會一起刪除、無法復原。
 
-- [ ] 記憶體版 ClipRepository.updateRange(id, range)
+- [x] 記憶體版 ClipRepository.updateRange(id, range)
 - [ ] Supabase 版 ClipRepository.updateRange → PATCH `/rest/v1/clips?id=eq.{id}`，body 只有 start_sec、end_sec
 - [ ] ClipService.updateClipRange：依影片長度補齊並驗證，通過才存入
 - [ ] ClipService.updateClipRange：區間不合法 → INVALID_RANGE，不存入
