@@ -114,6 +114,7 @@ function render() {
   const state = app.getState();
 
   $('error').textContent = state.error === null ? '' : (ERROR_TEXT[state.error] ?? state.error);
+  document.body.classList.toggle('busy', state.busy);
 
   const clips = $('clips');
   clips.replaceChildren(
@@ -149,6 +150,15 @@ function render() {
       }),
     );
   }
+  syncDisabled();
+}
+
+/** 處理中（busy）時停用所有按鈕與輸入欄位；「你的名字」欄位不受影響。 */
+function syncDisabled() {
+  const { busy } = app.getState();
+  for (const el of document.querySelectorAll('button, input, textarea')) {
+    if (el.id !== 'user-name') /** @type {HTMLButtonElement | HTMLInputElement} */ (el).disabled = busy;
+  }
 }
 
 /**
@@ -156,7 +166,9 @@ function render() {
  * @param {() => Promise<void> | void} action
  */
 async function run(action) {
-  await action();
+  const pending = action();
+  render(); // 動作開始時 busy 已設為 true，先重畫一次以停用按鈕
+  await pending;
   render();
 }
 

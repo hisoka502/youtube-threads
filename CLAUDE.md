@@ -260,7 +260,7 @@ test/
   - [x] 動作進行中，狀態的 busy 為 true；完成後為 false
   - [x] busy 時呼叫其他動作會被忽略（不改變狀態、不存取資料）。每個會存取資料的動作一開始就檢查 busy（以新增留言測）
   - [x] 動作失敗（STORAGE_FAILED）後，busy 也恢復為 false
-  - [ ] DOM：顯示 STORAGE_FAILED 訊息；busy 時停用按鈕與表單（手動驗證）
+  - [ ] DOM：顯示 STORAGE_FAILED 訊息；busy 時停用按鈕與表單（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
 
 ## 6. 待決定事項
 
