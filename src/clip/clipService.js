@@ -40,6 +40,19 @@ export function createClipService({ clipRepo, commentRepo, videoInfo, newId, now
     },
 
     /**
+     * 修改片段的時間範圍。endSec 省略時補為 startSec + 5 秒。
+     * @param {import('../types.js').Clip} clip
+     * @param {import('../types.js').ClipRangeInput} input
+     * @returns {Promise<import('../types.js').CreateClipResult>}
+     */
+    async updateClipRange(clip, input) {
+      const durationSec = /** @type {number} */ (await videoInfo.getDurationSec(clip.videoId));
+      const range = resolveRange(input, durationSec);
+      await clipRepo.updateRange(clip.id, range);
+      return { ok: true, clip: { ...clip, range } };
+    },
+
+    /**
      * 刪除片段，並一併刪除該片段討論串的留言。
      * @param {string} id
      */

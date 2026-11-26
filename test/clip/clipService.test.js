@@ -87,3 +87,14 @@ test('ClipService：createdAt 由注入的 now() 提供', async () => {
 
   assert.equal(result.ok && result.clip.createdAt, NOW);
 });
+
+test('ClipService：updateClipRange 依影片長度補齊結束時間並存入', async () => {
+  const { service, clipRepo } = setup();
+  const created = await service.createClip({ videoId: 'v1', startSec: 10, createdBy: '小明', userId: 'user-1' });
+  assert.ok(created.ok);
+
+  const result = await service.updateClipRange(created.clip, { startSec: 30 });
+
+  assert.deepEqual(result, { ok: true, clip: { ...created.clip, range: { startSec: 30, endSec: 35 } } });
+  assert.deepEqual((await clipRepo.listByVideo('v1')).map((c) => c.range), [{ startSec: 30, endSec: 35 }]);
+});
