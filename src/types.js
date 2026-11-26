@@ -36,13 +36,14 @@
  * @property {string} createdBy 建立者的名字
  * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
  * @property {string} userId 建立者的使用者 id
+ * @property {string | null} [setId] 所屬的討論串組（網址的 s 參數）；加入此功能前建立的片段為 null
  */
 
 /**
  * 片段的儲存介面。只負責存取，不做驗證（驗證在 ClipService）。
  * @typedef {object} ClipRepository
  * @property {(clip: Clip) => Promise<void>} add
- * @property {(videoId: string) => Promise<Clip[]>} listByVideo
+ * @property {(videoId: string, setId?: string | null) => Promise<Clip[]>} listByVideo setId 為 null 或省略時，列出沒有討論串組的片段
  * @property {(id: string) => Promise<void>} remove
  */
 

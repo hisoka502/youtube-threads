@@ -11,8 +11,8 @@ export function createMemoryClipRepo() {
     async add(clip) {
       clips.push(structuredClone(clip));
     },
-    async listByVideo(videoId) {
-      return structuredClone(clips.filter((c) => c.videoId === videoId));
+    async listByVideo(videoId, setId = null) {
+      return structuredClone(clips.filter((c) => c.videoId === videoId && (c.setId ?? null) === setId));
     },
     async remove(id) {
       clips = clips.filter((c) => c.id !== id);
