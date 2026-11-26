@@ -21,6 +21,7 @@
  * @property {string} created_by
  * @property {number} created_at
  * @property {string} user_id
+ * @property {string | null} set_id
  */
 
 /**
@@ -79,6 +80,7 @@ export function createSupabaseClipRepo(options) {
           created_by: clip.createdBy,
           created_at: clip.createdAt,
           user_id: clip.userId,
+          set_id: clip.setId ?? null,
         }),
       });
     },
@@ -97,6 +99,7 @@ export function createSupabaseClipRepo(options) {
         createdBy: row.created_by,
         createdAt: row.created_at,
         userId: row.user_id,
+        setId: row.set_id,
       }));
     },
     async remove(id) {

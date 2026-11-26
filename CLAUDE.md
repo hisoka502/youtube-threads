@@ -310,8 +310,8 @@ test/
 - [ ] app.loadVideo：貼上網址時產生新的討論串組 id（注入的 newId），狀態有 setId
 - [ ] app.loadVideo：給定討論串組 id 時（打開分享網址）沿用它
 - [ ] app：片段列表只列出目前討論串組的片段；建立片段時帶 setId
-- [ ] 記憶體版與 Supabase 版 ClipRepository：listByVideo 依 videoId 與 setId 篩選；setId 為 null 時篩出沒有討論串組的片段
-- [ ] Supabase：setId 與 set_id 互轉
+- [x] 記憶體版與 Supabase 版 ClipRepository：listByVideo 依 videoId 與 setId 篩選；setId 為 null 時篩出沒有討論串組的片段
+- [x] Supabase：setId 與 set_id 互轉
 - [ ] 資料表更新的 SQL（`db/migrations/003_clip_sets.sql`）
 - [ ] DOM：網址帶 v 與 s；打開分享網址時沿用 s（手動驗證）
 
