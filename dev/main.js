@@ -49,7 +49,7 @@ function withLog(yt) {
     playVideo() { log('指令 playVideo()'); yt.playVideo(); },
     pauseVideo() { log('指令 pauseVideo()'); yt.pauseVideo(); },
     /** @param {string} id */
-    loadVideoById(id) { log(`指令 loadVideoById(${id})`); yt.loadVideoById(id); },
+    cueVideoById(id) { log(`指令 cueVideoById(${id})`); yt.cueVideoById(id); },
     getCurrentTime: () => yt.getCurrentTime(),
     getPlayerState: () => yt.getPlayerState(),
   };

@@ -43,7 +43,7 @@ export function createYouTubePlayer(yt, timer = defaultTimer) {
   return {
     /** @param {string} videoId */
     load(videoId) {
-      yt.loadVideoById(videoId);
+      yt.cueVideoById(videoId); // 只載入影片，不自動播放（使用者決定）
     },
     /** @param {number} sec */
     seekTo(sec) {

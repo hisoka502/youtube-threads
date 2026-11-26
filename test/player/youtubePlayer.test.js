@@ -21,7 +21,7 @@ function createFakeYT() {
     pauseVideo() { calls.push(['pauseVideo']); state = 2; },
     getPlayerState() { return state; },
     /** @param {string} videoId */
-    loadVideoById(videoId) { calls.push(['loadVideoById', videoId]); },
+    cueVideoById(videoId) { calls.push(['cueVideoById', videoId]); },
     /** 模擬影片播到結尾：狀態變成 ENDED（0），時間停在影片長度。 @param {number} durationSec */
     end(durationSec) { time = durationSec; state = 0; },
   };
@@ -159,13 +159,13 @@ test('YouTubePlayer ＋ playRange：定期讀取時超過 endSec，會暫停並�
   assert.equal(timer.activeCount, 0, '片段結束後不再定期讀取');
 });
 
-test('YouTubePlayer：load 轉呼叫 loadVideoById', () => {
+test('YouTubePlayer：load 轉呼叫 cueVideoById（只載入影片，不自動播放）', () => {
   const yt = createFakeYT();
   const player = createYouTubePlayer(yt, createFakeTimer());
 
   player.load('abc');
 
-  assert.deepEqual(yt.calls, [['loadVideoById', 'abc']]);
+  assert.deepEqual(yt.calls, [['cueVideoById', 'abc']]);
 });
 
 test('YouTubePlayer ＋ playRange：endSec 等於影片長度，影片播到結尾（ENDED）時，仍會暫停並停在 endSec', () => {

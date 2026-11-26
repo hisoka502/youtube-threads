@@ -204,14 +204,14 @@ test/
 
 ### 5.10 DOM 接線的前置（使用者決定）
 
-- PlayerAdapter 新增 `load(videoId)`；app.loadVideo 成功時呼叫它。YouTubePlayer 轉呼叫 `loadVideoById`。
+- PlayerAdapter 新增 `load(videoId)`；app.loadVideo 成功時呼叫它。YouTubePlayer 轉呼叫 `cueVideoById`（原為 `loadVideoById`；使用者決定載入影片但不自動播放）。
 - VideoInfoProvider 從播放器讀取影片長度（`getDuration`），不需 API 金鑰；只能取得播放器目前載入的影片。
 - 資料先用記憶體版，重新整理頁面即清空（使用者同意）。
 
 - [x] FakePlayer：load(videoId) 後，測試專用的 getLoadedVideoId() 回傳該 ID
 - [x] app.loadVideo 成功時呼叫 player.load(videoId)
 - [x] app.loadVideo 無效網址時不呼叫 player.load
-- [x] YouTubePlayer：load 轉呼叫 loadVideoById
+- [x] YouTubePlayer：load 轉呼叫 cueVideoById（原為 loadVideoById，使用者決定不自動播放）
 - [x] playerVideoInfo：播放器目前載入的影片 → 回傳 getDuration
 - [x] playerVideoInfo：不是目前載入的影片 → null
 - [x] playerVideoInfo：getDuration 為 0（影片資訊尚未載入）→ null
