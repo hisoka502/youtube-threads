@@ -47,8 +47,8 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
   const logged = [];
   const logError = (/** @type {unknown} */ error) => { logged.push(error); };
   const auth = createFakeAuth();
-  /** @type {import('../../src/types.js').Session | null} */
-  let savedSession = null;
+  /** @type {import('../../src/types.js').Session | null} 預設以「小明」登入 */
+  let savedSession = { accessToken: 'a', refreshToken: 'r', expiresAt: NOW + 3600_000, user: { id: 'user-1', displayName: '小明' } };
   const storage = { load: () => savedSession, save: (/** @type {any} */ s) => { savedSession = s; } };
   const sessions = createSessionManager({ auth, storage, now: () => NOW });
   const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW, logError, auth, sessions });
