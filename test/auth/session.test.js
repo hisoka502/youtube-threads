@@ -30,3 +30,17 @@ test('工作階段：沒有登入時 access token 為 null；登入後回傳目�
 
   assert.equal(await sessions.getAccessToken(), 'access-1');
 });
+
+test('工作階段：access token 離到期不到一分鐘時，先換新的再回傳，並保存新的工作階段', async () => {
+  const fresh = { accessToken: 'access-2', refreshToken: 'refresh-2', expiresAt: NOW + 3600_000, user: { id: 'user-1', displayName: '小明' } };
+  /** @type {string[]} */
+  const refreshedWith = [];
+  const auth = { refresh: async (/** @type {string} */ token) => { refreshedWith.push(token); return fresh; } };
+  const storage = createMemoryStorage();
+  const sessions = createSessionManager({ auth, storage, now: () => NOW });
+  sessions.set(sessionExpiringAt(NOW + 30_000));
+
+  assert.equal(await sessions.getAccessToken(), 'access-2');
+  assert.deepEqual(refreshedWith, ['refresh-1']);
+  assert.deepEqual(storage.load(), fresh);
+});

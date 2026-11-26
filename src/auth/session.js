@@ -1,5 +1,8 @@
 // @ts-check
-// 登入工作階段的管理：保存、提供 access token。
+// 登入工作階段的管理：保存、提供 access token（快到期時先換新）。
+
+/** access token 離到期不到這麼久時，先換新的（毫秒） */
+const REFRESH_BEFORE_MS = 60_000;
 
 /**
  * 工作階段的存放處（畫面上用 localStorage，測試時用記憶體）。
@@ -14,7 +17,7 @@
  * @param {SessionStorage} deps.storage
  * @param {() => number} deps.now 目前時間（毫秒）
  */
-export function createSessionManager({ storage }) {
+export function createSessionManager({ auth, storage, now }) {
   let session = storage.load();
   return {
     /** @param {import('../types.js').Session | null} next 登出時傳 null */
@@ -25,6 +28,10 @@ export function createSessionManager({ storage }) {
 
     /** 登入使用者的 access token；未登入時為 null */
     async getAccessToken() {
+      if (session === null) return null;
+      if (session.expiresAt - now() < REFRESH_BEFORE_MS) {
+        this.set(await auth.refresh(session.refreshToken));
+      }
       return session?.accessToken ?? null;
     },
   };
