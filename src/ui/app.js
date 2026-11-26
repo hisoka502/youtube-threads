@@ -21,7 +21,7 @@ import { playRange } from '../player/playRange.js';
  */
 export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser() };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -140,19 +140,25 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       });
     },
 
-    /** @param {string} url */
-    async loadVideo(url) {
+    /**
+     * 載入影片與它的片段。
+     * @param {string} url YouTube 網址
+     * @param {{ setId?: string | null }} [options] 討論串組；省略時產生新的一組，null 為加入此功能前建立的片段
+     */
+    async loadVideo(url, options = {}) {
       if (state.busy) return; // 處理中暫停操作
       const videoId = parseUrl(url);
       if (videoId === null) {
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
+      // 沒給討論串組（貼上網址帶進影片）時產生新的一組；給了（打開分享網址）則沿用
+      const setId = options.setId === undefined ? newId() : options.setId;
       await guardStorage(async () => {
-        const clips = await clipRepo.listByVideo(videoId);
+        const clips = await clipRepo.listByVideo(videoId, setId);
         // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片
         player.load(videoId);
-        state = { ...state, videoId, error: null };
+        state = { ...state, videoId, setId, error: null };
         setClips(clips);
       });
     },

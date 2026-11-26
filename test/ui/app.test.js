@@ -676,3 +676,11 @@ test('UI：登入時遇到其他 Supabase 錯誤碼 → AUTH_FAILED；網路錯�
   assert.equal(b.app.getState().error, 'STORAGE_FAILED');
   assert.deepEqual(b.logged, [network]);
 });
+
+test('UI：貼上網址載入影片時，產生新的討論串組 id', async () => {
+  const { app } = setup();
+
+  await app.loadVideo('https://youtu.be/abc');
+
+  assert.equal(app.getState().setId, 'id-1');
+});

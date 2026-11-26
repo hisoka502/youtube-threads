@@ -129,6 +129,7 @@
  * @property {Comment[]} comments 選取的討論串的留言，依建立順序
  * @property {boolean} busy 正在等待資料存取完成
  * @property {User | null} user 登入的使用者；未登入時為 null
+ * @property {string | null} setId 目前的討論串組（網址的 s 參數）
  */
 
 /**
