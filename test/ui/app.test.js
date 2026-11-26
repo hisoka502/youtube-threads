@@ -731,3 +731,18 @@ test('UI：未登入時修改片段，狀態有錯誤 NOT_SIGNED_IN，不修改'
   assert.equal(app.getState().error, 'NOT_SIGNED_IN');
   assert.deepEqual((await clipRepo.listByVideo('abc')).map((c) => c.range), [{ startSec: 10, endSec: 15 }]);
 });
+
+test('UI：修改片段時時間格式錯誤 → INVALID_TIMECODE；區間不合法 → INVALID_RANGE；都不修改', async () => {
+  const { app, clipRepo } = setup();
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
+  await app.createClip({ start: '0:10', end: '0:20' });
+  const [clip] = app.getState().clips;
+
+  await app.updateClip(clip.id, { start: '02:15', end: '' });
+  assert.equal(app.getState().error, 'INVALID_TIMECODE');
+
+  await app.updateClip(clip.id, { start: '1:50', end: '2:30' });
+  assert.equal(app.getState().error, 'INVALID_RANGE');
+
+  assert.deepEqual((await clipRepo.listByVideo('abc')).map((c) => c.range), [{ startSec: 10, endSec: 20 }]);
+});

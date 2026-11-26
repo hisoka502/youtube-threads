@@ -210,10 +210,18 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       }
       const clip = state.clips.find((c) => c.id === clipId);
       if (clip === undefined) return;
-      const startSec = /** @type {number} */ (parseTimecode(start));
-      const endSec = end === '' ? undefined : /** @type {number} */ (parseTimecode(end));
+      const startSec = parseTimecode(start);
+      const endSec = end === '' ? undefined : parseTimecode(end);
+      if (startSec === null || endSec === null) {
+        state = { ...state, error: 'INVALID_TIMECODE' };
+        return;
+      }
       await guardStorage(async () => {
-        await clipService.updateClipRange(clip, { startSec, endSec });
+        const result = await clipService.updateClipRange(clip, { startSec, endSec });
+        if (!result.ok) {
+          state = { ...state, error: result.error };
+          return;
+        }
         state = { ...state, clips: await clipRepo.listByVideo(clip.videoId, state.setId), error: null };
       });
     },
