@@ -379,17 +379,18 @@ test('UI：建立片段時，片段帶有標題、建立者（登入者的顯示
   assert.equal(clip.userId, 'user-hua');
 });
 
-test('UI：未登入時新增留言，狀態有錯誤 NOT_SIGNED_IN，不存入', async () => {
+test('UI：未登入、有填名字時可以留言，建立者為「名字（訪客）」，userId 為 null', async () => {
   const { app, clipRepo } = setup({ signedIn: false });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
   await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
+  app.setGuestName('阿明');
 
-  await app.addComment('沒有登入');
+  await app.addComment('訪客的留言');
 
   const state = app.getState();
-  assert.equal(state.error, 'NOT_SIGNED_IN');
-  assert.deepEqual(state.comments, []);
+  assert.equal(state.error, null);
+  assert.deepEqual(state.comments.map((m) => [m.body, m.createdBy, m.userId]), [['訪客的留言', '阿明（訪客）', null]]);
 });
 
 test('UI：新增留言時，留言帶有建立者（登入者的顯示名稱）、userId 與建立時間', async () => {

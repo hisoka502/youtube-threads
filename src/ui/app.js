@@ -266,13 +266,12 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_CLIP' };
         return;
       }
-      if (state.user === null) {
-        state = { ...state, error: 'NOT_SIGNED_IN' };
-        return;
-      }
+      // 登入者用顯示名稱；訪客（未登入）用填的名字並標示「（訪客）」，沒有使用者 id
+      const { user } = state;
+      const createdBy = user === null ? `${state.guestName}（訪客）` : user.displayName;
+      const userId = user === null ? null : user.id;
       await guardStorage(async () => {
-        const { user } = state;
-        await commentRepo.add({ id: newId(), clipId, body, createdBy: user.displayName, createdAt: now(), userId: user.id });
+        await commentRepo.add({ id: newId(), clipId, body, createdBy, createdAt: now(), userId });
         state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
       });
     },

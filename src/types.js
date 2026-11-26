@@ -56,7 +56,7 @@
  * @property {string} body
  * @property {string} createdBy 建立者的名字
  * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
- * @property {string} userId 建立者的使用者 id（用來判斷「自己的留言」）
+ * @property {string | null} userId 建立者的使用者 id（用來判斷「自己的留言」）；訪客留言為 null
  */
 
 /**
