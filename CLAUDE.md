@@ -281,7 +281,7 @@ test/
 
 - [x] auth.signUp：POST `/auth/v1/signup`（email、password、顯示名稱），回傳工作階段（access token、refresh token、到期時間、使用者 id 與顯示名稱）
 - [x] auth.signIn：POST `/auth/v1/token?grant_type=password`，回傳工作階段
-- [ ] auth：Supabase 回應失敗時拋出錯誤（含 Supabase 的錯誤碼）
+- [x] auth：Supabase 回應失敗時拋出錯誤（含 Supabase 的錯誤碼）
 - [ ] auth.refresh：POST `/auth/v1/token?grant_type=refresh_token`，回傳新的工作階段
 - [ ] Repository：有 access token 時，在 Authorization 標頭帶 `Bearer {token}`；沒有時不帶
 - [ ] Repository：片段與留言的 userId 與 user_id 互轉

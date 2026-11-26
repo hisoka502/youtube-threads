@@ -67,3 +67,11 @@ test('auth.signIn：POST /auth/v1/token?grant_type=password，回傳工作階段
   assert.deepEqual(JSON.parse(String(init.body)), { email: 'a@example.com', password: 'secret123' });
   assert.deepEqual(result, session);
 });
+
+test('auth：Supabase 回應失敗時拋出錯誤，code 為 Supabase 的錯誤碼', async () => {
+  const body = { code: 400, error_code: 'invalid_credentials', msg: 'Invalid login credentials' };
+  const fake = createFakeFetch([new Response(JSON.stringify(body), { status: 400 })]);
+  const auth = createSupabaseAuth({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await assert.rejects(auth.signIn({ email: 'a@example.com', password: 'wrong' }), { code: 'invalid_credentials' });
+});

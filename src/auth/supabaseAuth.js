@@ -43,7 +43,13 @@ export function createSupabaseAuth(options) {
       headers: { apikey: options.key, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    return toSession(await response.json());
+    const json = await response.json();
+    if (!response.ok) {
+      throw Object.assign(new Error(`Supabase Auth 失敗：${response.status} ${json.msg ?? ''}`), {
+        code: json.error_code ?? 'unknown',
+      });
+    }
+    return toSession(json);
   }
 
   return {
