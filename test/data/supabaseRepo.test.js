@@ -85,7 +85,7 @@ test('Supabase ClipRepository：remove 以 DELETE 刪除指定 id 的資料列',
   assert.equal(init.method, 'DELETE');
 });
 
-const comment = { id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小明', createdAt: 1764000000000 };
+const comment = { id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小明', createdAt: 1764000000000, userId: 'user-1' };
 
 test('Supabase CommentRepository：add 以 POST 送出 snake_case 的資料列', async () => {
   const fake = createFakeFetch();
@@ -98,12 +98,12 @@ test('Supabase CommentRepository：add 以 POST 送出 snake_case 的資料列',
   assert.equal(init.method, 'POST');
   assert.equal(/** @type {Record<string, string>} */ (init.headers).apikey, KEY);
   assert.deepEqual(JSON.parse(String(init.body)), {
-    id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000,
+    id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000, user_id: 'user-1',
   });
 });
 
 test('Supabase CommentRepository：listByClip 以 GET 依 seq 排序查詢，並把資料列轉回 Comment', async () => {
-  const row = { id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000, seq: 7 };
+  const row = { id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000, user_id: 'user-1', seq: 7 };
   const fake = createFakeFetch([new Response(JSON.stringify([row]), { status: 200 })]);
   const repo = createSupabaseCommentRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
 

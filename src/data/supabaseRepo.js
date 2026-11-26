@@ -31,6 +31,7 @@
  * @property {string} body
  * @property {string} created_by
  * @property {number} created_at
+ * @property {string} user_id
  */
 
 /** @param {SupabaseOptions} options */
@@ -120,6 +121,7 @@ export function createSupabaseCommentRepo(options) {
           body: comment.body,
           created_by: comment.createdBy,
           created_at: comment.createdAt,
+          user_id: comment.userId,
         }),
       });
     },
@@ -135,6 +137,7 @@ export function createSupabaseCommentRepo(options) {
         body: row.body,
         createdBy: row.created_by,
         createdAt: row.created_at,
+        userId: row.user_id,
       }));
     },
     async remove(id) {

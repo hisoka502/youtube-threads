@@ -284,7 +284,7 @@ test/
 - [x] auth：Supabase 回應失敗時拋出錯誤（含 Supabase 的錯誤碼）
 - [x] auth.refresh：POST `/auth/v1/token?grant_type=refresh_token`，回傳新的工作階段
 - [x] Repository：有 access token 時，在 Authorization 標頭帶 `Bearer {token}`；沒有時不帶
-- [ ] Repository：片段與留言的 userId 與 user_id 互轉
+- [x] Repository：片段與留言的 userId 與 user_id 互轉
 - [ ] 工作階段：access token 快到期時，先用 refresh token 換新的再回傳
 - [ ] app：登入、註冊、登出改變狀態的 user；未登入時建立片段或留言 → 錯誤 NOT_SIGNED_IN
 - [ ] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id
