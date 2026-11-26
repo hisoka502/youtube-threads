@@ -251,8 +251,15 @@ test/
 - [x] 伺服器回應失敗（非 2xx）→ 拋出錯誤，訊息包含狀態碼
 - [x] 建表與 RLS 的 SQL（`db/schema.sql`），由使用者在 Supabase 執行（片段不可刪除；留言可讀、新增、刪除）
 - [x] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）。`dev/config.js`（已列入 .gitignore，範本 `dev/config.example.js`）；使用者已以真正的 Supabase 專案驗證通過（曾遇到 PGRST205 找不到資料表，執行 `db/schema.sql` 後解決）
-- [ ] （新增）Repository 拋出錯誤（網路或 Supabase 失敗）時，畫面要顯示錯誤；目前 app 沒有處理，錯誤只會出現在瀏覽器主控台（處理方式待問使用者）
-- [ ] （新增）上一個動作還在等 Supabase 回應時又執行下一個動作，會互相干擾：留言輸入框可能清掉剛打的字，畫面可能以舊資料重畫（雲端模擬時發現；處理方式待問使用者，例如儲存中暫時停用表單）
+- Repository 拋出錯誤（網路或 Supabase 失敗）時 → 使用者決定：畫面顯示通用錯誤 STORAGE_FAILED（「資料存取失敗，請稍後再試」），詳細原因交給注入的 logError（畫面上用 console.error 寫到主控台）
+  - [ ] 新增留言時 Repository 失敗 → 狀態有錯誤 STORAGE_FAILED，錯誤物件交給 logError
+  - [ ] 載入影片時 Repository 失敗 → 同上
+  - [ ] 其他會存取資料的動作（建立片段、開啟討論串、播放片段、刪除留言、刪除片段）同樣處理
+- 上一個動作還在等回應時又執行下一個動作會互相干擾 → 使用者決定：處理中暫停操作
+  - [ ] 動作進行中，狀態的 busy 為 true；完成後為 false
+  - [ ] busy 時呼叫其他動作會被忽略（不改變狀態、不存取資料）
+  - [ ] 動作失敗（STORAGE_FAILED）後，busy 也恢復為 false
+  - [ ] DOM：顯示 STORAGE_FAILED 訊息；busy 時停用按鈕與表單（手動驗證）
 
 ## 6. 待決定事項
 
