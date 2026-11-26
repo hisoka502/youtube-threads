@@ -766,3 +766,16 @@ test('UI：setGuestName 後，狀態有去掉前後空白的訪客名字', () =>
 
   assert.equal(app.getState().guestName, '阿明');
 });
+
+test('UI：未登入、沒填名字時留言，狀態有錯誤 NO_NAME，不存入', async () => {
+  const { app, clipRepo } = setup({ signedIn: false });
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
+  await app.selectClip('c1');
+  app.setGuestName('   ');
+
+  await app.addComment('沒有名字');
+
+  assert.equal(app.getState().error, 'NO_NAME');
+  assert.deepEqual(app.getState().comments, []);
+});

@@ -268,6 +268,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       }
       // 登入者用顯示名稱；訪客（未登入）用填的名字並標示「（訪客）」，沒有使用者 id
       const { user } = state;
+      if (user === null && state.guestName === '') {
+        state = { ...state, error: 'NO_NAME' };
+        return;
+      }
       const createdBy = user === null ? `${state.guestName}（訪客）` : user.displayName;
       const userId = user === null ? null : user.id;
       await guardStorage(async () => {
