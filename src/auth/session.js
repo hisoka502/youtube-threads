@@ -19,18 +19,21 @@ const REFRESH_BEFORE_MS = 60_000;
  */
 export function createSessionManager({ auth, storage, now }) {
   let session = storage.load();
+
+  /** @param {import('../types.js').Session | null} next 登出時傳 null */
+  function set(next) {
+    session = next;
+    storage.save(next);
+  }
+
   return {
-    /** @param {import('../types.js').Session | null} next 登出時傳 null */
-    set(next) {
-      session = next;
-      storage.save(next);
-    },
+    set,
 
     /** 登入使用者的 access token；未登入時為 null */
     async getAccessToken() {
       if (session === null) return null;
       if (session.expiresAt - now() < REFRESH_BEFORE_MS) {
-        this.set(await auth.refresh(session.refreshToken));
+        set(await auth.refresh(session.refreshToken));
       }
       return session?.accessToken ?? null;
     },
