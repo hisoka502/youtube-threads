@@ -6,9 +6,31 @@ import { createMemoryClipRepo, createMemoryCommentRepo } from '../../src/data/me
 import { createClipService } from '../../src/clip/clipService.js';
 import { createFakeVideoInfo } from '../../src/video/fakeVideoInfo.js';
 import { createFakePlayer } from '../../src/player/fakePlayer.js';
+import { createSessionManager } from '../../src/auth/session.js';
 
 /** 測試用的固定時間（毫秒） */
 const NOW = 1764000000000;
+
+/**
+ * 假的 Supabase Auth：任何 Email 與密碼都登入成功，使用者 id 為「user-」加上 Email 的 @ 前面部分。
+ */
+function createFakeAuth() {
+  /** @param {string} email @param {string} displayName */
+  const sessionFor = (email, displayName) => ({
+    accessToken: `access-${email}`,
+    refreshToken: `refresh-${email}`,
+    expiresAt: NOW + 3600_000,
+    user: { id: `user-${email.split('@')[0]}`, displayName },
+  });
+  return {
+    /** @param {{ email: string, password: string }} input */
+    async signIn({ email }) { return sessionFor(email, email.split('@')[0]); },
+    /** @param {{ email: string, password: string, displayName: string }} input */
+    async signUp({ email, displayName }) { return sessionFor(email, displayName); },
+    /** @returns {Promise<import('../../src/types.js').Session>} */
+    async refresh() { throw new Error('測試不應換新 token'); },
+  };
+}
 
 /**
  * @param {object} [overrides] 測試時可換成會失敗的 Repository
@@ -24,9 +46,14 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
   /** @type {unknown[]} */
   const logged = [];
   const logError = (/** @type {unknown} */ error) => { logged.push(error); };
-  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW, logError });
+  const auth = createFakeAuth();
+  /** @type {import('../../src/types.js').Session | null} */
+  let savedSession = null;
+  const storage = { load: () => savedSession, save: (/** @type {any} */ s) => { savedSession = s; } };
+  const sessions = createSessionManager({ auth, storage, now: () => NOW });
+  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW, logError, auth, sessions });
   app.setUserName('小明');
-  return { app, clipRepo, commentRepo, player, logged };
+  return { app, clipRepo, commentRepo, player, logged, auth, sessions };
 }
 
 test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片段', async () => {
@@ -539,4 +566,12 @@ test('UI：載入影片時讀取片段失敗，播放器不換影片', async () 
   await app.loadVideo('https://youtu.be/abc');
 
   assert.equal(player.getLoadedVideoId(), null);
+});
+
+test('UI：登入後，狀態有登入的使用者', async () => {
+  const { app } = setup();
+
+  await app.signIn({ email: 'hua@example.com', password: 'secret123' });
+
+  assert.deepEqual(app.getState().user, { id: 'user-hua', displayName: 'hua' });
 });

@@ -13,10 +13,12 @@ import { playRange } from '../player/playRange.js';
  * @param {() => string} deps.newId 產生新留言的 id
  * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  * @param {(error: unknown) => void} deps.logError 資料存取失敗時，接收詳細的錯誤（畫面上寫到主控台）
+ * @param {{ signIn: (input: { email: string, password: string }) => Promise<import('../types.js').Session> }} deps.auth
+ * @param {{ set: (session: import('../types.js').Session | null) => void }} deps.sessions
  */
-export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError }) {
+export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '', busy: false };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], userName: '', busy: false, user: null };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -58,6 +60,16 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
   return {
     getState() {
       return state;
+    },
+
+    /**
+     * 以 Email 與密碼登入。
+     * @param {{ email: string, password: string }} input
+     */
+    async signIn(input) {
+      const session = await auth.signIn(input);
+      sessions.set(session);
+      state = { ...state, user: session.user };
     },
 
     /**
