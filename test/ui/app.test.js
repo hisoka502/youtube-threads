@@ -707,3 +707,16 @@ test('UI：建立片段時帶目前的討論串組，建立後仍列在該組', 
   assert.equal(clips.length, 1);
   assert.equal(clips[0].setId, 's1');
 });
+
+test('UI：updateClip 以 timecode 字串修改片段的時間範圍，成功後列表更新', async () => {
+  const { app } = setup();
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
+  await app.createClip({ start: '0:10', end: '0:20' });
+  const [clip] = app.getState().clips;
+
+  await app.updateClip(clip.id, { start: '0:30', end: '0:45' });
+
+  const state = app.getState();
+  assert.equal(state.error, null);
+  assert.deepEqual(state.clips.map((c) => c.range), [{ startSec: 30, endSec: 45 }]);
+});

@@ -198,6 +198,23 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     },
 
     /**
+     * 修改片段的時間範圍（YouTube 顯示格式的時間字串；end 為空字串時補為 start + 5 秒）。
+     * @param {string} clipId
+     * @param {{ start: string, end: string }} input
+     */
+    async updateClip(clipId, { start, end }) {
+      if (state.busy) return; // 處理中暫停操作
+      const clip = state.clips.find((c) => c.id === clipId);
+      if (clip === undefined) return;
+      const startSec = /** @type {number} */ (parseTimecode(start));
+      const endSec = end === '' ? undefined : /** @type {number} */ (parseTimecode(end));
+      await guardStorage(async () => {
+        await clipService.updateClipRange(clip, { startSec, endSec });
+        state = { ...state, clips: await clipRepo.listByVideo(clip.videoId, state.setId), error: null };
+      });
+    },
+
+    /**
      * 播放目前片段列表中的一個片段，並把討論串換成該片段的；不在列表中時什麼都不做。
      * @param {string} clipId
      */
