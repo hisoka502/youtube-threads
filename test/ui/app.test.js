@@ -746,3 +746,14 @@ test('UI：修改片段時時間格式錯誤 → INVALID_TIMECODE；區間不合
 
   assert.deepEqual((await clipRepo.listByVideo('abc')).map((c) => c.range), [{ startSec: 10, endSec: 20 }]);
 });
+
+test('UI：未登入時刪除片段，狀態有錯誤 NOT_SIGNED_IN，不刪除', async () => {
+  const { app, clipRepo } = setup({ signedIn: false });
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW, userId: 'user-hua' });
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
+
+  await app.deleteClip('c1');
+
+  assert.equal(app.getState().error, 'NOT_SIGNED_IN');
+  assert.deepEqual((await clipRepo.listByVideo('abc')).map((c) => c.id), ['c1']);
+});

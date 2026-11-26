@@ -342,7 +342,7 @@ test/
 - [x] ClipService.updateClipRange：區間不合法 → INVALID_RANGE，不存入（讀不到影片長度 → VIDEO_NOT_FOUND，與建立相同）
 - [x] app.updateClip：輸入 timecode 字串修改時間範圍，成功後列表更新
 - [x] app.updateClip：未登入 → NOT_SIGNED_IN；時間格式錯誤 → INVALID_TIMECODE；區間不合法 → INVALID_RANGE
-- [ ] app.deleteClip：未登入 → NOT_SIGNED_IN
+- [x] app.deleteClip：未登入 → NOT_SIGNED_IN
 - [ ] 資料表權限更新的 SQL（`db/migrations/005_edit_delete_clips.sql`）：登入者可修改片段的時間欄位、刪除片段
 - [ ] DOM：片段的「修改」（就地編輯開始與結束）與「刪除」（確認視窗）按鈕（手動驗證）
 

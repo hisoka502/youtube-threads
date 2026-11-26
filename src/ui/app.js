@@ -275,6 +275,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async deleteClip(clipId) {
       if (state.busy) return; // 處理中暫停操作
+      if (state.user === null) {
+        state = { ...state, error: 'NOT_SIGNED_IN' };
+        return;
+      }
       await guardStorage(async () => {
         await clipService.deleteClip(clipId);
         const videoId = /** @type {string} */ (state.videoId);
