@@ -291,7 +291,7 @@ test/
 - [x] app：登入後狀態有 user；建立時讀取已保存的工作階段（重新整理後維持登入）
 - [x] app：未登入時建立片段 → 錯誤 NOT_SIGNED_IN
 - [x] app：未登入時新增留言 → 錯誤 NOT_SIGNED_IN
-- [ ] app：註冊（顯示名稱必填）、登出
+- [x] app：註冊（顯示名稱必填，空白 → NO_NAME）、登出
 - [x] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id（片段與留言）
 - [x] app：只能刪除自己的留言（判斷函式 canDeleteComment 供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
 - [ ] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤

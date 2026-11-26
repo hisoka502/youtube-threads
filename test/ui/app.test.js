@@ -625,3 +625,12 @@ test('UI：註冊時顯示名稱空白，狀態有錯誤 NO_NAME，不註冊', a
   assert.equal(app.getState().error, 'NO_NAME');
   assert.equal(app.getState().user, null);
 });
+
+test('UI：登出後，狀態的 user 為 null，保存的工作階段也清除', async () => {
+  const { app, sessions } = setup();
+
+  app.signOut();
+
+  assert.equal(app.getState().user, null);
+  assert.equal(sessions.getUser(), null);
+});

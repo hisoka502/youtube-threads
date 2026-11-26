@@ -85,6 +85,12 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       state = { ...state, user: session.user };
     },
 
+    /** 登出：清除保存的工作階段。 */
+    signOut() {
+      sessions.set(null);
+      state = { ...state, user: null };
+    },
+
     /**
      * 註冊並登入。
      * @param {{ email: string, password: string, displayName: string }} input
