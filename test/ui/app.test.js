@@ -63,7 +63,7 @@ test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片�
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await clipRepo.add({ id: 'c2', videoId: 'other', range: { startSec: 0, endSec: 5 } });
 
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   const state = app.getState();
   assert.equal(state.videoId, 'abc');
@@ -73,7 +73,7 @@ test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片�
 test('UI：貼上無效網址時，狀態有錯誤 INVALID_URL，不載入影片', async () => {
   const { app } = setup();
 
-  await app.loadVideo('https://example.com/watch?v=abc');
+  await app.loadVideo('https://example.com/watch?v=abc', { setId: null });
 
   const state = app.getState();
   assert.equal(state.error, 'INVALID_URL');
@@ -82,9 +82,9 @@ test('UI：貼上無效網址時，狀態有錯誤 INVALID_URL，不載入影片
 
 test('UI：載入成功後，清除先前的錯誤', async () => {
   const { app } = setup();
-  await app.loadVideo('not a url');
+  await app.loadVideo('not a url', { setId: null });
 
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   assert.equal(app.getState().error, null);
 });
@@ -92,9 +92,9 @@ test('UI：載入成功後，清除先前的錯誤', async () => {
 test('UI：已載入影片後貼上無效網址，維持原本的影片與片段列表', async () => {
   const { app, clipRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
-  await app.loadVideo('not a url');
+  await app.loadVideo('not a url', { setId: null });
 
   const state = app.getState();
   assert.equal(state.error, 'INVALID_URL');
@@ -104,7 +104,7 @@ test('UI：已載入影片後貼上無效網址，維持原本的影片與片段
 
 test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async () => {
   const { app } = setup();
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '0:10', end: '0:20' });
 
@@ -115,7 +115,7 @@ test('UI：輸入 timecode 建立片段，成功後片段列表多一筆', async
 
 test('UI：建立片段時時間格式錯誤，狀態有錯誤 INVALID_TIMECODE，不建立', async () => {
   const { app } = setup();
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '02:15', end: '2:20' });
 
@@ -126,7 +126,7 @@ test('UI：建立片段時時間格式錯誤，狀態有錯誤 INVALID_TIMECODE�
 
 test('UI：ClipService 回報錯誤時，狀態有該錯誤，不建立', async () => {
   const { app } = setup();
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '1:50', end: '2:30' });
 
@@ -137,7 +137,7 @@ test('UI：ClipService 回報錯誤時，狀態有該錯誤，不建立', async 
 
 test('UI：建立片段成功後，清除先前的錯誤', async () => {
   const { app } = setup();
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.createClip({ start: '02:15', end: '2:20' });
 
   await app.createClip({ start: '0:10', end: '0:20' });
@@ -147,7 +147,7 @@ test('UI：建立片段成功後，清除先前的錯誤', async () => {
 
 test('UI：建立片段時結束時間留空，補為開始 + 5 秒', async () => {
   const { app } = setup();
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '0:10', end: '' });
 
@@ -167,7 +167,7 @@ test('UI：尚未載入影片時建立片段，狀態有錯誤 NO_VIDEO，不建
 test('UI：點片段時，以 playRange 從開始時間播放，播到結束時間自動暫停', async () => {
   const { app, clipRepo, player } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   app.playClip('c1');
 
@@ -180,7 +180,7 @@ test('UI：點片段時，以 playRange 從開始時間播放，播到結束時�
 
 test('UI：點的片段不在目前片段列表時，什麼都不做', async () => {
   const { app, player } = setup();
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   const before = app.getState();
 
   app.playClip('missing');
@@ -195,7 +195,7 @@ test('UI：選取片段後，列出該討論串的留言', async () => {
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
   await commentRepo.add({ id: 'm2', clipId: 'other', body: '別的討論串' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.selectClip('c1');
 
@@ -208,7 +208,7 @@ test('UI：在選取的討論串新增留言，留言列表多一筆', async () 
   const { app, clipRepo, commentRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.addComment('第二則');
@@ -223,7 +223,7 @@ test('UI：刪除片段後，從片段列表移除', async () => {
   const { app, clipRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await clipRepo.add({ id: 'c2', videoId: 'abc', range: { startSec: 20, endSec: 25 } });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.deleteClip('c1');
 
@@ -235,7 +235,7 @@ test('UI：刪除留言後，從留言列表移除', async () => {
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則', userId: 'user-1' });
   await commentRepo.add({ id: 'm2', clipId: 'c1', body: '第二則' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.deleteComment('m1');
@@ -248,10 +248,10 @@ test('UI：載入另一部影片後，清掉不屬於該影片的討論串，列
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await clipRepo.add({ id: 'c2', videoId: 'xyz', range: { startSec: 0, endSec: 5 } });
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
-  await app.loadVideo('https://youtu.be/xyz');
+  await app.loadVideo('https://youtu.be/xyz', { setId: null });
 
   const state = app.getState();
   assert.deepEqual(state.clips.map((c) => c.id), ['c2']);
@@ -263,10 +263,10 @@ test('UI：重新載入同一部影片時，保留選取的討論串', async () 
   const { app, clipRepo, commentRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
-  await app.loadVideo('https://www.youtube.com/watch?v=abc');
+  await app.loadVideo('https://www.youtube.com/watch?v=abc', { setId: null });
 
   const state = app.getState();
   assert.equal(state.selectedClipId, 'c1');
@@ -277,7 +277,7 @@ test('UI：刪除目前選取的片段後，清除選取與留言列表', async 
   const { app, clipRepo, commentRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.deleteClip('c1');
@@ -290,7 +290,7 @@ test('UI：刪除目前選取的片段後，清除選取與留言列表', async 
 test('UI：尚未開啟討論串時新增留言，狀態有錯誤 NO_CLIP，不存入', async () => {
   const { app, clipRepo, commentRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.addComment('沒有討論串');
 
@@ -303,7 +303,7 @@ test('UI：尚未開啟討論串時新增留言，狀態有錯誤 NO_CLIP，不�
 test('UI：新增留言成功後，清除先前的錯誤', async () => {
   const { app, clipRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.addComment('沒有討論串');
   await app.selectClip('c1');
 
@@ -315,7 +315,7 @@ test('UI：新增留言成功後，清除先前的錯誤', async () => {
 test('UI：開啟討論串後，清除先前的錯誤', async () => {
   const { app, clipRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.addComment('沒有討論串');
 
   await app.selectClip('c1');
@@ -326,16 +326,16 @@ test('UI：開啟討論串後，清除先前的錯誤', async () => {
 test('UI：載入影片成功時，播放器載入該影片', async () => {
   const { app, player } = setup();
 
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   assert.equal(player.getLoadedVideoId(), 'abc');
 });
 
 test('UI：貼上無效網址時，播放器不載入影片', async () => {
   const { app, player } = setup();
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
-  await app.loadVideo('not a url');
+  await app.loadVideo('not a url', { setId: null });
 
   assert.equal(player.getLoadedVideoId(), 'abc');
 });
@@ -345,7 +345,7 @@ test('UI：播放片段時，討論串自動換成該片段的', async () => {
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 } });
   await clipRepo.add({ id: 'c2', videoId: 'abc', range: { startSec: 20, endSec: 25 } });
   await commentRepo.add({ id: 'm2', clipId: 'c2', body: 'c2 的留言' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.playClip('c2');
@@ -357,7 +357,7 @@ test('UI：播放片段時，討論串自動換成該片段的', async () => {
 
 test('UI：未登入時建立片段，狀態有錯誤 NOT_SIGNED_IN，不建立', async () => {
   const { app } = setup({ signedIn: false });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '0:10', end: '0:20' });
 
@@ -369,7 +369,7 @@ test('UI：未登入時建立片段，狀態有錯誤 NOT_SIGNED_IN，不建立'
 test('UI：建立片段時，片段帶有標題、建立者（登入者的顯示名稱）與 userId', async () => {
   const { app } = setup();
   await app.signIn({ email: 'hua@example.com', password: 'secret123' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '0:10', end: '0:20', title: '開場' });
 
@@ -382,7 +382,7 @@ test('UI：建立片段時，片段帶有標題、建立者（登入者的顯示
 test('UI：未登入時新增留言，狀態有錯誤 NOT_SIGNED_IN，不存入', async () => {
   const { app, clipRepo } = setup({ signedIn: false });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.addComment('沒有登入');
@@ -396,7 +396,7 @@ test('UI：新增留言時，留言帶有建立者（登入者的顯示名稱）
   const { app, clipRepo } = setup();
   await app.signIn({ email: 'hua@example.com', password: 'secret123' });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.addComment('第一則');
@@ -423,7 +423,7 @@ test('UI：新增留言時資料存取失敗，狀態有錯誤 STORAGE_FAILED，
   const boom = new Error('Supabase 請求失敗');
   const { app, clipRepo, logged } = setup({ commentRepo: failOn(createMemoryCommentRepo(), 'add', boom) });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.addComment('第一則');
@@ -436,7 +436,7 @@ test('UI：載入影片時資料存取失敗，狀態有錯誤 STORAGE_FAILED，
   const boom = new Error('Supabase 請求失敗');
   const { app, logged } = setup({ clipRepo: failOn(createMemoryClipRepo(), 'listByVideo', boom) });
 
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   assert.equal(app.getState().error, 'STORAGE_FAILED');
   assert.deepEqual(logged, [boom]);
@@ -445,7 +445,7 @@ test('UI：載入影片時資料存取失敗，狀態有錯誤 STORAGE_FAILED，
 test('UI：建立片段時資料存取失敗，狀態有錯誤 STORAGE_FAILED', async () => {
   const boom = new Error('Supabase 請求失敗');
   const { app, logged } = setup({ clipRepo: failOn(createMemoryClipRepo(), 'add', boom) });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '0:10', end: '0:20' });
 
@@ -457,7 +457,7 @@ test('UI：開啟討論串時資料存取失敗，狀態有錯誤 STORAGE_FAILED
   const boom = new Error('Supabase 請求失敗');
   const { app, clipRepo, logged } = setup({ commentRepo: failOn(createMemoryCommentRepo(), 'listByClip', boom) });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.selectClip('c1');
 
@@ -471,7 +471,7 @@ test('UI：刪除留言時資料存取失敗，狀態有錯誤 STORAGE_FAILED', 
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '第一則', createdBy: '小明', createdAt: NOW, userId: 'user-1' });
   const { app, clipRepo, logged } = setup({ commentRepo: failOn(commentRepo, 'remove', boom) });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.deleteComment('m1');
@@ -485,7 +485,7 @@ test('UI：刪除片段時資料存取失敗，狀態有錯誤 STORAGE_FAILED', 
   const clipRepo = createMemoryClipRepo();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
   const { app, logged } = setup({ clipRepo: failOn(clipRepo, 'remove', boom) });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.deleteClip('c1');
 
@@ -518,7 +518,7 @@ test('UI：動作進行中 busy 為 true，完成後為 false', async () => {
   const hold = holdOn(createMemoryCommentRepo(), 'add');
   const { app, clipRepo } = setup({ commentRepo: hold.repo });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
   assert.equal(app.getState().busy, false);
 
@@ -535,7 +535,7 @@ test('UI：busy 時呼叫其他動作會被忽略', async () => {
   const hold = holdOn(createMemoryCommentRepo(), 'add');
   const { app, clipRepo } = setup({ commentRepo: hold.repo });
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   const first = app.addComment('第一則');
@@ -550,7 +550,7 @@ test('UI：busy 時呼叫其他動作會被忽略', async () => {
 test('UI：資料存取失敗後，busy 也恢復為 false', async () => {
   const { app } = setup({ clipRepo: failOn(createMemoryClipRepo(), 'listByVideo', new Error('Supabase 請求失敗')) });
 
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   assert.equal(app.getState().error, 'STORAGE_FAILED');
   assert.equal(app.getState().busy, false);
@@ -559,7 +559,7 @@ test('UI：資料存取失敗後，busy 也恢復為 false', async () => {
 test('UI：載入影片時讀取片段失敗，播放器不換影片', async () => {
   const { app, player } = setup({ clipRepo: failOn(createMemoryClipRepo(), 'listByVideo', new Error('Supabase 請求失敗')) });
 
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   assert.equal(player.getLoadedVideoId(), null);
 });
@@ -601,7 +601,7 @@ test('UI：刪除別人的留言時，什麼都不做', async () => {
   const { app, clipRepo, commentRepo } = setup();
   await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW, userId: 'user-hua' });
   await commentRepo.add({ id: 'm1', clipId: 'c1', body: '小華的留言', createdBy: '小華', createdAt: NOW, userId: 'user-hua' });
-  await app.loadVideo('https://youtu.be/abc');
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
   await app.selectClip('c1');
 
   await app.deleteComment('m1');
