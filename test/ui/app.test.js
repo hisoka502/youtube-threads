@@ -523,3 +523,12 @@ test('UI：busy 時呼叫其他動作會被忽略', async () => {
 
   assert.deepEqual(app.getState().comments.map((m) => m.body), ['第一則']);
 });
+
+test('UI：資料存取失敗後，busy 也恢復為 false', async () => {
+  const { app } = setup({ clipRepo: failOn(createMemoryClipRepo(), 'listByVideo', new Error('Supabase 請求失敗')) });
+
+  await app.loadVideo('https://youtu.be/abc');
+
+  assert.equal(app.getState().error, 'STORAGE_FAILED');
+  assert.equal(app.getState().busy, false);
+});
