@@ -82,8 +82,9 @@ export function createSupabaseClipRepo(options) {
         }),
       });
     },
-    async listByVideo(videoId) {
-      const response = await request(options, `/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&order=seq.asc`, {
+    async listByVideo(videoId, setId = null) {
+      const setFilter = setId === null ? 'set_id=is.null' : `set_id=eq.${encodeURIComponent(setId)}`;
+      const response = await request(options, `/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&${setFilter}&order=seq.asc`, {
         method: 'GET',
       });
       /** @type {ClipRow[]} */

@@ -69,7 +69,7 @@ test('Supabase ClipRepository：listByVideo 以 GET 依 seq 排序查詢，並�
   const clips = await repo.listByVideo('abc');
 
   const { url, init } = fake.calls[0];
-  assert.equal(url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&order=seq.asc`);
+  assert.equal(url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=is.null&order=seq.asc`);
   assert.equal(init.method, 'GET');
   assert.deepEqual(clips, [clip]);
 });
@@ -132,7 +132,7 @@ test('Supabase Repository：查詢參數中的 id 經過 URL 編碼', async () =
 
   await repo.listByVideo('a&b=c');
 
-  assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b%3Dc&order=seq.asc`);
+  assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b%3Dc&set_id=is.null&order=seq.asc`);
 });
 
 test('Supabase Repository：伺服器回應失敗（非 2xx）時拋出錯誤，訊息包含狀態碼', async () => {
@@ -155,4 +155,15 @@ test('Supabase Repository：有 access token 時，在 Authorization 標頭帶 B
     'Content-Type': 'application/json',
     Authorization: 'Bearer user-access-token',
   });
+});
+
+test('Supabase ClipRepository：listByVideo 依討論串組篩選；setId 為 null 時篩出 set_id 為 null 的片段', async () => {
+  const fake = createFakeFetch([new Response('[]', { status: 200 }), new Response('[]', { status: 200 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.listByVideo('abc', 's1');
+  await repo.listByVideo('abc', null);
+
+  assert.equal(fake.calls[0].url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=eq.s1&order=seq.asc`);
+  assert.equal(fake.calls[1].url, `${URL_BASE}/rest/v1/clips?video_id=eq.abc&set_id=is.null&order=seq.asc`);
 });
