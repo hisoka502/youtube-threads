@@ -34,7 +34,9 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
    * @param {string} clipId
    */
   async function openThread(clipId) {
-    state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
+    await guardStorage(async () => {
+      state = { ...state, selectedClipId: clipId, comments: await commentRepo.listByClip(clipId), error: null };
+    });
   }
 
   /**

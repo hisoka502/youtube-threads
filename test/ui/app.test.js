@@ -429,3 +429,15 @@ test('UI：建立片段時資料存取失敗，狀態有錯誤 STORAGE_FAILED', 
   assert.equal(app.getState().error, 'STORAGE_FAILED');
   assert.deepEqual(logged, [boom]);
 });
+
+test('UI：開啟討論串時資料存取失敗，狀態有錯誤 STORAGE_FAILED', async () => {
+  const boom = new Error('Supabase 請求失敗');
+  const { app, clipRepo, logged } = setup({ commentRepo: failOn(createMemoryCommentRepo(), 'listByClip', boom) });
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW });
+  await app.loadVideo('https://youtu.be/abc');
+
+  await app.selectClip('c1');
+
+  assert.equal(app.getState().error, 'STORAGE_FAILED');
+  assert.deepEqual(logged, [boom]);
+});
