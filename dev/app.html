@@ -36,7 +36,16 @@
   <h1>YouTube 片段討論串</h1>
   <p class="hint">開發用頁面。<span id="storage"></span></p>
 
-  <details class="guide" open>
+
+  <form id="load-form">
+    <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…">
+    <button>載入</button>
+  </form>
+
+  <div id="player-box"><div id="player"></div></div>
+  <p>目前時間：<span id="current">-</span></p>
+
+  <details class="guide">
     <summary>使用說明：用比賽影片做團隊檢討</summary>
     <p>把比賽或訓練影片裡的關鍵片段標記出來，全隊針對每一段各自留言討論。影片不會被下載或剪輯，播放的一律是 YouTube 上的原影片。</p>
     <ol>
@@ -69,22 +78,17 @@
         <button>註冊</button>
       </form>
     </div>
-    <table class="modes">
-      <tr><th></th><th>匿名（不登入）</th><th>登入</th></tr>
-      <tr><td>瀏覽片段與留言</td><td>可以</td><td>可以</td></tr>
-      <tr><td>留言</td><td>可以，要填名字；顯示為「名字（訪客）」</td><td>可以，顯示註冊時的顯示名稱</td></tr>
-      <tr><td>刪除留言</td><td>不行（送出後無法刪除）</td><td>只能刪除自己的留言</td></tr>
-      <tr><td>新增、修改、刪除討論串</td><td>不行</td><td>可以</td></tr>
-    </table>
+    <details class="guide">
+      <summary>匿名與登入的差別</summary>
+      <table class="modes">
+        <tr><th></th><th>匿名（不登入）</th><th>登入</th></tr>
+        <tr><td>瀏覽片段與留言</td><td>可以</td><td>可以</td></tr>
+        <tr><td>留言</td><td>可以，要填名字；顯示為「名字（訪客）」</td><td>可以，顯示註冊時的顯示名稱</td></tr>
+        <tr><td>刪除留言</td><td>不行（送出後無法刪除）</td><td>只能刪除自己的留言</td></tr>
+        <tr><td>新增、修改、刪除討論串</td><td>不行</td><td>可以</td></tr>
+      </table>
+    </details>
   </section>
-
-  <form id="load-form">
-    <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…">
-    <button>載入</button>
-  </form>
-
-  <div id="player-box"><div id="player"></div></div>
-  <p>目前時間：<span id="current">-</span></p>
   <p id="error" role="alert"></p>
 
   <div class="columns">
