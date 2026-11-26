@@ -54,3 +54,14 @@ test('工作階段：換新失敗（refresh token 已失效）時，清除工作
   assert.equal(await sessions.getAccessToken(), null);
   assert.equal(storage.load(), null);
 });
+
+test('工作階段：換新時是網路錯誤（沒有 Supabase 錯誤碼）時，不登出，把錯誤丟出', async () => {
+  const networkError = new TypeError('Failed to fetch');
+  const auth = { refresh: async () => { throw networkError; } };
+  const storage = createMemoryStorage();
+  const sessions = createSessionManager({ auth, storage, now: () => NOW });
+  sessions.set(sessionExpiringAt(NOW + 30_000));
+
+  await assert.rejects(sessions.getAccessToken(), networkError);
+  assert.equal(storage.load()?.refreshToken, 'refresh-1');
+});

@@ -35,8 +35,11 @@ export function createSessionManager({ auth, storage, now }) {
       if (session.expiresAt - now() < REFRESH_BEFORE_MS) {
         try {
           set(await auth.refresh(session.refreshToken));
-        } catch {
-          set(null); // refresh token 已失效：視同登出
+        } catch (error) {
+          // Supabase 回應了錯誤碼：refresh token 已失效，視同登出。
+          // 沒有錯誤碼（例如網路錯誤）：不登出，把錯誤丟給呼叫端
+          if (!(error instanceof Error && 'code' in error)) throw error;
+          set(null);
         }
       }
       return session?.accessToken ?? null;
