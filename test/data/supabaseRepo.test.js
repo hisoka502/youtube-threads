@@ -99,3 +99,16 @@ test('Supabase CommentRepository：add 以 POST 送出 snake_case 的資料列',
     id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000,
   });
 });
+
+test('Supabase CommentRepository：listByClip 以 GET 依 seq 排序查詢，並把資料列轉回 Comment', async () => {
+  const row = { id: 'm1', clip_id: 'c1', body: '第一則', created_by: '小明', created_at: 1764000000000, seq: 7 };
+  const fake = createFakeFetch([new Response(JSON.stringify([row]), { status: 200 })]);
+  const repo = createSupabaseCommentRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const comments = await repo.listByClip('c1');
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/comments?clip_id=eq.c1&order=seq.asc`);
+  assert.equal(init.method, 'GET');
+  assert.deepEqual(comments, [comment]);
+});

@@ -21,6 +21,16 @@
  * @property {number} created_at
  */
 
+/**
+ * comments 資料表的一列。
+ * @typedef {object} CommentRow
+ * @property {string} id
+ * @property {string} clip_id
+ * @property {string} body
+ * @property {string} created_by
+ * @property {number} created_at
+ */
+
 /** @param {SupabaseOptions} options */
 function headers({ key }) {
   return {
@@ -97,8 +107,20 @@ export function createSupabaseCommentRepo(options) {
         }),
       });
     },
-    async listByClip() {
-      return [];
+    async listByClip(clipId) {
+      const response = await fetch(`${url}/rest/v1/comments?clip_id=eq.${clipId}&order=seq.asc`, {
+        method: 'GET',
+        headers: headers(options),
+      });
+      /** @type {CommentRow[]} */
+      const rows = await response.json();
+      return rows.map((row) => ({
+        id: row.id,
+        clipId: row.clip_id,
+        body: row.body,
+        createdBy: row.created_by,
+        createdAt: row.created_at,
+      }));
     },
     async remove() {},
   };
