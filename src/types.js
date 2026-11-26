@@ -35,6 +35,7 @@
  * @property {string} title 選填；未填為空字串
  * @property {string} createdBy 建立者的名字
  * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
+ * @property {string} userId 建立者的使用者 id
  */
 
 /**

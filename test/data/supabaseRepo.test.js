@@ -28,6 +28,7 @@ const clip = {
   title: '開場',
   createdBy: '小明',
   createdAt: 1764000000000,
+  userId: 'user-1',
 };
 
 test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，金鑰只放在 apikey 標頭', async () => {
@@ -53,13 +54,14 @@ test('Supabase ClipRepository：add 以 POST 送出 snake_case 的資料列，�
     title: '開場',
     created_by: '小明',
     created_at: 1764000000000,
+    user_id: 'user-1',
   });
 });
 
 test('Supabase ClipRepository：listByVideo 以 GET 依 seq 排序查詢，並把資料列轉回 Clip', async () => {
   const row = {
     id: 'c1', video_id: 'abc', start_sec: 10, end_sec: 15,
-    title: '開場', created_by: '小明', created_at: 1764000000000, seq: 1,
+    title: '開場', created_by: '小明', created_at: 1764000000000, user_id: 'user-1', seq: 1,
   };
   const fake = createFakeFetch([new Response(JSON.stringify([row]), { status: 200 })]);
   const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });

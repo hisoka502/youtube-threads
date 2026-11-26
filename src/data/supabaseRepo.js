@@ -20,6 +20,7 @@
  * @property {string} title
  * @property {string} created_by
  * @property {number} created_at
+ * @property {string} user_id
  */
 
 /**
@@ -76,6 +77,7 @@ export function createSupabaseClipRepo(options) {
           title: clip.title,
           created_by: clip.createdBy,
           created_at: clip.createdAt,
+          user_id: clip.userId,
         }),
       });
     },
@@ -92,6 +94,7 @@ export function createSupabaseClipRepo(options) {
         title: row.title,
         createdBy: row.created_by,
         createdAt: row.created_at,
+        userId: row.user_id,
       }));
     },
     async remove(id) {
