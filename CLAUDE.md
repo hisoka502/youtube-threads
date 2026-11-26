@@ -241,7 +241,7 @@ test/
 - 留言順序以資料庫自動遞增的 `seq` 欄位排序（等於建立順序，與記憶體版的「呼叫 add 的順序」一致）。
 - `fetch` 由外部注入，測試時用假的 fetch 檢查送出的請求與回應的轉換；與真正的 Supabase 連線以手動驗證。
 
-- [x] ClipRepository.add → POST `/rest/v1/clips`，帶 apikey 與 Authorization 標頭，body 為 snake_case 的資料列
+- [x] ClipRepository.add → POST `/rest/v1/clips`，金鑰只放在 apikey 標頭（新式 publishable key 不是 JWT，不可放在 Authorization），body 為 snake_case 的資料列
 - [x] ClipRepository.listByVideo → GET `/rest/v1/clips?video_id=eq.{id}&order=seq.asc`，把資料列轉回 Clip
 - [x] ClipRepository.remove → DELETE `/rest/v1/clips?id=eq.{id}`
 - [x] CommentRepository.add → POST `/rest/v1/comments`
@@ -250,7 +250,7 @@ test/
 - [x] 查詢參數中的 id 經過 URL 編碼
 - [x] 伺服器回應失敗（非 2xx）→ 拋出錯誤，訊息包含狀態碼
 - [x] 建表與 RLS 的 SQL（`db/schema.sql`），由使用者在 Supabase 執行（片段不可刪除；留言可讀、新增、刪除）
-- [ ] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）。`dev/config.js`（已列入 .gitignore，範本 `dev/config.example.js`）；雲端已用攔截請求的模擬 Supabase 驗證，待使用者以真正的 Supabase 專案驗證
+- [x] DOM 接線：設定檔有 Supabase 網址與金鑰時改用 Supabase 版（手動驗證）。`dev/config.js`（已列入 .gitignore，範本 `dev/config.example.js`）；使用者已以真正的 Supabase 專案驗證通過（曾遇到 PGRST205 找不到資料表，執行 `db/schema.sql` 後解決）
 - [ ] （新增）Repository 拋出錯誤（網路或 Supabase 失敗）時，畫面要顯示錯誤；目前 app 沒有處理，錯誤只會出現在瀏覽器主控台（處理方式待問使用者）
 - [ ] （新增）上一個動作還在等 Supabase 回應時又執行下一個動作，會互相干擾：留言輸入框可能清掉剛打的字，畫面可能以舊資料重畫（雲端模擬時發現；處理方式待問使用者，例如儲存中暫時停用表單）
 
