@@ -296,7 +296,7 @@ test/
 - [x] app：只能刪除自己的留言（判斷函式 canDeleteComment 供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
 - [x] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤（INVALID_CREDENTIALS、EMAIL_TAKEN、WEAK_PASSWORD、其他 AUTH_FAILED、網路錯誤 STORAGE_FAILED）
 - [x] 資料表與 RLS 更新的 SQL（`db/migrations/002_auth.sql`）：新增 user_id（預設 auth.uid()）；未登入只能讀；登入可讀、新增（user_id 必須是自己）、刪除自己的留言；片段不可刪。注意：created_by 由瀏覽器送出，懂技術的人可以透過 API 填別人的名字（user_id 無法冒用）
-- [ ] DOM：登入／註冊表單、登出、重新整理後維持登入（工作階段存在 localStorage）；未登入時隱藏建立與留言表單；只有自己的留言顯示刪除按鈕；沒有 dev/config.js 時用本機假登入（手動驗證；雲端以模擬 Supabase 驗證過，待使用者以真正的 Supabase 驗證）
+- [x] DOM：登入／註冊表單、登出、重新整理後維持登入（工作階段存在 localStorage）；未登入時隱藏建立與留言表單；只有自己的留言顯示刪除按鈕；沒有 dev/config.js 時用本機假登入（手動驗證；使用者已在網站上驗證通過）
 
 ### 5.15 同一部影片的多組討論串（使用者決定：不做團體／成員，只用網址參數區分）
 
@@ -313,7 +313,7 @@ test/
 - [x] 記憶體版與 Supabase 版 ClipRepository：listByVideo 依 videoId 與 setId 篩選；setId 為 null 時篩出沒有討論串組的片段
 - [x] Supabase：setId 與 set_id 互轉
 - [x] 資料表更新的 SQL（`db/migrations/003_clip_sets.sql`）：新增 set_id 欄位與索引
-- [ ] DOM：網址帶 v 與 s；打開分享網址時沿用 s（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
+- [x] DOM：網址帶 v 與 s；打開分享網址時沿用 s（手動驗證；使用者已在網站上驗證通過）
 
 ### 5.16 部署（使用者決定：GitHub Pages）
 
@@ -323,7 +323,7 @@ test/
 
 - [x] 根目錄 index.html、.nojekyll、config.public.js 讀取順序
 - [x] dev/config.public.js（填入正式的 Supabase 網址與 publishable key）
-- [ ] 使用者開啟 GitHub Pages，在網站上驗證登入、建立片段、留言、分享網址（手動驗證）
+- [x] 使用者開啟 GitHub Pages，在網站上驗證登入、建立片段、留言、分享網址（手動驗證；使用者已驗證通過）
 
 ### 5.17 管理（使用者在 Supabase 管理頁面操作）
 
@@ -344,7 +344,19 @@ test/
 - [x] app.updateClip：未登入 → NOT_SIGNED_IN；時間格式錯誤 → INVALID_TIMECODE；區間不合法 → INVALID_RANGE
 - [x] app.deleteClip：未登入 → NOT_SIGNED_IN
 - [x] 資料表權限更新的 SQL（`db/migrations/005_edit_delete_clips.sql`）：登入者可修改片段的時間欄位（欄位層級權限只開放 start_sec、end_sec）、刪除片段
-- [ ] DOM：片段的「修改」（就地編輯開始與結束）與「刪除」（確認視窗）按鈕，只在登入時顯示（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
+- [x] DOM：片段的「修改」（就地編輯開始與結束）與「刪除」（確認視窗）按鈕，只在登入時顯示（手動驗證；使用者已在網站上驗證通過，005 已執行）
+
+### 5.19 訪客留言（使用者決定：登入改為非必要；未登入只能留言，不能新增討論串）
+
+- 未登入：可以瀏覽、留言；不能建立、修改、刪除討論串（維持 NOT_SIGNED_IN）。
+- 訪客留言要填名字（使用者決定），沒填 → NO_NAME；留言的 createdBy 為「名字（訪客）」，userId 為 null。訪客留言之後沒有人能透過網站刪除（管理者可在 Supabase 刪除）。
+- 資料庫：anon 可新增留言，但 user_id 必須為 null。
+
+- [ ] app.setGuestName(name)：狀態有 guestName（去掉前後空白）
+- [ ] app：未登入、有填名字時留言 → createdBy 為「名字（訪客）」，userId 為 null（取代 5.14「未登入時新增留言 → NOT_SIGNED_IN」）
+- [ ] app：未登入、沒填名字時留言 → NO_NAME，不存入
+- [ ] 資料表權限更新的 SQL（`db/migrations/006_guest_comments.sql`）
+- [ ] DOM：未登入時顯示留言表單與「你的名字」欄位（手動驗證）
 
 ## 6. 待決定事項
 
