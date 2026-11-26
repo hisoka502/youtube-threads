@@ -290,7 +290,7 @@ test/
 - [x] （新增）工作階段：換新時是網路錯誤（沒有 Supabase 錯誤碼）→ 不登出，把錯誤丟出（交給 app 顯示 STORAGE_FAILED）
 - [x] app：登入後狀態有 user；建立時讀取已保存的工作階段（重新整理後維持登入）
 - [x] app：未登入時建立片段 → 錯誤 NOT_SIGNED_IN
-- [ ] app：未登入時新增留言 → 錯誤 NOT_SIGNED_IN
+- [x] app：未登入時新增留言 → 錯誤 NOT_SIGNED_IN
 - [ ] app：註冊（顯示名稱必填）、登出
 - [~] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id（片段已完成，留言待做）
 - [ ] app：只能刪除自己的留言（判斷函式供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）

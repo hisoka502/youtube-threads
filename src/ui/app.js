@@ -163,8 +163,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_CLIP' };
         return;
       }
-      if (state.userName === '') {
-        state = { ...state, error: 'NO_NAME' };
+      if (state.user === null) {
+        state = { ...state, error: 'NOT_SIGNED_IN' };
         return;
       }
       await guardStorage(async () => {
