@@ -139,13 +139,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_NAME' };
         return;
       }
-      try {
+      await guardStorage(async () => {
         await commentRepo.add({ id: newId(), clipId, body, createdBy: state.userName, createdAt: now() });
         state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
-      } catch (error) {
-        logError(error);
-        state = { ...state, error: 'STORAGE_FAILED' };
-      }
+      });
     },
 
     /**
