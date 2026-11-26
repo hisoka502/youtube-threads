@@ -122,6 +122,11 @@ export function createSupabaseCommentRepo(options) {
         createdAt: row.created_at,
       }));
     },
-    async remove() {},
+    async remove(id) {
+      await fetch(`${url}/rest/v1/comments?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: headers(options),
+      });
+    },
   };
 }

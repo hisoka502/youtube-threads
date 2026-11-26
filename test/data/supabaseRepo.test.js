@@ -112,3 +112,14 @@ test('Supabase CommentRepository：listByClip 以 GET 依 seq 排序查詢，並
   assert.equal(init.method, 'GET');
   assert.deepEqual(comments, [comment]);
 });
+
+test('Supabase CommentRepository：remove 以 DELETE 刪除指定 id 的資料列', async () => {
+  const fake = createFakeFetch([new Response(null, { status: 204 })]);
+  const repo = createSupabaseCommentRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.remove('m1');
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/comments?id=eq.m1`);
+  assert.equal(init.method, 'DELETE');
+});
