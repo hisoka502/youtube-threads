@@ -7,5 +7,5 @@
  * @returns {string | null}
  */
 export function pageVideoId(pageUrl) {
-  return new URL(pageUrl).searchParams.get('v');
+  return new URL(pageUrl).searchParams.get('v') || null;
 }
