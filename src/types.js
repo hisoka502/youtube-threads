@@ -131,6 +131,7 @@
  * @property {boolean} busy 正在等待資料存取完成
  * @property {User | null} user 登入的使用者；未登入時為 null
  * @property {string | null} setId 目前的討論串組（網址的 s 參數）
+ * @property {string} guestName 訪客（未登入）留言時的名字（已去掉前後空白）；未填為空字串
  */
 
 /**

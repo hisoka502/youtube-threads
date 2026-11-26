@@ -352,7 +352,7 @@ test/
 - 訪客留言要填名字（使用者決定），沒填 → NO_NAME；留言的 createdBy 為「名字（訪客）」，userId 為 null。訪客留言之後沒有人能透過網站刪除（管理者可在 Supabase 刪除）。
 - 資料庫：anon 可新增留言，但 user_id 必須為 null。
 
-- [ ] app.setGuestName(name)：狀態有 guestName（去掉前後空白）
+- [x] app.setGuestName(name)：狀態有 guestName（去掉前後空白）
 - [ ] app：未登入、有填名字時留言 → createdBy 為「名字（訪客）」，userId 為 null（取代 5.14「未登入時新增留言 → NOT_SIGNED_IN」）
 - [ ] app：未登入、沒填名字時留言 → NO_NAME，不存入
 - [ ] 資料表權限更新的 SQL（`db/migrations/006_guest_comments.sql`）

@@ -21,7 +21,7 @@ import { playRange } from '../player/playRange.js';
  */
 export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '' };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -115,6 +115,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         sessions.set(session);
         state = { ...state, user: session.user, error: null };
       });
+    },
+
+    /**
+     * 設定訪客（未登入）留言時使用的名字。
+     * @param {string} name
+     */
+    setGuestName(name) {
+      state = { ...state, guestName: name.trim() };
     },
 
     /** 登出：清除保存的工作階段。 */

@@ -757,3 +757,11 @@ test('UI：未登入時刪除片段，狀態有錯誤 NOT_SIGNED_IN，不刪除'
   assert.equal(app.getState().error, 'NOT_SIGNED_IN');
   assert.deepEqual((await clipRepo.listByVideo('abc')).map((c) => c.id), ['c1']);
 });
+
+test('UI：setGuestName 後，狀態有去掉前後空白的訪客名字', () => {
+  const { app } = setup({ signedIn: false });
+
+  app.setGuestName('  阿明 ');
+
+  assert.equal(app.getState().guestName, '阿明');
+});
