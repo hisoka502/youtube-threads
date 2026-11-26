@@ -269,7 +269,29 @@ test/
 
 - [x] pageVideoId：從頁面網址的查詢字串取出 v 參數；沒有或空字串時為 null
 - [x] pageUrlFor：在頁面網址加上（或取代）v 參數，保留其他部分
-- [ ] DOM：打開帶 `?v=` 的網址時自動載入；載入影片後更新網址列（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
+- [x] DOM：打開帶 `?v=` 的網址時自動載入；載入影片後更新網址列（手動驗證；使用者已在自己的瀏覽器驗證通過）
+
+### 5.14 登入（使用者決定：盡快做，讓人測試）
+
+- Email ＋ 密碼，註冊後不需收信驗證（在 Supabase 關閉 Confirm email）。開放註冊。
+- 未登入只能看（讀取片段與留言）；登入後可以建立片段、留言，只能刪除自己的留言；片段仍然沒有人能刪（後兩點為 Claude 依先前建議的預設，使用者可改）。
+- 註冊時填顯示名稱，取代原本頁面上的「你的名字」欄位；createdBy 用顯示名稱。
+- 以 `fetch` 呼叫 Supabase Auth 的 REST API（`/auth/v1/...`），不新增依賴。登入後，資料庫請求在 Authorization 標頭帶使用者的 access token；權限由資料庫 RLS 依 `auth.uid()` 判斷。
+- 片段與留言新增 userId（資料庫欄位 user_id），用來判斷「自己的留言」。
+
+- [ ] auth.signUp：POST `/auth/v1/signup`（email、password、顯示名稱），回傳工作階段（access token、refresh token、到期時間、使用者 id 與顯示名稱）
+- [ ] auth.signIn：POST `/auth/v1/token?grant_type=password`，回傳工作階段
+- [ ] auth：Supabase 回應失敗時拋出錯誤（含 Supabase 的錯誤碼）
+- [ ] auth.refresh：POST `/auth/v1/token?grant_type=refresh_token`，回傳新的工作階段
+- [ ] Repository：有 access token 時，在 Authorization 標頭帶 `Bearer {token}`；沒有時不帶
+- [ ] Repository：片段與留言的 userId 與 user_id 互轉
+- [ ] 工作階段：access token 快到期時，先用 refresh token 換新的再回傳
+- [ ] app：登入、註冊、登出改變狀態的 user；未登入時建立片段或留言 → 錯誤 NOT_SIGNED_IN
+- [ ] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id
+- [ ] app：只能刪除自己的留言（判斷函式供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
+- [ ] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤
+- [ ] 資料表與 RLS 更新的 SQL（`db/migrations/002_auth.sql`）
+- [ ] DOM：登入／註冊表單、登出、重新整理後維持登入；未登入時隱藏建立與留言表單（手動驗證）
 
 ## 6. 待決定事項
 
@@ -283,7 +305,7 @@ test/
 
 ## 7. 暫不處理（YAGNI）
 
-登入與帳號、YouTube 影片載入失敗的處理（影片不存在、私人影片等，需接 IFrame API 的 onError；使用者決定先不做）、即時同步、通知、權限、搜尋、分享連結（「每部影片一個網址」以外的形式，如每個討論串一個網址、總覽頁）、手機版排版、留言內時間戳（原 5.4）。
+YouTube 影片載入失敗的處理（影片不存在、私人影片等，需接 IFrame API 的 onError；使用者決定先不做）、即時同步、通知、權限、搜尋、分享連結（「每部影片一個網址」以外的形式，如每個討論串一個網址、總覽頁）、手機版排版、留言內時間戳（原 5.4）。
 
 ## 8. 參考
 
