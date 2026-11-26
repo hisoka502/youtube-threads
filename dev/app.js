@@ -27,7 +27,7 @@ const ERROR_TEXT = {
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
   NO_CLIP: '請先開啟一個討論串',
   NOT_SIGNED_IN: '請先登入',
-  NO_NAME: '請填寫顯示名稱',
+  NO_NAME: '請填寫名字（註冊時的顯示名稱，或匿名留言時的名字）',
   INVALID_CREDENTIALS: 'Email 或密碼錯誤',
   EMAIL_TAKEN: '這個 Email 已經註冊過，請直接登入',
   WEAK_PASSWORD: '密碼太短或太簡單（至少 6 個字元）',
@@ -202,9 +202,10 @@ function render() {
   $('signed-in').hidden = !signedIn;
   $('signed-out').hidden = signedIn;
   $('user-display-name').textContent = state.user?.displayName ?? '';
-  // 未登入只能瀏覽：不顯示建立片段與留言的表單
+  // 未登入不能建立討論串
   $('clip-form').hidden = !signedIn;
-  $('comment-form').hidden = !signedIn;
+  // 匿名也可以留言，但要填名字
+  $('guest-name-row').hidden = signedIn;
 
   const clips = $('clips');
   clips.replaceChildren(
@@ -313,6 +314,7 @@ onSubmit('sign-up-form', async () => {
   if (app.getState().user !== null) input('sign-up-password').value = '';
 });
 $('sign-out').addEventListener('click', () => run(() => app.signOut()));
+input('guest-name').addEventListener('input', () => app.setGuestName(input('guest-name').value));
 onSubmit('clip-form', async () => {
   await app.createClip({ start: input('start').value, end: input('end').value, title: input('title').value.trim() });
   if (app.getState().error === null) {

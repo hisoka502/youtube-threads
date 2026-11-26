@@ -356,7 +356,7 @@ test/
 - [x] app：未登入、有填名字時留言 → createdBy 為「名字（訪客）」，userId 為 null（取代 5.14「未登入時新增留言 → NOT_SIGNED_IN」）
 - [x] app：未登入、沒填名字時留言 → NO_NAME，不存入
 - [x] 資料表權限更新的 SQL（`db/migrations/006_guest_comments.sql`）：anon 可新增 user_id 為 null 的留言
-- [ ] DOM：未登入時顯示留言表單與「你的名字」欄位（手動驗證）
+- [ ] DOM：未登入時顯示留言表單與「你的名字」欄位；頁面最上方的登入區列出匿名與登入的操作差異（使用者要求）（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
 
 ## 6. 待決定事項
 
