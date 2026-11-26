@@ -315,6 +315,16 @@ test/
 - [x] 資料表更新的 SQL（`db/migrations/003_clip_sets.sql`）：新增 set_id 欄位與索引
 - [ ] DOM：網址帶 v 與 s；打開分享網址時沿用 s（手動驗證；雲端以模擬 Supabase 驗證過，待使用者驗證）
 
+### 5.16 部署（使用者決定：GitHub Pages）
+
+- 從 `main` 分支根目錄部署。根目錄 `index.html` 轉到 `dev/app.html` 並保留查詢參數；`.nojekyll` 讓 Pages 直接提供檔案。
+- 設定檔：先讀本機 `dev/config.js`（不 commit），找不到再讀 `dev/config.public.js`（commit，網站上使用）。publishable key 本來就公開給瀏覽器，安全靠 RLS。
+- 開啟 Pages 的 GitHub API 在 Claude 的雲端環境被擋（403），由使用者在 GitHub 的 Settings → Pages 手動開啟。
+
+- [x] 根目錄 index.html、.nojekyll、config.public.js 讀取順序
+- [ ] dev/config.public.js（填入正式的 Supabase 網址與 publishable key）
+- [ ] 使用者開啟 GitHub Pages，在網站上驗證登入、建立片段、留言、分享網址（手動驗證）
+
 ## 6. 待決定事項
 
 處理到相關測試時，先停下來問使用者，不要自行假設：

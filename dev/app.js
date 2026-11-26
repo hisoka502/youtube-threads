@@ -51,13 +51,20 @@ function createYTPlayer() {
 
 const yt = await createYTPlayer();
 const player = createYouTubePlayer(yt);
-/** 讀取 dev/config.js；檔案不存在時回傳 null（改用記憶體版） */
+/**
+ * 讀取 Supabase 設定：先找本機的 dev/config.js（不 commit），
+ * 再找部署用的 dev/config.public.js（commit 進 repository，GitHub Pages 上使用）。
+ * 兩個都沒有時回傳 null（改用記憶體版與本機假登入）。
+ */
 async function loadConfig() {
-  try {
-    return (await import('./config.js')).default;
-  } catch {
-    return null;
+  for (const path of ['./config.js', './config.public.js']) {
+    try {
+      return (await import(path)).default;
+    } catch {
+      // 檔案不存在，試下一個
+    }
   }
+  return null;
 }
 
 /** 工作階段存在 localStorage，重新整理頁面後仍維持登入；瀏覽器不允許存取時當作沒有保存 */
@@ -105,7 +112,7 @@ const clipRepo = repoOptions ? createSupabaseClipRepo(repoOptions) : createMemor
 const commentRepo = repoOptions ? createSupabaseCommentRepo(repoOptions) : createMemoryCommentRepo();
 $('storage').textContent = supabase
   ? `資料存在 Supabase（${config.supabaseUrl}）。`
-  : '資料存在記憶體，重新整理後會清空（沒有找到 dev/config.js）。';
+  : '資料存在記憶體，重新整理後會清空（沒有找到 dev/config.js 或 dev/config.public.js）。';
 const newId = () => crypto.randomUUID();
 const clipService = createClipService({
   clipRepo,
