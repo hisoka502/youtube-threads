@@ -128,4 +128,20 @@
  * @property {boolean} busy 正在等待資料存取完成
  */
 
+/**
+ * 登入的使用者。
+ * @typedef {object} User
+ * @property {string} id Supabase Auth 的使用者 id
+ * @property {string} displayName 註冊時填的顯示名稱
+ */
+
+/**
+ * 登入的工作階段。
+ * @typedef {object} Session
+ * @property {string} accessToken 帶在資料庫請求的 Authorization 標頭
+ * @property {string} refreshToken 用來換新的 access token
+ * @property {number} expiresAt access token 到期時間（毫秒）
+ * @property {User} user
+ */
+
 export {};

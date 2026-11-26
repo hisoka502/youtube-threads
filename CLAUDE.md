@@ -279,7 +279,7 @@ test/
 - 以 `fetch` 呼叫 Supabase Auth 的 REST API（`/auth/v1/...`），不新增依賴。登入後，資料庫請求在 Authorization 標頭帶使用者的 access token；權限由資料庫 RLS 依 `auth.uid()` 判斷。
 - 片段與留言新增 userId（資料庫欄位 user_id），用來判斷「自己的留言」。
 
-- [ ] auth.signUp：POST `/auth/v1/signup`（email、password、顯示名稱），回傳工作階段（access token、refresh token、到期時間、使用者 id 與顯示名稱）
+- [x] auth.signUp：POST `/auth/v1/signup`（email、password、顯示名稱），回傳工作階段（access token、refresh token、到期時間、使用者 id 與顯示名稱）
 - [ ] auth.signIn：POST `/auth/v1/token?grant_type=password`，回傳工作階段
 - [ ] auth：Supabase 回應失敗時拋出錯誤（含 Supabase 的錯誤碼）
 - [ ] auth.refresh：POST `/auth/v1/token?grant_type=refresh_token`，回傳新的工作階段
