@@ -288,7 +288,10 @@ test/
 - [x] 工作階段：access token 快到期時，先用 refresh token 換新的再回傳
 - [x] （新增）工作階段：換新失敗（refresh token 已失效）時，清除工作階段，視同登出
 - [x] （新增）工作階段：換新時是網路錯誤（沒有 Supabase 錯誤碼）→ 不登出，把錯誤丟出（交給 app 顯示 STORAGE_FAILED）
-- [ ] app：登入、註冊、登出改變狀態的 user；未登入時建立片段或留言 → 錯誤 NOT_SIGNED_IN
+- [x] app：登入後狀態有 user；建立時讀取已保存的工作階段（重新整理後維持登入）
+- [x] app：未登入時建立片段 → 錯誤 NOT_SIGNED_IN
+- [ ] app：未登入時新增留言 → 錯誤 NOT_SIGNED_IN
+- [ ] app：註冊（顯示名稱必填）、登出
 - [ ] app：createdBy 用登入者的顯示名稱，userId 用登入者的 id
 - [ ] app：只能刪除自己的留言（判斷函式供畫面決定是否顯示刪除按鈕；刪除別人的留言 → 什麼都不做）
 - [ ] 登入失敗（帳號密碼錯誤、Email 已被註冊等）→ 畫面顯示錯誤

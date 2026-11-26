@@ -36,8 +36,9 @@ function createFakeAuth() {
  * @param {object} [overrides] 測試時可換成會失敗的 Repository
  * @param {import('../../src/types.js').ClipRepository} [overrides.clipRepo]
  * @param {import('../../src/types.js').CommentRepository} [overrides.commentRepo]
+ * @param {boolean} [overrides.signedIn] 預設 true（以「小明」登入）
  */
-function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCommentRepo() } = {}) {
+function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCommentRepo(), signedIn = true } = {}) {
   const videoInfo = createFakeVideoInfo({ abc: 120, xyz: 60 });
   let n = 0;
   const newId = () => `id-${++n}`;
@@ -48,7 +49,9 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
   const logError = (/** @type {unknown} */ error) => { logged.push(error); };
   const auth = createFakeAuth();
   /** @type {import('../../src/types.js').Session | null} 預設以「小明」登入 */
-  let savedSession = { accessToken: 'a', refreshToken: 'r', expiresAt: NOW + 3600_000, user: { id: 'user-1', displayName: '小明' } };
+  let savedSession = signedIn
+    ? { accessToken: 'a', refreshToken: 'r', expiresAt: NOW + 3600_000, user: { id: 'user-1', displayName: '小明' } }
+    : null;
   const storage = { load: () => savedSession, save: (/** @type {any} */ s) => { savedSession = s; } };
   const sessions = createSessionManager({ auth, storage, now: () => NOW });
   const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW, logError, auth, sessions });
@@ -361,15 +364,14 @@ test('UI：setUserName 後，狀態有去掉前後空白的名字', () => {
   assert.equal(app.getState().userName, '小明');
 });
 
-test('UI：未填名字時建立片段，狀態有錯誤 NO_NAME，不建立', async () => {
-  const { app } = setup();
+test('UI：未登入時建立片段，狀態有錯誤 NOT_SIGNED_IN，不建立', async () => {
+  const { app } = setup({ signedIn: false });
   await app.loadVideo('https://youtu.be/abc');
-  app.setUserName('   ');
 
   await app.createClip({ start: '0:10', end: '0:20' });
 
   const state = app.getState();
-  assert.equal(state.error, 'NO_NAME');
+  assert.equal(state.error, 'NOT_SIGNED_IN');
   assert.deepEqual(state.clips, []);
 });
 
