@@ -220,3 +220,11 @@ test('Supabase ReviewNameRepository：listBySets 以 set_id=in.(…) 查詢，�
   assert.equal(init.method, 'GET');
   assert.deepEqual(names, { s1: '一軍' });
 });
+
+test('Supabase ReviewNameRepository：listBySets 沒有復盤時不送出請求，回傳空物件', async () => {
+  const fake = createFakeFetch();
+  const repo = createSupabaseReviewNameRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  assert.deepEqual(await repo.listBySets([]), {});
+  assert.equal(fake.calls.length, 0);
+});

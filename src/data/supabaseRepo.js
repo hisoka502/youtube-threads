@@ -183,6 +183,7 @@ export function createSupabaseReviewNameRepo(options) {
       });
     },
     async listBySets(setIds) {
+      if (setIds.length === 0) return {};
       // 每個值加上雙引號，值裡的逗號才不會被當成分隔符號
       const list = setIds.map((id) => `%22${encodeURIComponent(id)}%22`).join(',');
       const response = await request(options, `/rest/v1/review_names?set_id=in.(${list})&select=set_id,name`, {
