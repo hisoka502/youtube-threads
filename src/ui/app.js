@@ -215,7 +215,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       if (state.user === null && state.guestName === '') {
-        state = { ...state, error: 'NOT_SIGNED_IN' };
+        state = { ...state, error: 'NO_NAME' };
         return;
       }
       // 開始欄位空白時，用播放器目前的時間（捨去到整秒，與畫面顯示一致）

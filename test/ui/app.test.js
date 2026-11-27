@@ -357,14 +357,14 @@ test('UI：播放片段時，討論串自動換成該片段的', async () => {
   assert.deepEqual(state.comments.map((m) => m.id), ['m2']);
 });
 
-test('UI：未登入時建立片段，狀態有錯誤 NOT_SIGNED_IN，不建立', async () => {
+test('UI：未登入、沒填名字時建立片段，狀態有錯誤 NO_NAME，不建立', async () => {
   const { app } = setup({ signedIn: false });
   await app.loadVideo('https://youtu.be/abc', { setId: null });
 
   await app.createClip({ start: '0:10', end: '0:20' });
 
   const state = app.getState();
-  assert.equal(state.error, 'NOT_SIGNED_IN');
+  assert.equal(state.error, 'NO_NAME');
   assert.deepEqual(state.clips, []);
 });
 
