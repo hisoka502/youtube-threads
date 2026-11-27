@@ -839,3 +839,20 @@ test('UI：clearSet 只刪除目前復盤的片段，同一部影片的其他復
   assert.deepEqual((await clipRepo.listByVideo('abc', 's2')).map((c) => c.id), ['c2']);
   assert.deepEqual((await clipRepo.listByVideo('abc', null)).map((c) => c.id), ['c3']);
 });
+
+test('UI：startNewSet 為同一部影片產生新的復盤編號，列出新復盤的片段，清除選取；舊復盤保留', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: 's1' });
+  await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+  await app.selectClip('c1');
+
+  await app.startNewSet();
+
+  const state = app.getState();
+  assert.equal(state.videoId, 'abc');
+  assert.equal(state.setId, 'room-1');
+  assert.deepEqual(state.clips, []);
+  assert.equal(state.selectedClipId, null);
+  assert.equal(state.error, null);
+  assert.deepEqual((await clipRepo.listByVideo('abc', 's1')).map((c) => c.id), ['c1']);
+});
