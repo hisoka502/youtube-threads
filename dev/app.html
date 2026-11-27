@@ -13,6 +13,7 @@
     #player-box { aspect-ratio: 16 / 9; background: #000; }
     #player-box iframe, #player-box > div { width: 100%; height: 100%; }
     #account-bar { background: #f6f8fa; border: 1px solid #ddd; padding: 6px 12px; margin: 8px 0 16px; }
+    #account-bar .guide { margin: 6px 0 2px; padding: 4px 8px; background: #fff; }
     #auth-panel form { margin: 6px 0; }
     #auth-panel input { width: 12em; }
     .guide { background: #f6f8fa; border: 1px solid #ddd; padding: 8px 12px; margin: 8px 0 16px; }
@@ -70,6 +71,18 @@
         <p id="auth-error" class="start-error" role="alert"></p>
       </div>
     </div>
+    <details class="guide">
+      <summary>匿名與登入的差別</summary>
+      <table class="modes">
+        <tr><th></th><th>匿名（不登入）</th><th>登入</th></tr>
+        <tr><td>瀏覽片段與留言</td><td>可以</td><td>可以</td></tr>
+        <tr><td>留言</td><td>可以，要填名字；顯示為「名字（訪客）」</td><td>可以，顯示註冊時的顯示名稱</td></tr>
+        <tr><td>刪除留言</td><td>不行（送出後無法刪除）</td><td>只能刪除自己的留言</td></tr>
+        <tr><td>新增、修改、刪除討論串</td><td>不行</td><td>可以</td></tr>
+        <tr><td>開新復盤、進入現有復盤、分享復盤</td><td>可以</td><td>可以</td></tr>
+        <tr><td>清空復盤</td><td>不行</td><td>可以</td></tr>
+      </table>
+    </details>
   </div>
 
 
@@ -118,20 +131,6 @@
     </ol>
   </details>
 
-  <section id="auth">
-    <details class="guide">
-      <summary>匿名與登入的差別</summary>
-      <table class="modes">
-        <tr><th></th><th>匿名（不登入）</th><th>登入</th></tr>
-        <tr><td>瀏覽片段與留言</td><td>可以</td><td>可以</td></tr>
-        <tr><td>留言</td><td>可以，要填名字；顯示為「名字（訪客）」</td><td>可以，顯示註冊時的顯示名稱</td></tr>
-        <tr><td>刪除留言</td><td>不行（送出後無法刪除）</td><td>只能刪除自己的留言</td></tr>
-        <tr><td>新增、修改、刪除討論串</td><td>不行</td><td>可以</td></tr>
-        <tr><td>開新復盤、進入現有復盤、分享復盤</td><td>可以</td><td>可以</td></tr>
-        <tr><td>清空復盤</td><td>不行</td><td>可以</td></tr>
-      </table>
-    </details>
-  </section>
   <p id="error" role="alert"></p>
 
   <div class="columns">
