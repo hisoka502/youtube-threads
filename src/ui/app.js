@@ -173,6 +173,15 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     },
 
     /**
+     * 以已知的復盤編號載入影片（打開別人告知編號的復盤）。編號去掉前後空白並轉成小寫。
+     * @param {string} url YouTube 網址
+     * @param {string} code 復盤編號
+     */
+    async joinSet(url, code) {
+      await this.loadVideo(url, { setId: code.trim().toLowerCase() });
+    },
+
+    /**
      * 以 YouTube 顯示格式的時間字串（如 "2:15"）建立片段。start 為空字串時用播放器目前的時間（捨去到整秒）；
      * end 為空字串時由 resolveRange 補為 start + 5 秒。
      * @param {{ start: string, end: string, title?: string }} input

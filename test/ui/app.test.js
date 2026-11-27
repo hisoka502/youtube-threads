@@ -865,3 +865,16 @@ test('UI：startNewSet 尚未載入影片 → NO_VIDEO，不產生復盤編號',
   assert.equal(app.getState().error, 'NO_VIDEO');
   assert.equal(app.getState().setId, null);
 });
+
+test('UI：joinSet 以輸入的復盤編號載入影片（去掉前後空白、轉成小寫）', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: 'k7m3qa2b' });
+
+  await app.joinSet('https://youtu.be/abc', '  K7M3QA2B ');
+
+  const state = app.getState();
+  assert.equal(state.error, null);
+  assert.equal(state.videoId, 'abc');
+  assert.equal(state.setId, 'k7m3qa2b');
+  assert.deepEqual(state.clips.map((c) => c.id), ['c1']);
+});
