@@ -98,7 +98,7 @@ test('CommentRepo：修改列出或傳入的物件，不影響 Repository 內的
   assert.deepEqual(await repo.listByClip('c1'), [comment('m1', 'c1')]);
 });
 
-test('ClipRepository：listByVideo 依房間篩選；setId 為 null 時篩出沒有房間的片段', async () => {
+test('ClipRepository：listByVideo 依復盤篩選；setId 為 null 時篩出沒有復盤的片段', async () => {
   const repo = createMemoryClipRepo();
   const base = { videoId: 'abc', range: { startSec: 0, endSec: 5 }, title: '', createdBy: '小明', createdAt: 0, userId: 'user-1' };
   await repo.add({ ...base, id: 'c1', setId: 's1' });

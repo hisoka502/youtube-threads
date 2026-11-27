@@ -36,14 +36,14 @@
  * @property {string} createdBy 建立者的名字
  * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
  * @property {string} userId 建立者的使用者 id
- * @property {string | null} [setId] 所屬的房間（網址的 s 參數）；加入此功能前建立的片段為 null
+ * @property {string | null} [setId] 所屬的復盤（網址的 s 參數）；加入此功能前建立的片段為 null
  */
 
 /**
  * 片段的儲存介面。只負責存取，不做驗證（驗證在 ClipService）。
  * @typedef {object} ClipRepository
  * @property {(clip: Clip) => Promise<void>} add
- * @property {(videoId: string, setId?: string | null) => Promise<Clip[]>} listByVideo setId 為 null 或省略時，列出沒有房間的片段
+ * @property {(videoId: string, setId?: string | null) => Promise<Clip[]>} listByVideo setId 為 null 或省略時，列出沒有復盤的片段
  * @property {(id: string) => Promise<void>} remove
  * @property {(id: string, range: ClipRange) => Promise<void>} updateRange 只修改時間範圍
  */
@@ -130,7 +130,7 @@
  * @property {Comment[]} comments 選取的討論串的留言，依建立順序
  * @property {boolean} busy 正在等待資料存取完成
  * @property {User | null} user 登入的使用者；未登入時為 null
- * @property {string | null} setId 目前的房間（網址的 s 參數）
+ * @property {string | null} setId 目前的復盤（網址的 s 參數）
  * @property {string} guestName 訪客（未登入）留言時的名字（已去掉前後空白）；未填為空字串
  */
 

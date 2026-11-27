@@ -11,7 +11,7 @@ import { playRange } from '../player/playRange.js';
  * @param {ReturnType<typeof import('../clip/clipService.js').createClipService>} deps.clipService
  * @param {import('../types.js').PlayerAdapter} deps.player
  * @param {() => string} deps.newId 產生新留言的 id
- * @param {() => string} deps.newRoomId 產生新的房間號碼（網址的 s 參數）
+ * @param {() => string} deps.newRoomId 產生新的復盤編號（網址的 s 參數）
  * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  * @param {(error: unknown) => void} deps.logError 資料存取失敗時，接收詳細的錯誤（畫面上寫到主控台）
  * @param {{
@@ -152,7 +152,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     /**
      * 載入影片與它的片段。
      * @param {string} url YouTube 網址
-     * @param {{ setId?: string | null }} [options] 房間；省略時產生新的房間，null 為加入此功能前建立的片段
+     * @param {{ setId?: string | null }} [options] 復盤；省略時產生新的復盤，null 為加入此功能前建立的片段
      */
     async loadVideo(url, options = {}) {
       if (state.busy) return; // 處理中暫停操作
@@ -161,7 +161,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
-      // 沒給房間（貼上網址帶進影片）時產生新的房間；給了（打開分享網址）則沿用
+      // 沒給復盤（貼上網址帶進影片）時產生新的復盤；給了（打開分享網址）則沿用
       const setId = options.setId === undefined ? newRoomId() : options.setId;
       await guardStorage(async () => {
         const clips = await clipRepo.listByVideo(videoId, setId);

@@ -14,7 +14,7 @@ export function pageVideoId(pageUrl) {
  * 產生某部影片（某組討論串）的頁面網址：設定 v 與 s 參數，保留其他查詢參數與 #。
  * @param {string} pageUrl 目前的頁面網址，例如 location.href
  * @param {string} videoId
- * @param {string | null} [setId] 房間 id；null 或省略時移除 s
+ * @param {string | null} [setId] 復盤編號；null 或省略時移除 s
  * @returns {string}
  */
 export function pageUrlFor(pageUrl, videoId, setId = null) {
@@ -26,7 +26,7 @@ export function pageUrlFor(pageUrl, videoId, setId = null) {
 }
 
 /**
- * 從頁面網址取出房間 id（s 參數）。
+ * 從頁面網址取出復盤編號（s 參數）。
  * @param {string} pageUrl
  * @returns {string | null}
  */

@@ -199,9 +199,9 @@ function render() {
   $('error').textContent = state.error === null ? '' : (ERROR_TEXT[state.error] ?? state.error);
   document.body.classList.toggle('busy', state.busy);
 
-  // 目前的房間號碼；沒有 s 參數的舊網址沒有房間
+  // 目前的復盤編號；沒有 s 參數的舊網址沒有復盤
   $('room').hidden = state.videoId === null;
-  $('room-id').textContent = state.setId ?? '（舊連結，沒有房間號碼）';
+  $('room-id').textContent = state.setId ?? '（舊連結，沒有復盤編號）';
 
   const signedIn = state.user !== null;
   $('signed-in').hidden = !signedIn;
@@ -296,9 +296,9 @@ function onSubmit(id, action) {
 }
 
 /**
- * 載入影片；成功後把網址列更新成這個房間的網址（?v=影片ID&s=房間id），方便複製分享。
+ * 載入影片；成功後把網址列更新成這場復盤的網址（?v=影片ID&s=復盤編號），方便複製分享。
  * @param {string} youtubeUrl
- * @param {{ setId?: string | null }} [options] 省略 setId 時產生新的房間（貼上網址帶進影片）
+ * @param {{ setId?: string | null }} [options] 省略 setId 時產生新的復盤（貼上網址帶進影片）
  */
 async function loadVideo(youtubeUrl, options) {
   await app.loadVideo(youtubeUrl, options);
@@ -320,7 +320,7 @@ onSubmit('sign-up-form', async () => {
   if (app.getState().user !== null) input('sign-up-password').value = '';
 });
 $('sign-out').addEventListener('click', () => run(() => app.signOut()));
-// 網址列在載入影片後已更新成這個房間的網址（?v=影片ID&s=房間號碼）
+// 網址列在載入影片後已更新成這場復盤的網址（?v=影片ID&s=復盤編號）
 $('copy-link').addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText(location.href);
@@ -356,7 +356,7 @@ setInterval(() => {
 
 render();
 
-// 打開分享網址（?v=影片ID&s=房間id）時，自動載入那部影片與那個房間；
+// 打開分享網址（?v=影片ID&s=復盤編號）時，自動載入那部影片與那場復盤；
 // 沒有 s 的舊網址顯示加入此功能前建立的片段
 const sharedVideoId = pageVideoId(location.href);
 if (sharedVideoId !== null) {

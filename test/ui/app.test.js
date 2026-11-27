@@ -680,7 +680,7 @@ test('UI：登入時遇到其他 Supabase 錯誤碼 → AUTH_FAILED；網路錯�
   assert.deepEqual(b.logged, [network]);
 });
 
-test('UI：貼上網址載入影片時，以 newRoomId 產生新的房間號碼', async () => {
+test('UI：貼上網址載入影片時，以 newRoomId 產生新的復盤編號', async () => {
   const { app } = setup();
 
   await app.loadVideo('https://youtu.be/abc');
@@ -688,7 +688,7 @@ test('UI：貼上網址載入影片時，以 newRoomId 產生新的房間號碼'
   assert.equal(app.getState().setId, 'room-1');
 });
 
-test('UI：打開分享網址（給定房間）時沿用它，只列出該組的片段', async () => {
+test('UI：打開分享網址（給定復盤）時沿用它，只列出該組的片段', async () => {
   const { app, clipRepo } = setup();
   const base = { videoId: 'abc', range: { startSec: 10, endSec: 15 }, title: '', createdBy: '小華', createdAt: NOW, userId: 'user-hua' };
   await clipRepo.add({ ...base, id: 'c1', setId: 's1' });
@@ -700,7 +700,7 @@ test('UI：打開分享網址（給定房間）時沿用它，只列出該組的
   assert.deepEqual(app.getState().clips.map((c) => c.id), ['c1']);
 });
 
-test('UI：建立片段時帶目前的房間，建立後仍列在該組', async () => {
+test('UI：建立片段時帶目前的復盤，建立後仍列在該組', async () => {
   const { app } = setup();
   await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
 
