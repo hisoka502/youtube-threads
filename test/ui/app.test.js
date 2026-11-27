@@ -900,3 +900,12 @@ test('UI：findSets 網址無效 → INVALID_URL，不讀取資料', async () =>
   assert.equal(app.getState().error, 'INVALID_URL');
   assert.equal(app.getState().setChoices, null);
 });
+
+test('UI：findSets 成功後清除先前的錯誤', async () => {
+  const { app } = setup();
+  await app.findSets('https://example.com/abc');
+
+  await app.findSets('https://youtu.be/abc');
+
+  assert.equal(app.getState().error, null);
+});

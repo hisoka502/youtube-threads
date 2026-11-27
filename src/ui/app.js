@@ -191,7 +191,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       }
       await guardStorage(async () => {
         const setIds = await clipRepo.listSetIds(videoId);
-        state = { ...state, setChoices: { videoId, sets: setIds.map((setId) => ({ setId })) } };
+        state = { ...state, setChoices: { videoId, sets: setIds.map((setId) => ({ setId })) }, error: null };
       });
     },
 
