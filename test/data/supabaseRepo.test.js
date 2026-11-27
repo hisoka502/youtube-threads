@@ -1,7 +1,7 @@
 // @ts-check
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createSupabaseClipRepo, createSupabaseCommentRepo } from '../../src/data/supabaseRepo.js';
+import { createSupabaseClipRepo, createSupabaseCommentRepo, createSupabaseReviewNameRepo } from '../../src/data/supabaseRepo.js';
 
 const URL_BASE = 'https://example.supabase.co';
 const KEY = 'test-key';
@@ -193,4 +193,17 @@ test('Supabase ClipRepository：listSetIds 只取 set_id，依 created_at 由新
   assert.equal(url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b&set_id=not.is.null&select=set_id&order=created_at.desc`);
   assert.equal(init.method, 'GET');
   assert.deepEqual(setIds, ['s1', 's2']);
+});
+
+test('Supabase ReviewNameRepository：set 以 POST upsert（Prefer: resolution=merge-duplicates）送出 set_id 與 name', async () => {
+  const fake = createFakeFetch();
+  const repo = createSupabaseReviewNameRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  await repo.set('s1', '一軍');
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/review_names`);
+  assert.equal(init.method, 'POST');
+  assert.equal(/** @type {Record<string, string>} */ (init.headers).Prefer, 'resolution=merge-duplicates');
+  assert.deepEqual(JSON.parse(String(init.body)), { set_id: 's1', name: '一軍' });
 });

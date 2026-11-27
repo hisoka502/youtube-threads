@@ -52,9 +52,10 @@ function headers({ key }) {
  */
 async function request(options, path, init) {
   const accessToken = (await options.getAccessToken?.()) ?? null;
+  const baseHeaders = { ...headers(options), ...(/** @type {Record<string, string>} */ (init.headers ?? {})) };
   const allHeaders = accessToken === null
-    ? headers(options)
-    : { ...headers(options), Authorization: `Bearer ${accessToken}` };
+    ? baseHeaders
+    : { ...baseHeaders, Authorization: `Bearer ${accessToken}` };
   const response = await options.fetch(`${options.url}${path}`, { ...init, headers: allHeaders });
   if (!response.ok) {
     throw new Error(`Supabase 請求失敗：${init.method} ${path} 回應 ${response.status} ${await response.text()}`);
@@ -163,6 +164,26 @@ export function createSupabaseCommentRepo(options) {
       await request(options, `/rest/v1/comments?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
+    },
+  };
+}
+
+/**
+ * @param {SupabaseOptions} options
+ * @returns {import('../types.js').ReviewNameRepository}
+ */
+export function createSupabaseReviewNameRepo(options) {
+  return {
+    async set(setId, name) {
+      // 已有這個復盤的名稱時取代（upsert）
+      await request(options, `/rest/v1/review_names`, {
+        method: 'POST',
+        headers: { Prefer: 'resolution=merge-duplicates' },
+        body: JSON.stringify({ set_id: setId, name }),
+      });
+    },
+    async listBySets() {
+      return {};
     },
   };
 }
