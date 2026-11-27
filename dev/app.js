@@ -332,6 +332,12 @@ player.onTimeUpdate((sec) => {
   $('current').textContent = `${formatTimecode(sec)}（${sec.toFixed(2)} 秒）`;
 });
 
+// 開始欄位的 placeholder 即時顯示目前播放時間（欄位空白時建立片段就用這個時間）。
+// 播放器只在播放中通知時間，暫停時拖動進度條不會通知，所以這裡定期直接讀取。
+setInterval(() => {
+  input('start').placeholder = app.getState().videoId === null ? '2:15' : formatTimecode(player.getCurrentTime());
+}, 250);
+
 render();
 
 // 打開分享網址（?v=影片ID&s=討論串組id）時，自動載入那部影片與那組討論串；
