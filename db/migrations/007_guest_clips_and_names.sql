@@ -9,3 +9,21 @@ grant insert on public.clips to anon;
 
 create policy "guests can add clips without a user id" on public.clips
   for insert to anon with check (user_id is null);
+
+-- 復盤名稱（alias）：名稱不必唯一，進入復盤一律以編號（set_id）為準。
+-- 任何人（anon 與登入者）都可以讀取、新增、修改名稱；不能刪除（改成空字串即可清除名稱）。
+create table public.review_names (
+  set_id text primary key,
+  name text not null
+);
+
+alter table public.review_names enable row level security;
+
+grant select, insert, update on public.review_names to anon, authenticated;
+
+create policy "anyone can read review names" on public.review_names
+  for select to anon, authenticated using (true);
+create policy "anyone can add review names" on public.review_names
+  for insert to anon, authenticated with check (true);
+create policy "anyone can rename reviews" on public.review_names
+  for update to anon, authenticated using (true) with check (true);
