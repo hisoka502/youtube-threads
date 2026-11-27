@@ -862,3 +862,20 @@ test('UI：joinSet 編號空白 → NO_SET_ID，不載入影片', async () => {
   assert.equal(app.getState().videoId, null);
   assert.equal(player.getLoadedVideoId(), null);
 });
+
+test('UI：joinSet 該影片在此編號下沒有片段 → SET_NOT_FOUND，不載入影片、維持目前的復盤', async () => {
+  const { app, clipRepo, player } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'xyz', range: { startSec: 10, endSec: 15 }, setId: 's1' });
+  await clipRepo.add({ id: 'c2', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: 'k7m3qa2b' });
+  await app.loadVideo('https://youtu.be/xyz', { setId: 's1' });
+
+  // 編號存在，但屬於另一部影片
+  await app.joinSet('https://youtu.be/xyz', 'k7m3qa2b');
+
+  const state = app.getState();
+  assert.equal(state.error, 'SET_NOT_FOUND');
+  assert.equal(state.videoId, 'xyz');
+  assert.equal(state.setId, 's1');
+  assert.deepEqual(state.clips.map((c) => c.id), ['c1']);
+  assert.equal(player.getLoadedVideoId(), 'xyz');
+});

@@ -102,7 +102,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
   /**
    * 載入影片與它的片段。
    * @param {string} url YouTube 網址
-   * @param {{ setId?: string | null }} [options] 復盤；省略時產生新的復盤，null 為加入此功能前建立的片段
+   * @param {{ setId?: string | null, mustExist?: boolean }} [options] setId：復盤；省略時產生新的復盤，null 為加入此功能前建立的片段。
+   *   mustExist：復盤必須已有片段（輸入編號進入時），沒有則回報 SET_NOT_FOUND，不換影片與復盤
    */
   async function loadVideo(url, options = {}) {
     if (state.busy) return; // 處理中暫停操作
@@ -115,6 +116,10 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     const setId = options.setId === undefined ? newRoomId() : options.setId;
     await guardStorage(async () => {
       const clips = await clipRepo.listByVideo(videoId, setId);
+      if (options.mustExist && clips.length === 0) {
+        state = { ...state, error: 'SET_NOT_FOUND' };
+        return;
+      }
       // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片
       player.load(videoId);
       state = { ...state, videoId, setId, error: null };
@@ -176,6 +181,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
 
     /**
      * 以已知的復盤編號載入影片（打開別人告知編號的復盤）。編號去掉前後空白並轉成小寫。
+     * 該影片在此編號下沒有片段時視為不存在（SET_NOT_FOUND），不進入。
      * @param {string} url YouTube 網址
      * @param {string} code 復盤編號
      */
@@ -186,7 +192,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_SET_ID' };
         return;
       }
-      await loadVideo(url, { setId });
+      await loadVideo(url, { setId, mustExist: true });
     },
 
     /**
