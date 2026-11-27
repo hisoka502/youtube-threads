@@ -23,7 +23,7 @@ import { playRange } from '../player/playRange.js';
  */
 export function createApp({ clipRepo, commentRepo, reviewNameRepo, clipService, player, newId, newRoomId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '', setChoices: null };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '', setChoices: null, setName: '' };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -127,9 +127,12 @@ export function createApp({ clipRepo, commentRepo, reviewNameRepo, clipService, 
     const setId = options.setId === undefined ? newRoomId() : options.setId;
     await guardStorage(async () => {
       const clips = await clipRepo.listByVideo(videoId, setId);
+      // 沒有編號的舊連結沒有名稱
+      const names = setId === null ? {} : await reviewNameRepo.listBySets([setId]);
+      const setName = setId === null ? '' : (names[setId] ?? '');
       // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片
       player.load(videoId);
-      state = { ...state, videoId, setId, error: null };
+      state = { ...state, videoId, setId, setName, error: null };
       setClips(clips);
     });
   }

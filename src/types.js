@@ -140,6 +140,7 @@
  * @property {User | null} user 登入的使用者；未登入時為 null
  * @property {string | null} setId 目前的復盤（網址的 s 參數）
  * @property {string} guestName 訪客（未登入）留言時的名字（已去掉前後空白）；未填為空字串
+ * @property {string} setName 目前復盤的名稱（alias）；沒有名稱為空字串
  * @property {{ videoId: string, sets: ReviewChoice[] } | null} setChoices 貼入影片後列出的復盤；尚未列出時為 null
  */
 

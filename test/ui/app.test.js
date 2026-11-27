@@ -896,3 +896,14 @@ test('UI：未登入、有填名字時建立片段 → createdBy 為「名字（
   assert.equal(clip?.createdBy, '阿明（訪客）');
   assert.equal(clip?.userId, null);
 });
+
+test('UI：loadVideo 後狀態有目前復盤的名稱 setName；沒有名稱為空字串', async () => {
+  const { app, reviewNameRepo } = setup();
+  await reviewNameRepo.set('s1', '一軍');
+
+  await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+  assert.equal(app.getState().setName, '一軍');
+
+  await app.loadVideo('https://youtu.be/abc', { setId: 's2' });
+  assert.equal(app.getState().setName, '');
+});
