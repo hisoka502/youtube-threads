@@ -159,7 +159,7 @@ test('Supabase Repository：有 access token 時，在 Authorization 標頭帶 B
   });
 });
 
-test('Supabase ClipRepository：listByVideo 依討論串組篩選；setId 為 null 時篩出 set_id 為 null 的片段', async () => {
+test('Supabase ClipRepository：listByVideo 依房間篩選；setId 為 null 時篩出 set_id 為 null 的片段', async () => {
   const fake = createFakeFetch([new Response('[]', { status: 200 }), new Response('[]', { status: 200 })]);
   const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
 

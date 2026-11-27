@@ -291,9 +291,9 @@ function onSubmit(id, action) {
 }
 
 /**
- * 載入影片；成功後把網址列更新成這組討論串的網址（?v=影片ID&s=討論串組id），方便複製分享。
+ * 載入影片；成功後把網址列更新成這個房間的網址（?v=影片ID&s=房間id），方便複製分享。
  * @param {string} youtubeUrl
- * @param {{ setId?: string | null }} [options] 省略 setId 時產生新的一組（貼上網址帶進影片）
+ * @param {{ setId?: string | null }} [options] 省略 setId 時產生新的房間（貼上網址帶進影片）
  */
 async function loadVideo(youtubeUrl, options) {
   await app.loadVideo(youtubeUrl, options);
@@ -340,7 +340,7 @@ setInterval(() => {
 
 render();
 
-// 打開分享網址（?v=影片ID&s=討論串組id）時，自動載入那部影片與那組討論串；
+// 打開分享網址（?v=影片ID&s=房間id）時，自動載入那部影片與那個房間；
 // 沒有 s 的舊網址顯示加入此功能前建立的片段
 const sharedVideoId = pageVideoId(location.href);
 if (sharedVideoId !== null) {

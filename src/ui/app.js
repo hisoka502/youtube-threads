@@ -151,7 +151,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     /**
      * 載入影片與它的片段。
      * @param {string} url YouTube 網址
-     * @param {{ setId?: string | null }} [options] 討論串組；省略時產生新的一組，null 為加入此功能前建立的片段
+     * @param {{ setId?: string | null }} [options] 房間；省略時產生新的房間，null 為加入此功能前建立的片段
      */
     async loadVideo(url, options = {}) {
       if (state.busy) return; // 處理中暫停操作
@@ -160,7 +160,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'INVALID_URL' };
         return;
       }
-      // 沒給討論串組（貼上網址帶進影片）時產生新的一組；給了（打開分享網址）則沿用
+      // 沒給房間（貼上網址帶進影片）時產生新的房間；給了（打開分享網址）則沿用
       const setId = options.setId === undefined ? newId() : options.setId;
       await guardStorage(async () => {
         const clips = await clipRepo.listByVideo(videoId, setId);
