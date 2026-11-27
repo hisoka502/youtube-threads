@@ -35,7 +35,7 @@
  * @property {string} title 選填；未填為空字串
  * @property {string} createdBy 建立者的名字
  * @property {number} createdAt 建立時間（毫秒，與 Date.now() 相同）
- * @property {string} userId 建立者的使用者 id
+ * @property {string | null} userId 建立者的使用者 id；訪客建立的片段為 null
  * @property {string | null} [setId] 所屬的復盤（網址的 s 參數）；加入此功能前建立的片段為 null
  */
 
@@ -76,7 +76,7 @@
 
 /**
  * 建立片段的輸入；endSec 可省略。
- * @typedef {ClipRangeInput & { videoId: string, title?: string, createdBy: string, userId: string, setId?: string | null }} ClipInput
+ * @typedef {ClipRangeInput & { videoId: string, title?: string, createdBy: string, userId: string | null, setId?: string | null }} ClipInput
  */
 
 /**

@@ -881,3 +881,15 @@ test('UI：busy 時呼叫 findSets 會被忽略', async () => {
 
   assert.equal(app.getState().setChoices, null);
 });
+
+test('UI：未登入、有填名字時建立片段 → createdBy 為「名字（訪客）」，userId 為 null', async () => {
+  const { app } = setup({ signedIn: false });
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
+  app.setGuestName('阿明');
+
+  await app.createClip({ start: '0:10', end: '0:20' });
+
+  const [clip] = app.getState().clips;
+  assert.equal(clip?.createdBy, '阿明（訪客）');
+  assert.equal(clip?.userId, null);
+});

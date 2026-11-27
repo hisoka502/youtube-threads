@@ -203,7 +203,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_VIDEO' };
         return;
       }
-      if (state.user === null) {
+      if (state.user === null && state.guestName === '') {
         state = { ...state, error: 'NOT_SIGNED_IN' };
         return;
       }
@@ -215,9 +215,12 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       await guardStorage(async () => {
+        // 登入者用顯示名稱；訪客（未登入）用填的名字並標示「（訪客）」，沒有使用者 id
         const { user } = state;
+        const createdBy = user === null ? `${state.guestName}（訪客）` : user.displayName;
+        const userId = user === null ? null : user.id;
         const result = await clipService.createClip({
-          videoId, startSec, endSec, title, createdBy: user.displayName, userId: user.id, setId: state.setId,
+          videoId, startSec, endSec, title, createdBy, userId, setId: state.setId,
         });
         if (!result.ok) {
           state = { ...state, error: result.error };
