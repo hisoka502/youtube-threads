@@ -69,6 +69,13 @@
  */
 
 /**
+ * 復盤名稱（alias）的儲存介面。名稱不必唯一；進入復盤一律以編號為準。
+ * @typedef {object} ReviewNameRepository
+ * @property {(setId: string, name: string) => Promise<void>} set 設定或取代名稱
+ * @property {(setIds: string[]) => Promise<Record<string, string>>} listBySets 這些復盤的名稱（復盤編號 → 名稱）；沒有名稱的不列出
+ */
+
+/**
  * 影片資訊來源。
  * @typedef {object} VideoInfoProvider
  * @property {(videoId: string) => Promise<number | null>} getDurationSec 找不到影片時回傳 null

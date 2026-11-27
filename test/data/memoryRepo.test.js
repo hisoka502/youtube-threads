@@ -1,7 +1,7 @@
 // @ts-check
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createMemoryClipRepo, createMemoryCommentRepo } from '../../src/data/memoryRepo.js';
+import { createMemoryClipRepo, createMemoryCommentRepo, createMemoryReviewNameRepo } from '../../src/data/memoryRepo.js';
 
 /**
  * @param {string} id
@@ -129,4 +129,13 @@ test('ClipRepository：listSetIds 列出該影片有片段的復盤編號，不�
   await repo.add({ ...base, id: 'c5', videoId: 'xyz', setId: 's9', createdAt: 500 });
 
   assert.deepEqual(await repo.listSetIds('abc'), ['s1', 's2']);
+});
+
+test('ReviewNameRepository：set 後 listBySets 回傳這些復盤的名稱；再次 set 會取代；沒有名稱的不列出', async () => {
+  const repo = createMemoryReviewNameRepo();
+  await repo.set('s1', '一軍');
+  await repo.set('s1', '一軍檢討');
+  await repo.set('s2', '二軍');
+
+  assert.deepEqual(await repo.listBySets(['s1', 's3']), { s1: '一軍檢討' });
 });

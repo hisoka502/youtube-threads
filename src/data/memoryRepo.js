@@ -50,3 +50,26 @@ export function createMemoryCommentRepo() {
     },
   };
 }
+
+/**
+ * 記憶體版的復盤名稱儲存。
+ * @returns {import('../types.js').ReviewNameRepository}
+ */
+export function createMemoryReviewNameRepo() {
+  /** @type {Map<string, string>} */
+  const names = new Map();
+  return {
+    async set(setId, name) {
+      names.set(setId, name);
+    },
+    async listBySets(setIds) {
+      /** @type {Record<string, string>} */
+      const result = {};
+      for (const setId of setIds) {
+        const name = names.get(setId);
+        if (name !== undefined) result[setId] = name;
+      }
+      return result;
+    },
+  };
+}
