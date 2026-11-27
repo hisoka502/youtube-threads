@@ -342,24 +342,6 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     },
 
     /**
-     * 以此影片開新復盤：同一部影片產生新的復盤編號，舊復盤保留不刪。播放器不重新載入影片。
-     */
-    async startNewSet() {
-      if (state.busy) return; // 處理中暫停操作
-      const { videoId } = state;
-      if (videoId === null) {
-        state = { ...state, error: 'NO_VIDEO' };
-        return;
-      }
-      const setId = newRoomId();
-      await guardStorage(async () => {
-        const clips = await clipRepo.listByVideo(videoId, setId);
-        state = { ...state, setId, error: null };
-        setClips(clips);
-      });
-    },
-
-    /**
      * 刪除選取的討論串中的一則留言。
      * @param {string} commentId
      */
