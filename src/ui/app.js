@@ -213,6 +213,10 @@ export function createApp({ clipRepo, commentRepo, reviewNameRepo, clipService, 
      * @param {string} name
      */
     async renameSet(name) {
+      if (state.videoId === null) {
+        state = { ...state, error: 'NO_VIDEO' };
+        return;
+      }
       const setId = /** @type {string} */ (state.setId);
       const trimmed = name.trim();
       await guardStorage(async () => {

@@ -917,3 +917,12 @@ test('UI：renameSet 去掉前後空白後存入目前復盤的名稱', async ()
   assert.equal(app.getState().setName, '一軍檢討');
   assert.deepEqual(await reviewNameRepo.listBySets(['s1']), { s1: '一軍檢討' });
 });
+
+test('UI：renameSet 尚未載入影片 → NO_VIDEO，不存入', async () => {
+  const { app } = setup();
+
+  await app.renameSet('一軍');
+
+  assert.equal(app.getState().error, 'NO_VIDEO');
+  assert.equal(app.getState().setName, '');
+});
