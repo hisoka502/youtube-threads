@@ -811,3 +811,18 @@ test('UI：clearSet 刪除目前復盤的所有片段與留言，清除選取的
   assert.deepEqual(await clipRepo.listByVideo('abc', 's1'), []);
   assert.deepEqual(await commentRepo.listByClip('c1'), []);
 });
+
+test('UI：clearSet 未登入 → NOT_SIGNED_IN，不刪除；尚未載入影片 → NO_VIDEO', async () => {
+  const guest = setup({ signedIn: false });
+  await guest.clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: 's1' });
+  await guest.app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+
+  await guest.app.clearSet();
+
+  assert.equal(guest.app.getState().error, 'NOT_SIGNED_IN');
+  assert.deepEqual((await guest.clipRepo.listByVideo('abc', 's1')).map((c) => c.id), ['c1']);
+
+  const noVideo = setup();
+  await noVideo.app.clearSet();
+  assert.equal(noVideo.app.getState().error, 'NO_VIDEO');
+});

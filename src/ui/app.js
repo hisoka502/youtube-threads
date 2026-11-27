@@ -306,6 +306,14 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async clearSet() {
       if (state.busy) return; // 處理中暫停操作
+      if (state.videoId === null) {
+        state = { ...state, error: 'NO_VIDEO' };
+        return;
+      }
+      if (state.user === null) {
+        state = { ...state, error: 'NOT_SIGNED_IN' };
+        return;
+      }
       await guardStorage(async () => {
         const videoId = /** @type {string} */ (state.videoId);
         for (const clip of await clipRepo.listByVideo(videoId, state.setId)) {
