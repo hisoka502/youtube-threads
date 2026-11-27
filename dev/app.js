@@ -298,51 +298,31 @@ function onSubmit(id, action) {
   });
 }
 
-/**
- * 載入影片；成功後把網址列更新成這場復盤的網址（?v=影片ID&s=復盤編號），方便複製分享。
- * @param {string} youtubeUrl
- * @param {{ setId?: string | null }} [options] 省略 setId 時產生新的復盤（貼上網址帶進影片）
- */
-async function loadVideo(youtubeUrl, options) {
-  await app.loadVideo(youtubeUrl, options);
-  updateAddressBar();
-}
-
 /** 把網址列更新成目前這場復盤的網址（?v=影片ID&s=復盤編號）。 */
 function updateAddressBar() {
   const { videoId, setId } = app.getState();
   if (videoId !== null) history.replaceState(null, '', pageUrlFor(location.href, videoId, setId));
 }
 
-const startDialog = /** @type {HTMLDialogElement} */ ($('start-dialog'));
-/** 視窗中選的是「輸入已知的復盤編號」 */
-const joining = () => /** @type {HTMLInputElement} */ (document.querySelector('input[name="review-mode"]:checked')).value === 'join';
-for (const radio of document.querySelectorAll('input[name="review-mode"]')) {
-  radio.addEventListener('change', () => { $('set-id-row').hidden = !joining(); });
-}
-$('start-review').addEventListener('click', () => {
-  input('url').value = '';
-  input('set-id').value = '';
-  $('dialog-error').textContent = '';
-  startDialog.showModal();
-});
-$('cancel-start').addEventListener('click', () => startDialog.close());
-onSubmit('load-form', async () => {
-  const url = input('url').value.trim();
-  if (joining()) {
-    await app.joinSet(url, input('set-id').value);
-    updateAddressBar();
-  } else {
-    await loadVideo(url);
-  }
-  // 網址無效時留在視窗內顯示錯誤；成功才關閉
-  const { error } = app.getState();
-  if (error === null) startDialog.close();
-  else $('dialog-error').textContent = ERROR_TEXT[error] ?? error;
-});
-$('new-review').addEventListener('click', () => run(async () => {
-  await app.startNewSet();
+/**
+ * 「開始回顧」區塊的動作完成後：錯誤顯示在區塊內；成功時更新網址列，
+ * 並把第 1 步的網址換成目前的影片，方便同一部影片再開新復盤。
+ */
+function afterStart() {
+  const { error, videoId } = app.getState();
+  $('start-error').textContent = error === null ? '' : (ERROR_TEXT[error] ?? error);
+  if (error !== null || videoId === null) return;
   updateAddressBar();
+  input('url').value = `https://www.youtube.com/watch?v=${videoId}`;
+  input('set-id').value = '';
+}
+onSubmit('join-form', async () => {
+  await app.joinSet(input('url').value.trim(), input('set-id').value);
+  afterStart();
+});
+$('start-new').addEventListener('click', () => run(async () => {
+  await app.loadVideo(input('url').value.trim());
+  afterStart();
 }));
 $('clear-review').addEventListener('click', () => {
   const { clips } = app.getState();
@@ -402,5 +382,8 @@ render();
 // 沒有 s 的舊網址顯示加入此功能前建立的片段
 const sharedVideoId = pageVideoId(location.href);
 if (sharedVideoId !== null) {
-  run(() => loadVideo(`https://www.youtube.com/watch?v=${sharedVideoId}`, { setId: pageSetId(location.href) }));
+  run(async () => {
+    await app.loadVideo(`https://www.youtube.com/watch?v=${sharedVideoId}`, { setId: pageSetId(location.href) });
+    afterStart();
+  });
 }

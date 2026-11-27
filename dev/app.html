@@ -32,9 +32,10 @@
     code { background: #f2f2f2; padding: 0 4px; }
     h1 a { color: inherit; text-decoration: none; }
     #room code { font-size: 1.1em; letter-spacing: 0.05em; }
-    .review-actions li { border-bottom: none; padding: 2px 0; }
-    dialog { width: min(560px, 90vw); }
-    .dialog-error { min-height: 1.6em; font-weight: bold; color: #b00020; margin: 4px 0; }
+    ol.steps { padding-left: 1.5em; }
+    ol.steps li { border-bottom: none; padding: 4px 0; }
+    #join-form { margin: 4px 0; }
+    .start-error { min-height: 1.6em; font-weight: bold; color: #b00020; margin: 4px 0; }
   </style>
 </head>
 <body>
@@ -43,40 +44,35 @@
   <p class="hint">開發用頁面。<span id="storage"></span></p>
 
 
-  <p><button type="button" id="start-review">開始復盤</button>
-    <span class="hint">貼上 YouTube 網址，開一場新的復盤。</span></p>
+  <section id="start-section">
+    <h2>開始回顧</h2>
+    <ol class="steps">
+      <li><strong>選擇影片</strong><br>
+        <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…"></li>
+      <li><strong>進入現有復盤，或開新復盤</strong>
+        <form id="join-form">
+          復盤編號 <input id="set-id" placeholder="例如 k7m3qa2b" autocomplete="off">
+          <button>進入現有復盤</button>
+          <span class="hint">向開這場復盤的人要編號；第 1 步也要選同一部影片。</span>
+        </form>
+        <p>或 <button type="button" id="start-new">開新復盤</button>
+          <span class="hint">產生新的復盤編號；這部影片之前的復盤都會保留，不會刪除。</span></p>
+      </li>
+    </ol>
+    <p id="start-error" class="start-error" role="alert"></p>
+  </section>
 
-  <!-- 開始復盤：輸入 YouTube 網址的視窗 -->
-  <dialog id="start-dialog">
-    <form id="load-form">
-      <p><strong>開始復盤</strong></p>
-      <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…">
-      <p>
-        <label><input type="radio" name="review-mode" value="new" checked> 開全新復盤</label>
-        <label><input type="radio" name="review-mode" value="join"> 輸入已知的復盤編號</label>
-      </p>
-      <p id="set-id-row" hidden>
-        復盤編號 <input id="set-id" placeholder="例如 k7m3qa2b" autocomplete="off">
-        <span class="hint">向開這場復盤的人要編號；影片網址也要是同一部影片。</span>
-      </p>
-      <p id="dialog-error" class="dialog-error"></p>
-      <button>載入影片並開始</button>
-      <button type="button" id="cancel-start">取消</button>
-    </form>
-  </dialog>
-
-  <div id="room" hidden>
-    <p>復盤編號 <code id="room-id"></code></p>
-    <ul class="review-actions">
+  <section id="room" hidden>
+    <h2>選項</h2>
+    <p>目前的復盤編號 <code id="room-id"></code></p>
+    <ol class="steps">
       <li><button type="button" id="copy-link">分享此復盤</button>
         <span class="hint">複製這場復盤的連結，傳給隊友。</span>
         <span id="copy-status" class="hint"></span></li>
-      <li><button type="button" id="new-review">以此影片開新復盤</button>
-        <span class="hint">同一部影片開一場新的復盤，產生新的編號；目前這場復盤保留不刪。</span></li>
       <li id="clear-review-row"><button type="button" id="clear-review">清空此復盤</button>
         <span class="hint">刪除這場復盤所有的討論串與所有人的留言，編號不變，已分享的連結仍可使用。無法復原。（需登入）</span></li>
-    </ul>
-  </div>
+    </ol>
+  </section>
 
   <div id="player-box"><div id="player"></div></div>
   <p>目前時間：<span id="current">-</span></p>
@@ -85,10 +81,10 @@
     <summary>使用說明：用比賽影片做團隊檢討</summary>
     <p>把比賽或訓練影片裡的關鍵片段標記出來，全隊針對每一段各自留言討論。影片不會被下載或剪輯，播放的一律是 YouTube 上的原影片。</p>
     <ol>
-      <li><strong>教練或隊長：開一場復盤。</strong>登入後按「開始復盤」，貼上比賽影片的 YouTube 網址。畫面會顯示這場復盤的編號，按「分享此復盤」複製連結，傳到球隊群組。<br>
-        同一支影片可以開很多場復盤（每次「開始復盤」或按「以此影片開新復盤」都會產生新的編號），所以一軍、二軍或不同隊伍可以各自檢討同一場比賽，互不干擾。之後要回到這場復盤，請用當初傳出去的連結。</li>
+      <li><strong>教練或隊長：開一場復盤。</strong>在「開始回顧」貼上比賽影片的 YouTube 網址，按「開新復盤」。「選項」會顯示這場復盤的編號，按「分享此復盤」複製連結，傳到球隊群組。<br>
+        同一支影片可以開很多場復盤（每按一次「開新復盤」都會產生新的編號），所以一軍、二軍或不同隊伍可以各自檢討同一場比賽，互不干擾。之後要回到這場復盤，請用當初傳出去的連結。</li>
       <li><strong>標記要檢討的片段。</strong>輸入開始與結束時間（照 YouTube 播放器上顯示的格式，例如 <code>2:15</code> 或 <code>1:02:03</code>；結束可以留空，自動抓 5 秒），標題寫清楚是哪一個回合，例如「第二節 防守輪轉漏人」「最後一波進攻戰術」。標錯時間可以按「修改」調整。</li>
-      <li><strong>球員：看片段、留言。</strong>打開群組裡的網址（只拿到編號的話，按「開始復盤」，貼上同一部影片的網址，選「輸入已知的復盤編號」），按片段的「播放」，影片會從那個時間開始播，播到結束時間自動暫停；右邊同時打開這個片段的討論串。在這裡寫下你當時的判斷、看到的問題或想問教練的地方。</li>
+      <li><strong>球員：看片段、留言。</strong>打開群組裡的網址（只拿到編號的話，在「開始回顧」貼上同一部影片的網址，輸入編號後按「進入現有復盤」），按片段的「播放」，影片會從那個時間開始播，播到結束時間自動暫停；右邊同時打開這個片段的討論串。在這裡寫下你當時的判斷、看到的問題或想問教練的地方。</li>
       <li><strong>要不要登入？</strong>只想看片段、留言的球員可以不登入，填名字就能留言（顯示為「名字（訪客）」，送出後無法刪除）。需要新增、修改、刪除片段，或想刪掉自己留言的人，請註冊登入。</li>
     </ol>
   </details>
@@ -122,7 +118,7 @@
         <tr><td>留言</td><td>可以，要填名字；顯示為「名字（訪客）」</td><td>可以，顯示註冊時的顯示名稱</td></tr>
         <tr><td>刪除留言</td><td>不行（送出後無法刪除）</td><td>只能刪除自己的留言</td></tr>
         <tr><td>新增、修改、刪除討論串</td><td>不行</td><td>可以</td></tr>
-        <tr><td>開始復盤、分享復盤</td><td>可以</td><td>可以</td></tr>
+        <tr><td>開新復盤、進入現有復盤、分享復盤</td><td>可以</td><td>可以</td></tr>
         <tr><td>清空復盤</td><td>不行</td><td>可以</td></tr>
       </table>
     </details>
