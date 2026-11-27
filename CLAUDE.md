@@ -457,11 +457,11 @@ test/
 **No-gos**：不新增 reviews 資料表；沒有片段的復盤不出現在清單；不列出沒有編號的舊片段（舊連結照常可用）；清單不分頁、不搜尋；不記錄復盤的創建者；名稱任何人都能改，不留修改紀錄。
 
 清單：
-- [ ] 記憶體版 ClipRepository.listSetIds(videoId)：該影片有片段的復盤編號，不重複，最近有新片段的在前；不含 set_id 為 null
-- [ ] Supabase 版 listSetIds：GET clips 只取 set_id 與 created_at，依 created_at 由新到舊，去掉重複
-- [ ] app.findSets(url)：狀態 setChoices 為 { videoId, sets }；無效網址 → INVALID_URL；讀取失敗 → STORAGE_FAILED
-- [ ] DOM：貼入網址後列出清單、點選進入、開新復盤；移除「進入現有復盤」（手動驗證）
-- [ ] 移除不再使用的 joinSet 與 mustExist
+- [x] 記憶體版 ClipRepository.listSetIds(videoId)：該影片有片段的復盤編號，不重複，最近有新片段的在前；不含 set_id 為 null
+- [x] Supabase 版 listSetIds：GET clips 只取 set_id 與 created_at，依 created_at 由新到舊，去掉重複
+- [x] app.findSets(url)：狀態 setChoices 為 { videoId, sets }；無效網址 → INVALID_URL；讀取失敗 → STORAGE_FAILED（由共用的 guardStorage 處理，未另寫測試）；成功後清除錯誤；busy 時忽略。不換播放器的影片（由 Claude 決定：選了復盤才載入）
+- [ ] DOM：貼入網址後列出清單、點選進入、開新復盤；移除「進入現有復盤」（手動驗證；雲端以模擬播放器與記憶體資料驗證過，待使用者驗證）
+- [x] 移除不再使用的 joinSet 與 mustExist（需要時可從 git 歷史找回）
 
 訪客建立片段：
 - [ ] app.createClip：未登入、有填名字 → createdBy 為「名字（訪客）」，userId 為 null
