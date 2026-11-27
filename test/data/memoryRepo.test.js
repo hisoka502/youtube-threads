@@ -118,3 +118,15 @@ test('ClipRepository：updateRange 修改片段的時間範圍，其他欄位不
 
   assert.deepEqual(await repo.listByVideo('abc'), [{ ...clip, range: { startSec: 20, endSec: 30 } }]);
 });
+
+test('ClipRepository：listSetIds 列出該影片有片段的復盤編號，不重複，最近有新片段的在前，不含沒有編號的片段', async () => {
+  const repo = createMemoryClipRepo();
+  const base = { range: { startSec: 0, endSec: 5 }, title: '', createdBy: '小明', userId: 'user-1' };
+  await repo.add({ ...base, id: 'c1', videoId: 'abc', setId: 's1', createdAt: 100 });
+  await repo.add({ ...base, id: 'c2', videoId: 'abc', setId: 's2', createdAt: 200 });
+  await repo.add({ ...base, id: 'c3', videoId: 'abc', setId: 's1', createdAt: 300 });
+  await repo.add({ ...base, id: 'c4', videoId: 'abc', setId: null, createdAt: 400 });
+  await repo.add({ ...base, id: 'c5', videoId: 'xyz', setId: 's9', createdAt: 500 });
+
+  assert.deepEqual(await repo.listSetIds('abc'), ['s1', 's2']);
+});

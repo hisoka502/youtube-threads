@@ -14,6 +14,14 @@ export function createMemoryClipRepo() {
     async listByVideo(videoId, setId = null) {
       return structuredClone(clips.filter((c) => c.videoId === videoId && (c.setId ?? null) === setId));
     },
+    async listSetIds(videoId) {
+      const latest = new Map();
+      for (const c of clips) {
+        if (c.videoId !== videoId || (c.setId ?? null) === null) continue;
+        latest.set(c.setId, Math.max(latest.get(c.setId) ?? -Infinity, c.createdAt));
+      }
+      return [...latest.keys()].sort((a, b) => latest.get(b) - latest.get(a));
+    },
     async remove(id) {
       clips = clips.filter((c) => c.id !== id);
     },

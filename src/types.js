@@ -44,6 +44,7 @@
  * @typedef {object} ClipRepository
  * @property {(clip: Clip) => Promise<void>} add
  * @property {(videoId: string, setId?: string | null) => Promise<Clip[]>} listByVideo setId 為 null 或省略時，列出沒有復盤的片段
+ * @property {(videoId: string) => Promise<string[]>} listSetIds 該影片有片段的復盤編號，不重複，最近有新片段的在前；不含沒有編號的片段
  * @property {(id: string) => Promise<void>} remove
  * @property {(id: string, range: ClipRange) => Promise<void>} updateRange 只修改時間範圍
  */
