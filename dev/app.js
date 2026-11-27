@@ -204,6 +204,8 @@ function render() {
   $('room-id').textContent = state.setId ?? '（舊連結，沒有復盤編號）';
 
   const signedIn = state.user !== null;
+  // 清空此復盤只有登入者能用
+  $('clear-review-row').hidden = !signedIn;
   $('signed-in').hidden = !signedIn;
   $('signed-out').hidden = signedIn;
   $('user-display-name').textContent = state.user?.displayName ?? '';
@@ -302,11 +304,38 @@ function onSubmit(id, action) {
  */
 async function loadVideo(youtubeUrl, options) {
   await app.loadVideo(youtubeUrl, options);
+  updateAddressBar();
+}
+
+/** 把網址列更新成目前這場復盤的網址（?v=影片ID&s=復盤編號）。 */
+function updateAddressBar() {
   const { videoId, setId } = app.getState();
   if (videoId !== null) history.replaceState(null, '', pageUrlFor(location.href, videoId, setId));
 }
 
-onSubmit('load-form', () => loadVideo(input('url').value.trim()));
+const startDialog = /** @type {HTMLDialogElement} */ ($('start-dialog'));
+$('start-review').addEventListener('click', () => {
+  input('url').value = '';
+  $('dialog-error').textContent = '';
+  startDialog.showModal();
+});
+$('cancel-start').addEventListener('click', () => startDialog.close());
+onSubmit('load-form', async () => {
+  await loadVideo(input('url').value.trim());
+  // 網址無效時留在視窗內顯示錯誤；成功才關閉
+  const { error } = app.getState();
+  if (error === null) startDialog.close();
+  else $('dialog-error').textContent = ERROR_TEXT[error] ?? error;
+});
+$('new-review').addEventListener('click', () => run(async () => {
+  await app.startNewSet();
+  updateAddressBar();
+}));
+$('clear-review').addEventListener('click', () => {
+  const { clips } = app.getState();
+  const ok = confirm(`確定要清空這場復盤嗎？\n${clips.length} 個討論串與所有人的留言都會刪除，無法復原。\n復盤編號不變，已分享的連結仍可使用。`);
+  if (ok) run(() => app.clearSet());
+});
 onSubmit('sign-in-form', async () => {
   await app.signIn({ email: input('sign-in-email').value.trim(), password: input('sign-in-password').value });
   if (app.getState().user !== null) input('sign-in-password').value = '';
@@ -360,6 +389,5 @@ render();
 // 沒有 s 的舊網址顯示加入此功能前建立的片段
 const sharedVideoId = pageVideoId(location.href);
 if (sharedVideoId !== null) {
-  input('url').value = `https://www.youtube.com/watch?v=${sharedVideoId}`;
-  run(() => loadVideo(input('url').value, { setId: pageSetId(location.href) }));
+  run(() => loadVideo(`https://www.youtube.com/watch?v=${sharedVideoId}`, { setId: pageSetId(location.href) }));
 }
