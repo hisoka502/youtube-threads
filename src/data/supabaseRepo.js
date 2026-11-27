@@ -182,8 +182,15 @@ export function createSupabaseReviewNameRepo(options) {
         body: JSON.stringify({ set_id: setId, name }),
       });
     },
-    async listBySets() {
-      return {};
+    async listBySets(setIds) {
+      // 每個值加上雙引號，值裡的逗號才不會被當成分隔符號
+      const list = setIds.map((id) => `%22${encodeURIComponent(id)}%22`).join(',');
+      const response = await request(options, `/rest/v1/review_names?set_id=in.(${list})&select=set_id,name`, {
+        method: 'GET',
+      });
+      /** @type {{ set_id: string, name: string }[]} */
+      const rows = await response.json();
+      return Object.fromEntries(rows.map((row) => [row.set_id, row.name]));
     },
   };
 }

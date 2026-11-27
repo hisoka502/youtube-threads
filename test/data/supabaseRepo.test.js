@@ -207,3 +207,16 @@ test('Supabase ReviewNameRepository：set 以 POST upsert（Prefer: resolution=m
   assert.equal(/** @type {Record<string, string>} */ (init.headers).Prefer, 'resolution=merge-duplicates');
   assert.deepEqual(JSON.parse(String(init.body)), { set_id: 's1', name: '一軍' });
 });
+
+test('Supabase ReviewNameRepository：listBySets 以 set_id=in.(…) 查詢，轉成「復盤編號 → 名稱」', async () => {
+  const rows = [{ set_id: 's1', name: '一軍' }];
+  const fake = createFakeFetch([new Response(JSON.stringify(rows), { status: 200 })]);
+  const repo = createSupabaseReviewNameRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const names = await repo.listBySets(['s1', 'a,b']);
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/review_names?set_id=in.(%22s1%22,%22a%2Cb%22)&select=set_id,name`);
+  assert.equal(init.method, 'GET');
+  assert.deepEqual(names, { s1: '一軍' });
+});
