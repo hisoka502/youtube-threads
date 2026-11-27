@@ -22,7 +22,7 @@ import { playRange } from '../player/playRange.js';
  */
 export function createApp({ clipRepo, commentRepo, clipService, player, newId, newRoomId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
-  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '' };
+  let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '', setChoices: null };
 
   /**
    * 更新片段列表。選取的討論串不在新的列表中時（換了影片或被刪除），一併清除選取與留言。
@@ -178,6 +178,18 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     },
 
     loadVideo,
+
+    /**
+     * 列出貼入影片的所有復盤，供使用者選擇；不換播放器的影片（選了復盤才用 loadVideo 載入）。
+     * @param {string} url YouTube 網址
+     */
+    async findSets(url) {
+      const videoId = /** @type {string} */ (parseUrl(url));
+      await guardStorage(async () => {
+        const setIds = await clipRepo.listSetIds(videoId);
+        state = { ...state, setChoices: { videoId, sets: setIds.map((setId) => ({ setId })) } };
+      });
+    },
 
     /**
      * 以已知的復盤編號載入影片（打開別人告知編號的復盤）。編號去掉前後空白並轉成小寫。

@@ -879,3 +879,15 @@ test('UI：joinSet 該影片在此編號下沒有片段 → SET_NOT_FOUND，不�
   assert.deepEqual(state.clips.map((c) => c.id), ['c1']);
   assert.equal(player.getLoadedVideoId(), 'xyz');
 });
+
+test('UI：findSets 列出貼入影片的所有復盤（最近有新片段的在前），不換播放器的影片', async () => {
+  const { app, clipRepo, player } = setup();
+  const base = { range: { startSec: 0, endSec: 5 }, title: '', createdBy: '小明', userId: 'user-1' };
+  await clipRepo.add({ ...base, id: 'c1', videoId: 'abc', setId: 's1', createdAt: 100 });
+  await clipRepo.add({ ...base, id: 'c2', videoId: 'abc', setId: 's2', createdAt: 200 });
+
+  await app.findSets('https://youtu.be/abc');
+
+  assert.deepEqual(app.getState().setChoices, { videoId: 'abc', sets: [{ setId: 's2' }, { setId: 's1' }] });
+  assert.equal(player.getLoadedVideoId(), null);
+});
