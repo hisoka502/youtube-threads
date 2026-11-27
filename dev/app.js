@@ -11,6 +11,7 @@ import { createSessionManager } from '../src/auth/session.js';
 import { createClipService } from '../src/clip/clipService.js';
 import { formatTimecode } from '../src/time/timecode.js';
 import { pageVideoId, pageSetId, pageUrlFor } from '../src/url/pageUrl.js';
+import { newRoomId } from '../src/url/roomId.js';
 
 /** @param {string} id */
 const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
@@ -122,7 +123,7 @@ const clipService = createClipService({
   now: () => Date.now(),
 });
 const app = createApp({
-  clipRepo, commentRepo, clipService, player, newId,
+  clipRepo, commentRepo, clipService, player, newId, newRoomId: () => newRoomId(),
   now: () => Date.now(),
   logError: (error) => console.error(error),
   auth,

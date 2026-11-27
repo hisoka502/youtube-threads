@@ -54,7 +54,9 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
     : null;
   const storage = { load: () => savedSession, save: (/** @type {any} */ s) => { savedSession = s; } };
   const sessions = createSessionManager({ auth, storage, now: () => NOW });
-  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, now: () => NOW, logError, auth, sessions });
+  let rooms = 0;
+  const newRoomId = () => `room-${++rooms}`;
+  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, newRoomId, now: () => NOW, logError, auth, sessions });
   return { app, clipRepo, commentRepo, player, logged, auth, sessions };
 }
 
@@ -582,7 +584,7 @@ test('UI：建立時已有保存的工作階段（重新整理頁面），狀態
   const clipService = createClipService({ clipRepo, commentRepo, videoInfo: createFakeVideoInfo({}), newId: () => 'x', now: () => NOW });
 
   const app = createApp({
-    clipRepo, commentRepo, clipService, player: createFakePlayer(), newId: () => 'x', now: () => NOW,
+    clipRepo, commentRepo, clipService, player: createFakePlayer(), newId: () => 'x', newRoomId: () => 'r', now: () => NOW,
     logError: () => {}, auth, sessions,
   });
 
@@ -678,12 +680,12 @@ test('UI：登入時遇到其他 Supabase 錯誤碼 → AUTH_FAILED；網路錯�
   assert.deepEqual(b.logged, [network]);
 });
 
-test('UI：貼上網址載入影片時，產生新的房間 id', async () => {
+test('UI：貼上網址載入影片時，以 newRoomId 產生新的房間號碼', async () => {
   const { app } = setup();
 
   await app.loadVideo('https://youtu.be/abc');
 
-  assert.equal(app.getState().setId, 'id-1');
+  assert.equal(app.getState().setId, 'room-1');
 });
 
 test('UI：打開分享網址（給定房間）時沿用它，只列出該組的片段', async () => {

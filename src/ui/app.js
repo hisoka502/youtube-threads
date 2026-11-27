@@ -11,6 +11,7 @@ import { playRange } from '../player/playRange.js';
  * @param {ReturnType<typeof import('../clip/clipService.js').createClipService>} deps.clipService
  * @param {import('../types.js').PlayerAdapter} deps.player
  * @param {() => string} deps.newId 產生新留言的 id
+ * @param {() => string} deps.newRoomId 產生新的房間號碼（網址的 s 參數）
  * @param {() => number} deps.now 目前時間（毫秒，與 Date.now() 相同）
  * @param {(error: unknown) => void} deps.logError 資料存取失敗時，接收詳細的錯誤（畫面上寫到主控台）
  * @param {{
@@ -19,7 +20,7 @@ import { playRange } from '../player/playRange.js';
  * }} deps.auth
  * @param {{ set: (session: import('../types.js').Session | null) => void, getUser: () => import('../types.js').User | null }} deps.sessions 工作階段（重新整理頁面後仍保存）
  */
-export function createApp({ clipRepo, commentRepo, clipService, player, newId, now, logError, auth, sessions }) {
+export function createApp({ clipRepo, commentRepo, clipService, player, newId, newRoomId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
   let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '' };
 
@@ -161,7 +162,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       // 沒給房間（貼上網址帶進影片）時產生新的房間；給了（打開分享網址）則沿用
-      const setId = options.setId === undefined ? newId() : options.setId;
+      const setId = options.setId === undefined ? newRoomId() : options.setId;
       await guardStorage(async () => {
         const clips = await clipRepo.listByVideo(videoId, setId);
         // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片

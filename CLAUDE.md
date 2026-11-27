@@ -383,7 +383,7 @@ test/
 
 - [x] newRoomId：以注入的隨機位元組，依位元組取餘數對應字元表，產生 8 個字元
 - [x] newRoomId：位元組 ≥ 248 時捨棄，改用下一個位元組
-- [ ] app.loadVideo：貼上網址時以注入的 newRoomId 產生房間號碼（不再用 newId）
+- [x] app.loadVideo：貼上網址時以注入的 newRoomId 產生房間號碼（不再用 newId）
 - [ ] DOM：顯示房間號碼與「複製分享連結」按鈕（手動驗證）
 - [ ] DOM：點擊大標題回到首頁（手動驗證）
 
