@@ -12,8 +12,9 @@
     textarea { font: inherit; width: 100%; box-sizing: border-box; }
     #player-box { aspect-ratio: 16 / 9; background: #000; }
     #player-box iframe, #player-box > div { width: 100%; height: 100%; }
-    #auth form { margin: 4px 0; }
-    #auth input { width: 12em; }
+    #account-bar { background: #f6f8fa; border: 1px solid #ddd; padding: 6px 12px; margin: 8px 0 16px; }
+    #auth-panel form { margin: 6px 0; }
+    #auth-panel input { width: 12em; }
     .guide { background: #f6f8fa; border: 1px solid #ddd; padding: 8px 12px; margin: 8px 0 16px; }
     .guide summary { font-weight: bold; cursor: pointer; }
     .guide li { margin: 6px 0; }
@@ -42,6 +43,34 @@
   <!-- 點標題回到首頁（不帶影片與復盤） -->
   <h1><a href="app.html" title="回到首頁">YouTube 片段討論串</a></h1>
   <p class="hint">開發用頁面。<span id="storage"></span></p>
+
+  <!-- 目前身分；登入、註冊的欄位按下按鈕後才顯示 -->
+  <div id="account-bar">
+    <div id="signed-in" hidden>
+      目前身分：<strong id="user-display-name"></strong>
+      <button id="sign-out" type="button">登出</button>
+    </div>
+    <div id="signed-out">
+      目前身分：<strong>訪客（未登入）</strong>
+      <button id="show-sign-in" type="button" aria-expanded="false">登入</button>
+      <button id="show-sign-up" type="button" aria-expanded="false">註冊</button>
+      <div id="auth-panel" hidden>
+        <p class="hint"><strong>這裡的帳號是本站獨立的帳號，與 Google／YouTube 帳號無關。</strong>請另外設定一組本站專用的密碼，不要使用你的 Google 密碼。</p>
+        <form id="sign-in-form" hidden>
+          <input id="sign-in-email" type="email" placeholder="Email" autocomplete="email">
+          <input id="sign-in-password" type="password" placeholder="密碼" autocomplete="current-password">
+          <button>登入</button>
+        </form>
+        <form id="sign-up-form" hidden>
+          <input id="sign-up-email" type="email" placeholder="Email" autocomplete="email">
+          <input id="sign-up-password" type="password" placeholder="密碼（至少 6 個字元）" autocomplete="new-password">
+          <input id="sign-up-name" placeholder="顯示名稱（留言時顯示）">
+          <button>註冊</button>
+        </form>
+        <p id="auth-error" class="start-error" role="alert"></p>
+      </div>
+    </div>
+  </div>
 
 
   <section id="start-section">
@@ -90,26 +119,6 @@
   </details>
 
   <section id="auth">
-    <div id="signed-in" hidden>
-      已登入：<strong id="user-display-name"></strong>
-      <button id="sign-out" type="button">登出</button>
-    </div>
-    <div id="signed-out">
-      <p class="hint"><strong>這裡的帳號是本站獨立的帳號，與 Google／YouTube 帳號無關。</strong>請另外設定一組本站專用的密碼，不要使用你的 Google 密碼。</p>
-      <form id="sign-in-form">
-        <strong>登入</strong>
-        <input id="sign-in-email" type="email" placeholder="Email" autocomplete="email">
-        <input id="sign-in-password" type="password" placeholder="密碼" autocomplete="current-password">
-        <button>登入</button>
-      </form>
-      <form id="sign-up-form">
-        <strong>註冊</strong>
-        <input id="sign-up-email" type="email" placeholder="Email" autocomplete="email">
-        <input id="sign-up-password" type="password" placeholder="密碼（至少 6 個字元）" autocomplete="new-password">
-        <input id="sign-up-name" placeholder="顯示名稱（留言時顯示）">
-        <button>註冊</button>
-      </form>
-    </div>
     <details class="guide">
       <summary>匿名與登入的差別</summary>
       <table class="modes">

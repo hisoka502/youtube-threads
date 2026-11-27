@@ -332,9 +332,39 @@ $('clear-review').addEventListener('click', () => {
   const ok = confirm(`確定要清空這場復盤嗎？\n${clips.length} 個討論串與所有人的留言都會刪除，無法復原。\n復盤編號不變，已分享的連結仍可使用。`);
   if (ok) run(() => app.clearSet());
 });
+/**
+ * 展開或收起登入／註冊表單。再按一次同一個按鈕就收起。
+ * @param {'sign-in' | 'sign-up'} which
+ */
+function toggleAuthForm(which) {
+  const form = $(`${which}-form`);
+  const opening = form.hidden;
+  for (const name of ['sign-in', 'sign-up']) {
+    $(`${name}-form`).hidden = !(opening && name === which);
+    $(`show-${name}`).setAttribute('aria-expanded', String(opening && name === which));
+  }
+  $('auth-panel').hidden = !opening;
+  $('auth-error').textContent = '';
+  if (opening) input(`${which}-email`).focus();
+}
+$('show-sign-in').addEventListener('click', () => toggleAuthForm('sign-in'));
+$('show-sign-up').addEventListener('click', () => toggleAuthForm('sign-up'));
+
+/** 登入或註冊後：失敗時錯誤顯示在表單下方；成功時清掉密碼並收起表單。 */
+function afterAuth() {
+  const { error, user } = app.getState();
+  $('auth-error').textContent = error === null ? '' : (ERROR_TEXT[error] ?? error);
+  if (user === null) return;
+  for (const id of ['sign-in-password', 'sign-up-password']) input(id).value = '';
+  for (const name of ['sign-in', 'sign-up']) {
+    $(`${name}-form`).hidden = true;
+    $(`show-${name}`).setAttribute('aria-expanded', 'false');
+  }
+  $('auth-panel').hidden = true;
+}
 onSubmit('sign-in-form', async () => {
   await app.signIn({ email: input('sign-in-email').value.trim(), password: input('sign-in-password').value });
-  if (app.getState().user !== null) input('sign-in-password').value = '';
+  afterAuth();
 });
 onSubmit('sign-up-form', async () => {
   await app.signUp({
@@ -342,7 +372,7 @@ onSubmit('sign-up-form', async () => {
     password: input('sign-up-password').value,
     displayName: input('sign-up-name').value,
   });
-  if (app.getState().user !== null) input('sign-up-password').value = '';
+  afterAuth();
 });
 $('sign-out').addEventListener('click', () => run(() => app.signOut()));
 // 網址列在載入影片後已更新成這場復盤的網址（?v=影片ID&s=復盤編號）
