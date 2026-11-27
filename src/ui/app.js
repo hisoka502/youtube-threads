@@ -184,6 +184,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} url YouTube 網址
      */
     async findSets(url) {
+      if (state.busy) return; // 處理中暫停操作
       const videoId = parseUrl(url);
       if (videoId === null) {
         state = { ...state, error: 'INVALID_URL' };

@@ -909,3 +909,15 @@ test('UI：findSets 成功後清除先前的錯誤', async () => {
 
   assert.equal(app.getState().error, null);
 });
+
+test('UI：busy 時呼叫 findSets 會被忽略', async () => {
+  const hold = holdOn(createMemoryClipRepo(), 'listByVideo');
+  const { app } = setup({ clipRepo: hold.repo });
+
+  const loading = app.loadVideo('https://youtu.be/abc', { setId: null });
+  await app.findSets('https://youtu.be/xyz');
+  hold.release();
+  await loading;
+
+  assert.equal(app.getState().setChoices, null);
+});
