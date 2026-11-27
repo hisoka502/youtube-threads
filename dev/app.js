@@ -24,6 +24,7 @@ const ERROR_TEXT = {
   INVALID_URL: '無法辨識的 YouTube 網址',
   NO_VIDEO: '請先載入影片',
   NO_SET_ID: '請輸入復盤編號',
+  SET_NOT_FOUND: '找不到這場復盤：這部影片沒有這個編號的復盤。請確認編號與第 1 步的影片是否正確。（還沒有任何片段的復盤無法用編號進入，請向對方要「分享此復盤」的連結）',
   INVALID_TIMECODE: '時間格式錯誤（請用 YouTube 顯示格式，例如 2:15 或 1:02:03）',
   INVALID_RANGE: '片段不合法：結束時間必須大於開始時間、不可超過影片長度，且開始時間至少要在影片結尾前 3 秒',
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
@@ -311,6 +312,8 @@ function updateAddressBar() {
 function afterStart() {
   const { error, videoId } = app.getState();
   $('start-error').textContent = error === null ? '' : (ERROR_TEXT[error] ?? error);
+  // 輸入的編號不存在時跳出警語
+  if (error === 'SET_NOT_FOUND') alert(ERROR_TEXT.SET_NOT_FOUND);
   if (error !== null || videoId === null) return;
   updateAddressBar();
   input('url').value = `https://www.youtube.com/watch?v=${videoId}`;
