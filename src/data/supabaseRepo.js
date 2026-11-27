@@ -102,6 +102,15 @@ export function createSupabaseClipRepo(options) {
         setId: row.set_id,
       }));
     },
+    async listSetIds(videoId) {
+      const response = await request(options, `/rest/v1/clips?video_id=eq.${encodeURIComponent(videoId)}&set_id=not.is.null&select=set_id&order=created_at.desc`, {
+        method: 'GET',
+      });
+      /** @type {{ set_id: string }[]} */
+      const rows = await response.json();
+      // 依由新到舊排列，第一次出現的位置就是該復盤最近一個片段的位置
+      return [...new Set(rows.map((row) => row.set_id))];
+    },
     async remove(id) {
       await request(options, `/rest/v1/clips?id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE',

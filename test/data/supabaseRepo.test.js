@@ -181,3 +181,16 @@ test('Supabase ClipRepository：updateRange 以 PATCH 只送出 start_sec 與 en
   assert.equal(init.method, 'PATCH');
   assert.deepEqual(JSON.parse(String(init.body)), { start_sec: 20, end_sec: 30 });
 });
+
+test('Supabase ClipRepository：listSetIds 只取 set_id，依 created_at 由新到舊，去掉重複', async () => {
+  const rows = [{ set_id: 's1' }, { set_id: 's2' }, { set_id: 's1' }];
+  const fake = createFakeFetch([new Response(JSON.stringify(rows), { status: 200 })]);
+  const repo = createSupabaseClipRepo({ url: URL_BASE, key: KEY, fetch: fake.fetch });
+
+  const setIds = await repo.listSetIds('a&b');
+
+  const { url, init } = fake.calls[0];
+  assert.equal(url, `${URL_BASE}/rest/v1/clips?video_id=eq.a%26b&set_id=not.is.null&select=set_id&order=created_at.desc`);
+  assert.equal(init.method, 'GET');
+  assert.deepEqual(setIds, ['s1', 's2']);
+});
