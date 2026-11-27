@@ -209,6 +209,19 @@ export function createApp({ clipRepo, commentRepo, reviewNameRepo, clipService, 
     },
 
     /**
+     * 命名目前的復盤（名稱不必唯一；進入復盤一律以編號為準）。名稱去掉前後空白。
+     * @param {string} name
+     */
+    async renameSet(name) {
+      const setId = /** @type {string} */ (state.setId);
+      const trimmed = name.trim();
+      await guardStorage(async () => {
+        await reviewNameRepo.set(setId, trimmed);
+        state = { ...state, setName: trimmed };
+      });
+    },
+
+    /**
      * 以 YouTube 顯示格式的時間字串（如 "2:15"）建立片段。start 為空字串時用播放器目前的時間（捨去到整秒）；
      * end 為空字串時由 resolveRange 補為 start + 5 秒。
      * @param {{ start: string, end: string, title?: string }} input

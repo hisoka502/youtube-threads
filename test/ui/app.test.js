@@ -907,3 +907,13 @@ test('UI：loadVideo 後狀態有目前復盤的名稱 setName；沒有名稱為
   await app.loadVideo('https://youtu.be/abc', { setId: 's2' });
   assert.equal(app.getState().setName, '');
 });
+
+test('UI：renameSet 去掉前後空白後存入目前復盤的名稱', async () => {
+  const { app, reviewNameRepo } = setup();
+  await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+
+  await app.renameSet('  一軍檢討 ');
+
+  assert.equal(app.getState().setName, '一軍檢討');
+  assert.deepEqual(await reviewNameRepo.listBySets(['s1']), { s1: '一軍檢討' });
+});
