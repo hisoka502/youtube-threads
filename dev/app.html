@@ -52,7 +52,8 @@
       目前身分：<strong id="user-display-name"></strong>
       <button id="sign-out" type="button">登出</button>
     </div>
-    <div id="signed-out">
+    <!-- 測試期間暫時拿掉登入（5.27）：登入、註冊按鈕與說明不顯示，程式保留 -->
+    <div id="signed-out" hidden>
       目前身分：<strong>訪客（未登入）</strong>
       <button id="show-sign-in" type="button" aria-expanded="false">登入</button>
       <button id="show-sign-up" type="button" aria-expanded="false">註冊</button>
@@ -72,6 +73,7 @@
         <p id="auth-error" class="start-error" role="alert"></p>
       </div>
     </div>
+    <template id="modes-hidden">
     <details class="guide">
       <summary>匿名與登入的差別</summary>
       <table class="modes">
@@ -84,6 +86,7 @@
         <tr><td>清空復盤</td><td>不行</td><td>可以</td></tr>
       </table>
     </details>
+    </template>
   </div>
 
 
@@ -123,11 +126,14 @@
     <ol>
       <li><strong>教練或隊長：開一場復盤。</strong>在「開始回顧」貼上比賽影片的 YouTube 網址，按「開新復盤」。「選項」會顯示這場復盤的編號，按「分享此復盤」複製連結，傳到球隊群組。<br>
         同一支影片可以開很多場復盤（每按一次「開新復盤」都會產生新的編號），所以一軍、二軍或不同隊伍可以各自檢討同一場比賽。之後要回到這場復盤，貼上同一部影片的網址，從清單點選它（已有片段的復盤才會出現在清單），或用當初傳出去的連結。</li>
-      <li><strong>標記要檢討的片段。</strong>輸入開始與結束時間（照 YouTube 播放器上顯示的格式，例如 <code>2:15</code> 或 <code>1:02:03</code>；結束可以留空，自動抓 5 秒），標題寫清楚是哪一個回合，例如「第二節 防守輪轉漏人」「最後一波進攻戰術」。標錯時間可以按「修改」調整。</li>
+      <li><strong>標記要檢討的片段。</strong>輸入開始與結束時間（照 YouTube 播放器上顯示的格式，例如 <code>2:15</code> 或 <code>1:02:03</code>；結束可以留空，自動抓 5 秒），標題寫清楚是哪一個回合，例如「第二節 防守輪轉漏人」「最後一波進攻戰術」。</li>
       <li><strong>球員：看片段、留言。</strong>打開群組裡的網址（或在「開始回顧」貼上同一部影片的網址，從清單點選這場復盤），按片段的「播放」，影片會從那個時間開始播，播到結束時間自動暫停；右邊同時打開這個片段的討論串。在這裡寫下你當時的判斷、看到的問題或想問教練的地方。</li>
-      <li><strong>要不要登入？</strong>只想看片段、留言的球員可以不登入，填名字就能留言（顯示為「名字（訪客）」，送出後無法刪除）。需要新增、修改、刪除片段，或想刪掉自己留言的人，請註冊登入。</li>
+      <li><strong>填上你的名字。</strong>目前不需要登入：填名字就能建立片段與留言，顯示為「名字（訪客）」。送出後無法自行修改或刪除。</li>
     </ol>
   </details>
+
+  <p id="guest-name-row"><label>你的名字 <input id="guest-name" placeholder="建立片段與留言時顯示"></label>
+    <span class="hint">顯示為「名字（訪客）」。送出的片段與留言無法自行修改或刪除。</span></p>
 
   <p id="error" role="alert"></p>
 
@@ -150,7 +156,6 @@
       <div id="thread" hidden>
         <ul id="comments"></ul>
         <form id="comment-form">
-          <p id="guest-name-row"><label>你的名字 <input id="guest-name" placeholder="匿名留言時顯示"></label>（匿名留言送出後無法刪除）</p>
           <textarea id="body" rows="3" placeholder="留言"></textarea>
           <button>送出留言</button>
         </form>

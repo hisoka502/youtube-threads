@@ -225,11 +225,11 @@ function render() {
   // 清空此復盤只有登入者能用
   $('clear-review-row').hidden = !signedIn;
   $('signed-in').hidden = !signedIn;
+  // 測試期間未登入時，目前身分列整列不顯示（之前已登入的人仍可在這裡登出）
+  $('account-bar').hidden = !signedIn;
   $('signed-out').hidden = signedIn;
   $('user-display-name').textContent = state.user?.displayName ?? '';
-  // 未登入不能建立討論串
-  $('clip-form').hidden = !signedIn;
-  // 匿名也可以留言，但要填名字
+  // 訪客填名字後可以建立片段與留言（5.27 測試期間不顯示登入）
   $('guest-name-row').hidden = signedIn;
 
   const clips = $('clips');

@@ -464,10 +464,10 @@ test/
 - [x] 移除不再使用的 joinSet 與 mustExist（需要時可從 git 歷史找回）
 
 訪客建立片段：
-- [ ] app.createClip：未登入、有填名字 → createdBy 為「名字（訪客）」，userId 為 null
-- [ ] app.createClip：未登入、沒填名字 → NO_NAME，不建立（取代 NOT_SIGNED_IN）
-- [ ] SQL（`db/migrations/007_guest_clips_and_names.sql`）：anon 可新增 user_id 為 null 的片段
-- [ ] DOM：隱藏登入列；名字欄位移到片段與留言共用的位置（手動驗證）
+- [x] app.createClip：未登入、有填名字 → createdBy 為「名字（訪客）」，userId 為 null
+- [x] app.createClip：未登入、沒填名字 → NO_NAME，不建立（取代 NOT_SIGNED_IN）
+- [x] SQL（`db/migrations/007_guest_clips_and_names.sql`）：anon 可新增 user_id 為 null 的片段
+- [ ] DOM：隱藏登入列；名字欄位移到片段與留言共用的位置（手動驗證；雲端以模擬播放器與記憶體資料驗證過，待使用者驗證）
 
 復盤名稱：
 - [ ] 記憶體版 ReviewNameRepository：set(setId, name)、listBySets(setIds)
