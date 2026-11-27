@@ -826,3 +826,16 @@ test('UI：clearSet 未登入 → NOT_SIGNED_IN，不刪除；尚未載入影片
   await noVideo.app.clearSet();
   assert.equal(noVideo.app.getState().error, 'NO_VIDEO');
 });
+
+test('UI：clearSet 只刪除目前復盤的片段，同一部影片的其他復盤不受影響', async () => {
+  const { app, clipRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: 's1' });
+  await clipRepo.add({ id: 'c2', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: 's2' });
+  await clipRepo.add({ id: 'c3', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: null });
+  await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+
+  await app.clearSet();
+
+  assert.deepEqual((await clipRepo.listByVideo('abc', 's2')).map((c) => c.id), ['c2']);
+  assert.deepEqual((await clipRepo.listByVideo('abc', null)).map((c) => c.id), ['c3']);
+});
