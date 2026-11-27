@@ -99,6 +99,29 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     return state.user !== null && comment.userId === state.user.id;
   }
 
+  /**
+   * 載入影片與它的片段。
+   * @param {string} url YouTube 網址
+   * @param {{ setId?: string | null }} [options] 復盤；省略時產生新的復盤，null 為加入此功能前建立的片段
+   */
+  async function loadVideo(url, options = {}) {
+    if (state.busy) return; // 處理中暫停操作
+    const videoId = parseUrl(url);
+    if (videoId === null) {
+      state = { ...state, error: 'INVALID_URL' };
+      return;
+    }
+    // 沒給復盤（貼上網址帶進影片）時產生新的復盤；給了（打開分享網址）則沿用
+    const setId = options.setId === undefined ? newRoomId() : options.setId;
+    await guardStorage(async () => {
+      const clips = await clipRepo.listByVideo(videoId, setId);
+      // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片
+      player.load(videoId);
+      state = { ...state, videoId, setId, error: null };
+      setClips(clips);
+    });
+  }
+
   return {
     getState() {
       return state;
@@ -149,28 +172,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       });
     },
 
-    /**
-     * 載入影片與它的片段。
-     * @param {string} url YouTube 網址
-     * @param {{ setId?: string | null }} [options] 復盤；省略時產生新的復盤，null 為加入此功能前建立的片段
-     */
-    async loadVideo(url, options = {}) {
-      if (state.busy) return; // 處理中暫停操作
-      const videoId = parseUrl(url);
-      if (videoId === null) {
-        state = { ...state, error: 'INVALID_URL' };
-        return;
-      }
-      // 沒給復盤（貼上網址帶進影片）時產生新的復盤；給了（打開分享網址）則沿用
-      const setId = options.setId === undefined ? newRoomId() : options.setId;
-      await guardStorage(async () => {
-        const clips = await clipRepo.listByVideo(videoId, setId);
-        // 片段讀取成功才換播放器的影片，失敗時播放器與片段列表都停在舊影片
-        player.load(videoId);
-        state = { ...state, videoId, setId, error: null };
-        setClips(clips);
-      });
-    },
+    loadVideo,
 
     /**
      * 以已知的復盤編號載入影片（打開別人告知編號的復盤）。編號去掉前後空白並轉成小寫。
@@ -178,7 +180,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} code 復盤編號
      */
     async joinSet(url, code) {
-      await this.loadVideo(url, { setId: code.trim().toLowerCase() });
+      await loadVideo(url, { setId: code.trim().toLowerCase() });
     },
 
     /**
