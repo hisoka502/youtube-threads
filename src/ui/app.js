@@ -92,6 +92,17 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
   }
 
   /**
+   * 建立片段或留言時的建立者：登入者用顯示名稱；訪客（未登入）用填的名字並標示「（訪客）」，沒有使用者 id。
+   * @returns {{ createdBy: string, userId: string | null }}
+   */
+  function author() {
+    const { user } = state;
+    return user === null
+      ? { createdBy: `${state.guestName}（訪客）`, userId: null }
+      : { createdBy: user.displayName, userId: user.id };
+  }
+
+  /**
    * 目前登入的使用者能不能刪除這則留言（只能刪除自己的留言）。
    * @param {import('../types.js').Comment} comment
    */
@@ -215,13 +226,7 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         return;
       }
       await guardStorage(async () => {
-        // 登入者用顯示名稱；訪客（未登入）用填的名字並標示「（訪客）」，沒有使用者 id
-        const { user } = state;
-        const createdBy = user === null ? `${state.guestName}（訪客）` : user.displayName;
-        const userId = user === null ? null : user.id;
-        const result = await clipService.createClip({
-          videoId, startSec, endSec, title, createdBy, userId, setId: state.setId,
-        });
+        const result = await clipService.createClip({ videoId, startSec, endSec, title, ...author(), setId: state.setId });
         if (!result.ok) {
           state = { ...state, error: result.error };
           return;
@@ -291,16 +296,12 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NO_CLIP' };
         return;
       }
-      // 登入者用顯示名稱；訪客（未登入）用填的名字並標示「（訪客）」，沒有使用者 id
-      const { user } = state;
-      if (user === null && state.guestName === '') {
+      if (state.user === null && state.guestName === '') {
         state = { ...state, error: 'NO_NAME' };
         return;
       }
-      const createdBy = user === null ? `${state.guestName}（訪客）` : user.displayName;
-      const userId = user === null ? null : user.id;
       await guardStorage(async () => {
-        await commentRepo.add({ id: newId(), clipId, body, createdBy, createdAt: now(), userId });
+        await commentRepo.add({ id: newId(), clipId, body, ...author(), createdAt: now() });
         state = { ...state, comments: await commentRepo.listByClip(clipId), error: null };
       });
     },
