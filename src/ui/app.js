@@ -8,6 +8,7 @@ import { playRange } from '../player/playRange.js';
  * @param {object} deps
  * @param {import('../types.js').ClipRepository} deps.clipRepo
  * @param {import('../types.js').CommentRepository} deps.commentRepo
+ * @param {import('../types.js').ReviewNameRepository} deps.reviewNameRepo 復盤名稱
  * @param {ReturnType<typeof import('../clip/clipService.js').createClipService>} deps.clipService
  * @param {import('../types.js').PlayerAdapter} deps.player
  * @param {() => string} deps.newId 產生新留言的 id
@@ -20,7 +21,7 @@ import { playRange } from '../player/playRange.js';
  * }} deps.auth
  * @param {{ set: (session: import('../types.js').Session | null) => void, getUser: () => import('../types.js').User | null }} deps.sessions 工作階段（重新整理頁面後仍保存）
  */
-export function createApp({ clipRepo, commentRepo, clipService, player, newId, newRoomId, now, logError, auth, sessions }) {
+export function createApp({ clipRepo, commentRepo, reviewNameRepo, clipService, player, newId, newRoomId, now, logError, auth, sessions }) {
   /** @type {import('../types.js').AppState} */
   let state = { videoId: null, clips: [], error: null, selectedClipId: null, comments: [], busy: false, user: sessions.getUser(), setId: null, guestName: '', setChoices: null };
 
@@ -198,7 +199,9 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
       }
       await guardStorage(async () => {
         const setIds = await clipRepo.listSetIds(videoId);
-        state = { ...state, setChoices: { videoId, sets: setIds.map((setId) => ({ setId })) }, error: null };
+        const names = await reviewNameRepo.listBySets(setIds);
+        const sets = setIds.map((setId) => ({ setId, name: names[setId] ?? '' }));
+        state = { ...state, setChoices: { videoId, sets }, error: null };
       });
     },
 

@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createApp } from '../../src/ui/app.js';
-import { createMemoryClipRepo, createMemoryCommentRepo } from '../../src/data/memoryRepo.js';
+import { createMemoryClipRepo, createMemoryCommentRepo, createMemoryReviewNameRepo } from '../../src/data/memoryRepo.js';
 import { createClipService } from '../../src/clip/clipService.js';
 import { createFakeVideoInfo } from '../../src/video/fakeVideoInfo.js';
 import { createFakePlayer } from '../../src/player/fakePlayer.js';
@@ -40,6 +40,7 @@ function createFakeAuth() {
  * @param {ReturnType<typeof createFakeAuth>} [overrides.auth] 測試時可換成會失敗的 auth
  */
 function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCommentRepo(), signedIn = true, auth = createFakeAuth() } = {}) {
+  const reviewNameRepo = createMemoryReviewNameRepo();
   const videoInfo = createFakeVideoInfo({ abc: 120, xyz: 60 });
   let n = 0;
   const newId = () => `id-${++n}`;
@@ -56,8 +57,8 @@ function setup({ clipRepo = createMemoryClipRepo(), commentRepo = createMemoryCo
   const sessions = createSessionManager({ auth, storage, now: () => NOW });
   let rooms = 0;
   const newRoomId = () => `room-${++rooms}`;
-  const app = createApp({ clipRepo, commentRepo, clipService, player, newId, newRoomId, now: () => NOW, logError, auth, sessions });
-  return { app, clipRepo, commentRepo, player, logged, auth, sessions };
+  const app = createApp({ clipRepo, commentRepo, reviewNameRepo, clipService, player, newId, newRoomId, now: () => NOW, logError, auth, sessions });
+  return { app, clipRepo, commentRepo, reviewNameRepo, player, logged, auth, sessions };
 }
 
 test('UI：貼上有效網址後，狀態有 videoId，並列出該影片的片段', async () => {
@@ -840,15 +841,17 @@ test('UI：clearSet 只刪除目前復盤的片段，同一部影片的其他復
   assert.deepEqual((await clipRepo.listByVideo('abc', null)).map((c) => c.id), ['c3']);
 });
 
-test('UI：findSets 列出貼入影片的所有復盤（最近有新片段的在前），不換播放器的影片', async () => {
-  const { app, clipRepo, player } = setup();
+test('UI：findSets 列出貼入影片的所有復盤（最近有新片段的在前）與名稱，不換播放器的影片', async () => {
+  const { app, clipRepo, reviewNameRepo, player } = setup();
   const base = { range: { startSec: 0, endSec: 5 }, title: '', createdBy: '小明', userId: 'user-1' };
   await clipRepo.add({ ...base, id: 'c1', videoId: 'abc', setId: 's1', createdAt: 100 });
   await clipRepo.add({ ...base, id: 'c2', videoId: 'abc', setId: 's2', createdAt: 200 });
+  await reviewNameRepo.set('s1', '一軍');
 
   await app.findSets('https://youtu.be/abc');
 
-  assert.deepEqual(app.getState().setChoices, { videoId: 'abc', sets: [{ setId: 's2' }, { setId: 's1' }] });
+  // 每一場帶名稱；沒有名稱為空字串
+  assert.deepEqual(app.getState().setChoices, { videoId: 'abc', sets: [{ setId: 's2', name: '' }, { setId: 's1', name: '一軍' }] });
   assert.equal(player.getLoadedVideoId(), null);
 });
 

@@ -147,6 +147,7 @@
  * 復盤清單中的一場。
  * @typedef {object} ReviewChoice
  * @property {string} setId 復盤編號
+ * @property {string} name 復盤名稱（alias）；沒有名稱為空字串
  */
 
 /**
