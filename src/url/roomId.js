@@ -10,5 +10,13 @@ const LENGTH = 8;
  * @returns {string}
  */
 export function newRoomId(randomBytes = (n) => crypto.getRandomValues(new Uint8Array(n))) {
-  return Array.from(randomBytes(LENGTH), (byte) => ALPHABET[byte % ALPHABET.length]).join('');
+  // 256 不是 31 的倍數；只用小於 248（31 × 8）的位元組，每個字元出現的機率才會相同
+  const limit = ALPHABET.length * Math.floor(256 / ALPHABET.length);
+  let id = '';
+  while (id.length < LENGTH) {
+    for (const byte of randomBytes(LENGTH - id.length)) {
+      if (byte < limit) id += ALPHABET[byte % ALPHABET.length];
+    }
+  }
+  return id;
 }
