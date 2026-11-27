@@ -241,8 +241,9 @@ function render() {
   const selected = state.clips.find((c) => c.id === state.selectedClipId);
   $('thread').hidden = selected === undefined;
   $('no-thread').hidden = selected !== undefined;
+  // 沒有開啟的討論串時，標題回到「討論串」
+  $('thread-title').textContent = selected === undefined ? '討論串' : `片段 ${clipLabel(selected)} 的討論串`;
   if (selected !== undefined) {
-    $('thread-title').textContent = `片段 ${clipLabel(selected)} 的討論串`;
     $('comments').replaceChildren(
       ...state.comments.map((comment) => {
         const li = document.createElement('li');
