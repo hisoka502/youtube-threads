@@ -792,3 +792,22 @@ test('UI：建立片段時開始欄位空白，以播放器目前的時間（捨
   assert.equal(app.getState().error, null);
   assert.deepEqual(app.getState().clips.map((c) => c.range), [{ startSec: 65, endSec: 70 }]);
 });
+
+test('UI：clearSet 刪除目前復盤的所有片段與留言，清除選取的討論串', async () => {
+  const { app, clipRepo, commentRepo } = setup();
+  await clipRepo.add({ id: 'c1', videoId: 'abc', range: { startSec: 10, endSec: 15 }, setId: 's1' });
+  await clipRepo.add({ id: 'c2', videoId: 'abc', range: { startSec: 20, endSec: 25 }, setId: 's1' });
+  await commentRepo.add({ id: 'm1', clipId: 'c1', body: '別人的留言', createdBy: '小華', createdAt: NOW, userId: 'user-2' });
+  await app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+  await app.selectClip('c1');
+
+  await app.clearSet();
+
+  const state = app.getState();
+  assert.equal(state.error, null);
+  assert.deepEqual(state.clips, []);
+  assert.equal(state.selectedClipId, null);
+  assert.deepEqual(state.comments, []);
+  assert.deepEqual(await clipRepo.listByVideo('abc', 's1'), []);
+  assert.deepEqual(await commentRepo.listByClip('c1'), []);
+});

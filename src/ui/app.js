@@ -301,6 +301,22 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     },
 
     /**
+     * 清空此復盤：刪除目前復盤的所有片段（討論串）與留言，沿用原本的復盤編號。
+     * 以資料庫目前的片段列表為準（包含其他人在載入後新增的片段）。
+     */
+    async clearSet() {
+      if (state.busy) return; // 處理中暫停操作
+      await guardStorage(async () => {
+        const videoId = /** @type {string} */ (state.videoId);
+        for (const clip of await clipRepo.listByVideo(videoId, state.setId)) {
+          await clipService.deleteClip(clip.id);
+        }
+        setClips(await clipRepo.listByVideo(videoId, state.setId));
+        state = { ...state, error: null };
+      });
+    },
+
+    /**
      * 刪除選取的討論串中的一則留言。
      * @param {string} commentId
      */
