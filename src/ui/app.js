@@ -329,7 +329,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      */
     async startNewSet() {
       if (state.busy) return; // 處理中暫停操作
-      const videoId = /** @type {string} */ (state.videoId);
+      const { videoId } = state;
+      if (videoId === null) {
+        state = { ...state, error: 'NO_VIDEO' };
+        return;
+      }
       const setId = newRoomId();
       await guardStorage(async () => {
         const clips = await clipRepo.listByVideo(videoId, setId);

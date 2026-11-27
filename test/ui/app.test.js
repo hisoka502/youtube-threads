@@ -856,3 +856,12 @@ test('UI：startNewSet 為同一部影片產生新的復盤編號，列出新復
   assert.equal(state.error, null);
   assert.deepEqual((await clipRepo.listByVideo('abc', 's1')).map((c) => c.id), ['c1']);
 });
+
+test('UI：startNewSet 尚未載入影片 → NO_VIDEO，不產生復盤編號', async () => {
+  const { app } = setup();
+
+  await app.startNewSet();
+
+  assert.equal(app.getState().error, 'NO_VIDEO');
+  assert.equal(app.getState().setId, null);
+});
