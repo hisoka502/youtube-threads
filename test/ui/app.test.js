@@ -926,3 +926,21 @@ test('UI：renameSet 尚未載入影片 → NO_VIDEO，不存入', async () => {
   assert.equal(app.getState().error, 'NO_VIDEO');
   assert.equal(app.getState().setName, '');
 });
+
+test('UI：busy 時呼叫 renameSet 會被忽略', async () => {
+  const hold = holdOn(createMemoryClipRepo(), 'listByVideo');
+  const { app, reviewNameRepo } = setup({ clipRepo: hold.repo });
+  await reviewNameRepo.set('s1', '一軍');
+  const first = app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+  await new Promise((resolve) => setImmediate(resolve));
+  hold.release();
+  await first;
+
+  const reloading = app.loadVideo('https://youtu.be/abc', { setId: 's1' });
+  await app.renameSet('改名');
+  await new Promise((resolve) => setImmediate(resolve));
+  hold.release();
+  await reloading;
+
+  assert.deepEqual(await reviewNameRepo.listBySets(['s1']), { s1: '一軍' });
+});

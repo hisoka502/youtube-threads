@@ -213,6 +213,7 @@ export function createApp({ clipRepo, commentRepo, reviewNameRepo, clipService, 
      * @param {string} name
      */
     async renameSet(name) {
+      if (state.busy) return; // 處理中暫停操作
       if (state.videoId === null) {
         state = { ...state, error: 'NO_VIDEO' };
         return;
