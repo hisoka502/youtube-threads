@@ -12,6 +12,7 @@ import { createClipService } from '../src/clip/clipService.js';
 import { formatTimecode } from '../src/time/timecode.js';
 import { pageVideoId, pageSetId, pageUrlFor } from '../src/url/pageUrl.js';
 import { newRoomId } from '../src/url/roomId.js';
+import { parseUrl } from '../src/url/parseUrl.js';
 
 /** @param {string} id */
 const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
@@ -23,8 +24,6 @@ const input = (id) => /** @type {HTMLInputElement} */ (document.getElementById(i
 const ERROR_TEXT = {
   INVALID_URL: '無法辨識的 YouTube 網址',
   NO_VIDEO: '請先載入影片',
-  NO_SET_ID: '請輸入復盤編號',
-  SET_NOT_FOUND: '找不到這場復盤：這部影片沒有這個編號的復盤。請確認編號與第 1 步的影片是否正確。（還沒有任何片段的復盤無法用編號進入，請向對方要「分享此復盤」的連結）',
   INVALID_TIMECODE: '時間格式錯誤（請用 YouTube 顯示格式，例如 2:15 或 1:02:03）',
   INVALID_RANGE: '片段不合法：結束時間必須大於開始時間、不可超過影片長度，且開始時間至少要在影片結尾前 3 秒',
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
@@ -205,6 +204,23 @@ function render() {
   $('room').hidden = state.videoId === null;
   $('room-id').textContent = state.setId ?? '（舊連結，沒有復盤編號）';
 
+  // 貼入影片後列出的復盤；點選即進入
+  const choices = state.setChoices;
+  $('set-choices').replaceChildren(
+    ...(choices?.sets ?? []).map(({ setId }) => {
+      const li = document.createElement('li');
+      const isCurrent = choices !== null && choices.videoId === state.videoId && setId === state.setId;
+      li.classList.toggle('current', isCurrent);
+      const code = document.createElement('code');
+      code.textContent = setId;
+      li.append(code, isCurrent ? '（目前的復盤）' : button('進入', () => enterSet(choices.videoId, setId)));
+      return li;
+    }),
+  );
+  $('set-choices-hint').textContent = choices === null
+    ? '貼上網址後，這裡會列出這部影片的所有復盤。'
+    : choices.sets.length === 0 ? '這部影片還沒有復盤（有片段的復盤才會列出）。' : '';
+
   const signedIn = state.user !== null;
   // 清空此復盤只有登入者能用
   $('clear-review-row').hidden = !signedIn;
@@ -312,16 +328,35 @@ function updateAddressBar() {
 function afterStart() {
   const { error, videoId } = app.getState();
   $('start-error').textContent = error === null ? '' : (ERROR_TEXT[error] ?? error);
-  // 輸入的編號不存在時跳出警語
-  if (error === 'SET_NOT_FOUND') alert(ERROR_TEXT.SET_NOT_FOUND);
   if (error !== null || videoId === null) return;
   updateAddressBar();
   input('url').value = `https://www.youtube.com/watch?v=${videoId}`;
-  input('set-id').value = '';
 }
-onSubmit('join-form', async () => {
-  await app.joinSet(input('url').value.trim(), input('set-id').value);
-  afterStart();
+
+/**
+ * 進入清單中的一場復盤。
+ * @param {string} videoId
+ * @param {string} setId
+ */
+function enterSet(videoId, setId) {
+  run(async () => {
+    await app.loadVideo(`https://www.youtube.com/watch?v=${videoId}`, { setId });
+    afterStart();
+  });
+}
+
+/** 依第 1 步的網址列出這部影片的復盤；錯誤顯示在「開始回顧」區塊內。 */
+async function findSets() {
+  await app.findSets(input('url').value.trim());
+  const { error } = app.getState();
+  $('start-error').textContent = error === null ? '' : (ERROR_TEXT[error] ?? error);
+}
+// 貼上或輸入可辨識的網址時自動列出；按 Enter 時即使網址無效也查詢，以顯示錯誤
+input('url').addEventListener('input', () => {
+  if (parseUrl(input('url').value.trim()) !== null) run(findSets);
+});
+input('url').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') run(findSets);
 });
 $('start-new').addEventListener('click', () => run(async () => {
   await app.loadVideo(input('url').value.trim());
@@ -418,5 +453,6 @@ if (sharedVideoId !== null) {
   run(async () => {
     await app.loadVideo(`https://www.youtube.com/watch?v=${sharedVideoId}`, { setId: pageSetId(location.href) });
     afterStart();
+    await findSets();
   });
 }
