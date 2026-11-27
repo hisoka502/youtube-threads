@@ -107,11 +107,16 @@
 
   <section id="room" hidden>
     <h2>選項</h2>
-    <p>目前的復盤編號 <code id="room-id"></code></p>
+    <p>目前的復盤 <strong id="room-name"></strong> 編號 <code id="room-id"></code></p>
     <ol class="steps">
       <li><button type="button" id="copy-link">分享此復盤</button>
         <span class="hint">複製這場復盤的連結，傳給隊友。</span>
         <span id="copy-status" class="hint"></span></li>
+      <li id="rename-row"><form id="rename-form">
+          <input id="set-name" placeholder="例如：一軍 vs 台北 第二節" autocomplete="off">
+          <button>命名此復盤</button>
+          <span class="hint">名稱會顯示在影片的復盤清單；不同復盤可以同名，進入時以編號為準。</span>
+        </form></li>
       <li id="clear-review-row"><button type="button" id="clear-review">清空此復盤</button>
         <span class="hint">刪除這場復盤所有的討論串與所有人的留言，編號不變，已分享的連結仍可使用。無法復原。（需登入）</span></li>
     </ol>

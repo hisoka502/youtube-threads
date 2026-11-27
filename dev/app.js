@@ -4,8 +4,8 @@
 import { createApp } from '../src/ui/app.js';
 import { createYouTubePlayer } from '../src/player/youtubePlayer.js';
 import { createPlayerVideoInfo } from '../src/video/playerVideoInfo.js';
-import { createMemoryClipRepo, createMemoryCommentRepo } from '../src/data/memoryRepo.js';
-import { createSupabaseClipRepo, createSupabaseCommentRepo } from '../src/data/supabaseRepo.js';
+import { createMemoryClipRepo, createMemoryCommentRepo, createMemoryReviewNameRepo } from '../src/data/memoryRepo.js';
+import { createSupabaseClipRepo, createSupabaseCommentRepo, createSupabaseReviewNameRepo } from '../src/data/supabaseRepo.js';
 import { createSupabaseAuth } from '../src/auth/supabaseAuth.js';
 import { createSessionManager } from '../src/auth/session.js';
 import { createClipService } from '../src/clip/clipService.js';
@@ -112,6 +112,7 @@ const sessions = createSessionManager({ auth, storage: localSessionStorage, now:
 const repoOptions = supabase && { ...supabase, getAccessToken: () => sessions.getAccessToken() };
 const clipRepo = repoOptions ? createSupabaseClipRepo(repoOptions) : createMemoryClipRepo();
 const commentRepo = repoOptions ? createSupabaseCommentRepo(repoOptions) : createMemoryCommentRepo();
+const reviewNameRepo = repoOptions ? createSupabaseReviewNameRepo(repoOptions) : createMemoryReviewNameRepo();
 $('storage').textContent = supabase
   ? `資料存在 Supabase（${config.supabaseUrl}）。`
   : '資料存在記憶體，重新整理後會清空（沒有找到 dev/config.js 或 dev/config.public.js）。';
@@ -124,7 +125,7 @@ const clipService = createClipService({
   now: () => Date.now(),
 });
 const app = createApp({
-  clipRepo, commentRepo, clipService, player, newId, newRoomId: () => newRoomId(),
+  clipRepo, commentRepo, reviewNameRepo, clipService, player, newId, newRoomId: () => newRoomId(),
   now: () => Date.now(),
   logError: (error) => console.error(error),
   auth,
@@ -203,16 +204,21 @@ function render() {
   // 目前的復盤編號；沒有 s 參數的舊網址沒有復盤
   $('room').hidden = state.videoId === null;
   $('room-id').textContent = state.setId ?? '（舊連結，沒有復盤編號）';
+  // 舊連結沒有編號，不能命名
+  $('rename-row').hidden = state.setId === null;
+  $('room-name').textContent = state.setName === '' ? '（未命名）' : state.setName;
 
   // 貼入影片後列出的復盤；點選即進入
   const choices = state.setChoices;
   $('set-choices').replaceChildren(
-    ...(choices?.sets ?? []).map(({ setId }) => {
+    ...(choices?.sets ?? []).map(({ setId, name }) => {
       const li = document.createElement('li');
       const isCurrent = choices !== null && choices.videoId === state.videoId && setId === state.setId;
       li.classList.toggle('current', isCurrent);
       const code = document.createElement('code');
       code.textContent = setId;
+      // 名稱不必唯一，所以編號一律顯示，點選時以編號為準
+      if (name !== '') li.append(`${name} `);
       li.append(code, isCurrent ? '（目前的復盤）' : button('進入', () => enterSet(choices.videoId, setId)));
       return li;
     }),
@@ -362,6 +368,15 @@ $('start-new').addEventListener('click', () => run(async () => {
   await app.loadVideo(input('url').value.trim());
   afterStart();
 }));
+onSubmit('rename-form', async () => {
+  await app.renameSet(input('set-name').value);
+  if (app.getState().error === null) {
+    input('set-name').value = '';
+    // 清單裡的名稱也要更新
+    const { setChoices } = app.getState();
+    if (setChoices !== null) await app.findSets(`https://www.youtube.com/watch?v=${setChoices.videoId}`);
+  }
+});
 $('clear-review').addEventListener('click', () => {
   const { clips } = app.getState();
   const ok = confirm(`確定要清空這場復盤嗎？\n${clips.length} 個討論串與所有人的留言都會刪除，無法復原。\n復盤編號不變，已分享的連結仍可使用。`);

@@ -470,13 +470,13 @@ test/
 - [ ] DOM：隱藏登入列；名字欄位移到片段與留言共用的位置（手動驗證；雲端以模擬播放器與記憶體資料驗證過，待使用者驗證）
 
 復盤名稱：
-- [ ] 記憶體版 ReviewNameRepository：set(setId, name)、listBySets(setIds)
-- [ ] Supabase 版：set 以 POST upsert（`Prefer: resolution=merge-duplicates`）；listBySets 以 `set_id=in.(…)` 查詢
-- [ ] app.findSets：清單每一場帶名稱（沒有為空字串）
-- [ ] app.loadVideo：狀態有目前復盤的名稱 setName
-- [ ] app.renameSet(name)：去掉前後空白後存入；尚未載入影片 → NO_VIDEO
-- [ ] SQL：review_names 資料表與權限（anon、登入者都可讀、新增、修改）
-- [ ] DOM：清單顯示名稱與編號；「選項」可以命名此復盤（手動驗證）
+- [x] 記憶體版 ReviewNameRepository：set(setId, name)、listBySets(setIds)
+- [x] Supabase 版：set 以 POST upsert（`Prefer: resolution=merge-duplicates`）；listBySets 以 `set_id=in.(…)` 查詢（每個值加雙引號）；沒有復盤時不送出請求
+- [x] app.findSets：清單每一場帶名稱（沒有為空字串）
+- [x] app.loadVideo：狀態有目前復盤的名稱 setName
+- [x] app.renameSet(name)：去掉前後空白後存入；尚未載入影片 → NO_VIDEO；busy 時忽略
+- [x] SQL：review_names 資料表與權限（anon、登入者都可讀、新增、修改）（寫在 007 同一個檔案）
+- [ ] DOM：清單顯示名稱與編號；「選項」可以命名此復盤；沒有編號的舊連結不顯示命名欄（手動驗證；雲端以模擬播放器與記憶體資料驗證過，待使用者驗證）
 
 ## 6. 待決定事項
 
