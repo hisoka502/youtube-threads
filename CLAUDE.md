@@ -441,6 +441,43 @@ test/
 
 - [ ] DOM：目前身分列、按鈕展開表單、表單內錯誤、「匿名與登入的差別」（手動驗證；雲端以模擬播放器與本機假登入驗證過，待使用者驗證）
 
+### 5.27 貼入影片後列出該影片的復盤（使用者決定：以 Shape Up 的方式先縮小範圍，測試「復盤方不方便」）
+
+**問題**：使用者要進入一場復盤時，必須拿到連結或記得編號。改成貼入影片後直接從清單選。
+
+**解法**：
+- 貼入 YouTube 網址後，自動列出這部影片的所有復盤；點一場即進入。清單下方有「開新復盤」。
+- 復盤可以命名（名稱，alias）。名稱不必唯一；進入時一律以點選的那場的編號為準，所以同名不會進錯（使用者決定）。
+- 暫時拿掉登入（使用者決定）：畫面不顯示登入／註冊，程式保留。訪客填名字後可以建立片段與留言（片段 createdBy 為「名字（訪客）」、userId 為 null）。修改、刪除片段與清空復盤仍需登入，測試期間等於不開放。
+- 移除「輸入編號進入現有復盤」（joinSet、SET_NOT_FOUND）（使用者決定）。
+- 清單公開：貼同一部影片的人都看得到所有復盤（使用者同意；資料庫本來就允許讀取所有片段）。
+
+**清單的來源**（由 Claude 決定，使用者可改）：沿用 5.25「有片段才算存在」，從 clips 取出不重複的 set_id，最近有新片段的在前。名稱另存在 `review_names` 資料表（set_id 為主鍵），只存名稱。
+
+**No-gos**：不新增 reviews 資料表；沒有片段的復盤不出現在清單；不列出沒有編號的舊片段（舊連結照常可用）；清單不分頁、不搜尋；不記錄復盤的創建者；名稱任何人都能改，不留修改紀錄。
+
+清單：
+- [ ] 記憶體版 ClipRepository.listSetIds(videoId)：該影片有片段的復盤編號，不重複，最近有新片段的在前；不含 set_id 為 null
+- [ ] Supabase 版 listSetIds：GET clips 只取 set_id 與 created_at，依 created_at 由新到舊，去掉重複
+- [ ] app.findSets(url)：狀態 setChoices 為 { videoId, sets }；無效網址 → INVALID_URL；讀取失敗 → STORAGE_FAILED
+- [ ] DOM：貼入網址後列出清單、點選進入、開新復盤；移除「進入現有復盤」（手動驗證）
+- [ ] 移除不再使用的 joinSet 與 mustExist
+
+訪客建立片段：
+- [ ] app.createClip：未登入、有填名字 → createdBy 為「名字（訪客）」，userId 為 null
+- [ ] app.createClip：未登入、沒填名字 → NO_NAME，不建立（取代 NOT_SIGNED_IN）
+- [ ] SQL（`db/migrations/007_guest_clips_and_names.sql`）：anon 可新增 user_id 為 null 的片段
+- [ ] DOM：隱藏登入列；名字欄位移到片段與留言共用的位置（手動驗證）
+
+復盤名稱：
+- [ ] 記憶體版 ReviewNameRepository：set(setId, name)、listBySets(setIds)
+- [ ] Supabase 版：set 以 POST upsert（`Prefer: resolution=merge-duplicates`）；listBySets 以 `set_id=in.(…)` 查詢
+- [ ] app.findSets：清單每一場帶名稱（沒有為空字串）
+- [ ] app.loadVideo：狀態有目前復盤的名稱 setName
+- [ ] app.renameSet(name)：去掉前後空白後存入；尚未載入影片 → NO_VIDEO
+- [ ] SQL：review_names 資料表與權限（anon、登入者都可讀、新增、修改）
+- [ ] DOM：清單顯示名稱與編號；「選項」可以命名此復盤（手動驗證）
+
 ## 6. 待決定事項
 
 處理到相關測試時，先停下來問使用者，不要自行假設：
