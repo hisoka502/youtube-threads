@@ -891,3 +891,12 @@ test('UI：findSets 列出貼入影片的所有復盤（最近有新片段的在
   assert.deepEqual(app.getState().setChoices, { videoId: 'abc', sets: [{ setId: 's2' }, { setId: 's1' }] });
   assert.equal(player.getLoadedVideoId(), null);
 });
+
+test('UI：findSets 網址無效 → INVALID_URL，不讀取資料', async () => {
+  const { app } = setup();
+
+  await app.findSets('https://example.com/abc');
+
+  assert.equal(app.getState().error, 'INVALID_URL');
+  assert.equal(app.getState().setChoices, null);
+});

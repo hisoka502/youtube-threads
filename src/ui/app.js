@@ -184,7 +184,11 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} url YouTube 網址
      */
     async findSets(url) {
-      const videoId = /** @type {string} */ (parseUrl(url));
+      const videoId = parseUrl(url);
+      if (videoId === null) {
+        state = { ...state, error: 'INVALID_URL' };
+        return;
+      }
       await guardStorage(async () => {
         const setIds = await clipRepo.listSetIds(videoId);
         state = { ...state, setChoices: { videoId, sets: setIds.map((setId) => ({ setId })) } };
