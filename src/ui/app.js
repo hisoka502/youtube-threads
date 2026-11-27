@@ -172,7 +172,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
     },
 
     /**
-     * 以 YouTube 顯示格式的時間字串（如 "2:15"）建立片段。end 為空字串時由 resolveRange 補為 start + 5 秒。
+     * 以 YouTube 顯示格式的時間字串（如 "2:15"）建立片段。start 為空字串時用播放器目前的時間（捨去到整秒）；
+     * end 為空字串時由 resolveRange 補為 start + 5 秒。
      * @param {{ start: string, end: string, title?: string }} input
      */
     async createClip({ start, end, title }) {
@@ -186,7 +187,8 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
         state = { ...state, error: 'NOT_SIGNED_IN' };
         return;
       }
-      const startSec = parseTimecode(start);
+      // 開始欄位空白時，用播放器目前的時間（捨去到整秒，與畫面顯示一致）
+      const startSec = start === '' ? Math.floor(player.getCurrentTime()) : parseTimecode(start);
       const endSec = end === '' ? undefined : parseTimecode(end);
       if (startSec === null || endSec === null) {
         state = { ...state, error: 'INVALID_TIMECODE' };

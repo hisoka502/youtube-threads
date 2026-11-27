@@ -779,3 +779,14 @@ test('UI：未登入、沒填名字時留言，狀態有錯誤 NO_NAME，不存�
   assert.equal(app.getState().error, 'NO_NAME');
   assert.deepEqual(app.getState().comments, []);
 });
+
+test('UI：建立片段時開始欄位空白，以播放器目前的時間（捨去到整秒）為開始', async () => {
+  const { app, player } = setup();
+  await app.loadVideo('https://youtu.be/abc', { setId: null });
+  player.seekTo(65.7);
+
+  await app.createClip({ start: '', end: '' });
+
+  assert.equal(app.getState().error, null);
+  assert.deepEqual(app.getState().clips.map((c) => c.range), [{ startSec: 65, endSec: 70 }]);
+});
