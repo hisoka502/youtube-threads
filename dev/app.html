@@ -51,6 +51,14 @@
     <form id="load-form">
       <p><strong>開始復盤</strong></p>
       <input id="url" class="url" placeholder="貼上 YouTube 網址，例如 https://youtu.be/…">
+      <p>
+        <label><input type="radio" name="review-mode" value="new" checked> 開全新復盤</label>
+        <label><input type="radio" name="review-mode" value="join"> 輸入已知的復盤編號</label>
+      </p>
+      <p id="set-id-row" hidden>
+        復盤編號 <input id="set-id" placeholder="例如 k7m3qa2b" autocomplete="off">
+        <span class="hint">向開這場復盤的人要編號；影片網址也要是同一部影片。</span>
+      </p>
       <p id="dialog-error" class="dialog-error"></p>
       <button>載入影片並開始</button>
       <button type="button" id="cancel-start">取消</button>
@@ -80,7 +88,7 @@
       <li><strong>教練或隊長：開一場復盤。</strong>登入後按「開始復盤」，貼上比賽影片的 YouTube 網址。畫面會顯示這場復盤的編號，按「分享此復盤」複製連結，傳到球隊群組。<br>
         同一支影片可以開很多場復盤（每次「開始復盤」或按「以此影片開新復盤」都會產生新的編號），所以一軍、二軍或不同隊伍可以各自檢討同一場比賽，互不干擾。之後要回到這場復盤，請用當初傳出去的連結。</li>
       <li><strong>標記要檢討的片段。</strong>輸入開始與結束時間（照 YouTube 播放器上顯示的格式，例如 <code>2:15</code> 或 <code>1:02:03</code>；結束可以留空，自動抓 5 秒），標題寫清楚是哪一個回合，例如「第二節 防守輪轉漏人」「最後一波進攻戰術」。標錯時間可以按「修改」調整。</li>
-      <li><strong>球員：看片段、留言。</strong>打開群組裡的網址，按片段的「播放」，影片會從那個時間開始播，播到結束時間自動暫停；右邊同時打開這個片段的討論串。在這裡寫下你當時的判斷、看到的問題或想問教練的地方。</li>
+      <li><strong>球員：看片段、留言。</strong>打開群組裡的網址（只拿到編號的話，按「開始復盤」，貼上同一部影片的網址，選「輸入已知的復盤編號」），按片段的「播放」，影片會從那個時間開始播，播到結束時間自動暫停；右邊同時打開這個片段的討論串。在這裡寫下你當時的判斷、看到的問題或想問教練的地方。</li>
       <li><strong>要不要登入？</strong>只想看片段、留言的球員可以不登入，填名字就能留言（顯示為「名字（訪客）」，送出後無法刪除）。需要新增、修改、刪除片段，或想刪掉自己留言的人，請註冊登入。</li>
     </ol>
   </details>
@@ -131,7 +139,7 @@
         <button>建立片段</button>
       </form>
       <ul id="clips"></ul>
-      <p id="no-clips" class="hint">這部影片還沒有片段。</p>
+      <p id="no-clips" class="hint">這場復盤還沒有片段。如果是輸入編號進來的，請確認編號與影片是否正確。</p>
     </section>
 
     <section>

@@ -23,6 +23,7 @@ const input = (id) => /** @type {HTMLInputElement} */ (document.getElementById(i
 const ERROR_TEXT = {
   INVALID_URL: '無法辨識的 YouTube 網址',
   NO_VIDEO: '請先載入影片',
+  NO_SET_ID: '請輸入復盤編號',
   INVALID_TIMECODE: '時間格式錯誤（請用 YouTube 顯示格式，例如 2:15 或 1:02:03）',
   INVALID_RANGE: '片段不合法：結束時間必須大於開始時間、不可超過影片長度，且開始時間至少要在影片結尾前 3 秒',
   VIDEO_NOT_FOUND: '還讀不到影片長度，請等影片載入完成後再試',
@@ -314,14 +315,26 @@ function updateAddressBar() {
 }
 
 const startDialog = /** @type {HTMLDialogElement} */ ($('start-dialog'));
+/** 視窗中選的是「輸入已知的復盤編號」 */
+const joining = () => /** @type {HTMLInputElement} */ (document.querySelector('input[name="review-mode"]:checked')).value === 'join';
+for (const radio of document.querySelectorAll('input[name="review-mode"]')) {
+  radio.addEventListener('change', () => { $('set-id-row').hidden = !joining(); });
+}
 $('start-review').addEventListener('click', () => {
   input('url').value = '';
+  input('set-id').value = '';
   $('dialog-error').textContent = '';
   startDialog.showModal();
 });
 $('cancel-start').addEventListener('click', () => startDialog.close());
 onSubmit('load-form', async () => {
-  await loadVideo(input('url').value.trim());
+  const url = input('url').value.trim();
+  if (joining()) {
+    await app.joinSet(url, input('set-id').value);
+    updateAddressBar();
+  } else {
+    await loadVideo(url);
+  }
   // 網址無效時留在視窗內顯示錯誤；成功才關閉
   const { error } = app.getState();
   if (error === null) startDialog.close();
