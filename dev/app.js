@@ -199,6 +199,10 @@ function render() {
   $('error').textContent = state.error === null ? '' : (ERROR_TEXT[state.error] ?? state.error);
   document.body.classList.toggle('busy', state.busy);
 
+  // 目前的房間號碼；沒有 s 參數的舊網址沒有房間
+  $('room').hidden = state.videoId === null;
+  $('room-id').textContent = state.setId ?? '（舊連結，沒有房間號碼）';
+
   const signedIn = state.user !== null;
   $('signed-in').hidden = !signedIn;
   $('signed-out').hidden = signedIn;
@@ -316,6 +320,17 @@ onSubmit('sign-up-form', async () => {
   if (app.getState().user !== null) input('sign-up-password').value = '';
 });
 $('sign-out').addEventListener('click', () => run(() => app.signOut()));
+// 網址列在載入影片後已更新成這個房間的網址（?v=影片ID&s=房間號碼）
+$('copy-link').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(location.href);
+    $('copy-status').textContent = '已複製';
+  } catch (error) {
+    console.error(error);
+    $('copy-status').textContent = '無法複製，請直接複製網址列';
+  }
+  setTimeout(() => { $('copy-status').textContent = ''; }, 2000);
+});
 input('guest-name').addEventListener('input', () => app.setGuestName(input('guest-name').value));
 onSubmit('clip-form', async () => {
   await app.createClip({ start: input('start').value, end: input('end').value, title: input('title').value.trim() });
