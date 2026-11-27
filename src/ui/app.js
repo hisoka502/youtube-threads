@@ -180,7 +180,13 @@ export function createApp({ clipRepo, commentRepo, clipService, player, newId, n
      * @param {string} code 復盤編號
      */
     async joinSet(url, code) {
-      await loadVideo(url, { setId: code.trim().toLowerCase() });
+      if (state.busy) return; // 處理中暫停操作
+      const setId = code.trim().toLowerCase();
+      if (setId === '') {
+        state = { ...state, error: 'NO_SET_ID' };
+        return;
+      }
+      await loadVideo(url, { setId });
     },
 
     /**

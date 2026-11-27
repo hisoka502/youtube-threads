@@ -878,3 +878,13 @@ test('UI：joinSet 以輸入的復盤編號載入影片（去掉前後空白、�
   assert.equal(state.setId, 'k7m3qa2b');
   assert.deepEqual(state.clips.map((c) => c.id), ['c1']);
 });
+
+test('UI：joinSet 編號空白 → NO_SET_ID，不載入影片', async () => {
+  const { app, player } = setup();
+
+  await app.joinSet('https://youtu.be/abc', '   ');
+
+  assert.equal(app.getState().error, 'NO_SET_ID');
+  assert.equal(app.getState().videoId, null);
+  assert.equal(player.getLoadedVideoId(), null);
+});
